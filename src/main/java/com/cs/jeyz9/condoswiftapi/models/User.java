@@ -1,4 +1,4 @@
-package com.cs.jeyz9.condoswiftapi.model;
+package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -58,6 +58,7 @@ public class User {
         this.image = image;
         this.phone = phone;
         this.email = email;
+        this.password = password;
         this.phoneVerified = phoneVerified;
         this.emailVerified = emailVerified;
         this.roles = roles;

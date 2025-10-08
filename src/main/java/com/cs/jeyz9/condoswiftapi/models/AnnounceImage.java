@@ -1,4 +1,4 @@
-package com.cs.jeyz9.condoswiftapi.model;
+package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,21 +16,23 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "acknowledgements")
+@Table(name = "announce_images")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Acknowledgement {
+public class AnnounceImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private String imageName;
     
-    private String messageType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "announce_id", referencedColumnName = "id")
+    private Announce announce;
     
-    private LocalDateTime acknowledgedAt;
+    private LocalDateTime createdAt;
+    
+    private LocalDateTime expireDate;
 }

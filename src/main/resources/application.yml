@@ -11,4 +11,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/condo_swift_db
     username: postgres
-    password: password
+    password: 257890
+    
+jwt-secret: 91269b51685854a2fd44cea280aa2873917b548cdb131692ae0ec534d2032c10
+jwt-expiration: 604800000

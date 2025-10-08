@@ -1,4 +1,4 @@
-package com.cs.jeyz9.condoswiftapi.model;
+package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,16 +13,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "roles")
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "announce_state_approve")
 @Getter
 @Setter
-public class Role {
+@AllArgsConstructor
+@NoArgsConstructor
+public class AnnounceStateApprove {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @Enumerated(EnumType.STRING)
-    private RoleName roleName;
+    private ApproveStatus StatusName;
 }

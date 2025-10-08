@@ -1,4 +1,4 @@
-package com.cs.jeyz9.condoswiftapi.model;
+package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,22 +16,21 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "map_point")
+@Table(name = "acknowledgements")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MapPoint {
+public class Acknowledgement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String lat;
-    private String lng;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "announce_id", referencedColumnName = "id")
-    private Announce announce;
+    private String messageType;
     
-    private LocalDateTime createdAt;
+    private LocalDateTime acknowledgedAt;
 }

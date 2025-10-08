@@ -1,8 +1,6 @@
-package com.cs.jeyz9.condoswiftapi.model;
+package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,16 +11,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "announce_state_approve")
-@Getter
+@Table(name = "badges")
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnnounceStateApprove {
+public class Badge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Enumerated(EnumType.STRING)
-    private ApproveStatus StatusName;
+    private String badgeName;
 }

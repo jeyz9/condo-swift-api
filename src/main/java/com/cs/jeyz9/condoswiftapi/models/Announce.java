@@ -1,4 +1,4 @@
-package com.cs.jeyz9.condoswiftapi.model;
+package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
