@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -31,9 +32,11 @@ public class User {
     private String description;
     
     private String image;
-    
+
+    @Column(unique = true)
     private String phone;
-    
+
+    @Column(unique = true)
     private String email;
     
     private String password;
@@ -52,15 +55,15 @@ public class User {
     private LocalDateTime createdAt;
     
     public User() {}
-    public User(String name, String description, String image, String phone, String email, String password, Boolean phoneVerified, Boolean emailVerified, Set<Role> roles){
+    public User(String name, String description, String phone, String email, String password, Set<Role> roles){
         this.name = name;
         this.description = description;
-        this.image = image;
+        this.image = null;
         this.phone = phone;
         this.email = email;
         this.password = password;
-        this.phoneVerified = phoneVerified;
-        this.emailVerified = emailVerified;
+        this.phoneVerified = false;
+        this.emailVerified = false;
         this.roles = roles;
         this.createdAt = LocalDateTime.now();
     }

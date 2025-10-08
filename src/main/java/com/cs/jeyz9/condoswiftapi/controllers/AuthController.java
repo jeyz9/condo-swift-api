@@ -3,7 +3,9 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 import com.cs.jeyz9.condoswiftapi.dto.JwtAuthResponse;
 import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
+import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,13 +26,13 @@ public class AuthController {
     }
     
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterDTO registerDTO) throws WebException {
         String user = authService.register(registerDTO);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
     
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<JwtAuthResponse> login(@Valid @RequestBody LoginDTO loginDTO) throws WebException {
         String token = authService.login(loginDTO);
         JwtAuthResponse response = new JwtAuthResponse();
         response.setAccessToken(token);

@@ -1,7 +1,9 @@
 package com.cs.jeyz9.condoswiftapi.exceptions;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public class WebException extends RuntimeException {
     private final HttpStatus status;
     private final String message;

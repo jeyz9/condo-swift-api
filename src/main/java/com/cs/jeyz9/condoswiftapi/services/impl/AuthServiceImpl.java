@@ -14,8 +14,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,43 +44,57 @@ public class AuthServiceImpl implements AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
     @Override
-    public String register(RegisterDTO register) {
-        if(userRepository.existsByEmail(register.getEmail())){
-            throw new WebException(HttpStatus.BAD_REQUEST, "Username already exist!");
-        }
+    public String register(RegisterDTO register) throws WebException {
+        try{
+            
+            if(userRepository.existsByEmail(register.getEmail())){
+                throw new WebException(HttpStatus.BAD_REQUEST, "Email already exist!");
+            }
 
-        User user = mapToUser(register);
-        user.setName(register.getName());
-        user.setDescription(register.getDescription());
-        user.setImage(register.getImage());
-        user.setPhone(register.getPhone());
-        user.setEmail(register.getEmail());
-        user.setPassword(passwordEncoder.encode(register.getPassword()));
-        user.setPhoneVerified(register.getPhoneVerified());
-        user.setEmailVerified(register.getEmailVerified());
-
-        Set<Role> roles = new HashSet<>();
-        Role agenRole = roleRepository.findByRoleName(RoleName.AGEN).orElseThrow(() -> new IllegalArgumentException("Role not found"));
-        Role userRole = roleRepository.findByRoleName(RoleName.USER).orElseThrow(() -> new IllegalArgumentException("Role not found"));
-        if(register.getIsAgen()){
-            roles.add(agenRole);
-        }else{
-            roles.add(userRole);
+            if (!register.getPassword().equals(register.getConfirmPassword())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "ยืนยันรหัสผ่านไม่ตรงกัน");
+            }
+    
+            User user = mapToUser(register);
+            user.setName(register.getName());
+            user.setDescription(register.getDescription());
+            user.setPhone(register.getPhone());
+            user.setEmail(register.getEmail());
+            user.setPassword(passwordEncoder.encode(register.getPassword()));
+            
+            Set<Role> roles = new HashSet<>();
+            Role agenRole = roleRepository.findByRoleName(RoleName.AGEN).orElseThrow(() -> new IllegalArgumentException("Role not found"));
+            Role userRole = roleRepository.findByRoleName(RoleName.USER).orElseThrow(() -> new IllegalArgumentException("Role not found"));
+            if(register.getIsAgen()){
+                roles.add(agenRole);
+            }else{
+                roles.add(userRole);
+            }
+            user.setRoles(roles);
+            userRepository.save(user);
+            
+            return "User registered successfully!";
+        }catch (WebException e){
+            throw e;
+        }catch (Exception e){
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Register fails " + e.getMessage());
         }
-        user.setRoles(roles);
-        userRepository.save(user);
-        
-        return "User registered successfully!";
     }
     
     @Override
-    public String login(LoginDTO login) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                login.getEmail(), login.getPassword()
-        ));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return jwtTokenProvider.generateToken(authentication);
+    public String login(LoginDTO login) throws WebException {
+        try{
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    login.getEmail(), login.getPassword()
+            ));
+    
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return jwtTokenProvider.generateToken(authentication);
+        } catch (AuthenticationException e) {
+            throw new WebException(HttpStatus.UNAUTHORIZED ,"อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดภายในระบบ");
+        }
     }
     
     private User mapToUser(RegisterDTO register) {

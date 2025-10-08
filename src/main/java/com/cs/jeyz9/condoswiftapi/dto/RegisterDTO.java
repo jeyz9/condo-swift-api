@@ -1,6 +1,5 @@
 package com.cs.jeyz9.condoswiftapi.dto;
 
-import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
@@ -14,13 +13,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class RegisterDTO {
-    private Long id;
-    
     private String name;
 
     private String description;
-
-    private String image;
 
     @Column(unique = true)
     @Pattern(regexp = "\\d{10}", message = "เบอร์โทรต้องมี 10 หลัก")
@@ -40,22 +35,15 @@ public class RegisterDTO {
     @NotBlank(message = "จำเป็นต้องยืนยันรหัสผ่าน")
     private String ConfirmPassword;
     
-    private Boolean phoneVerified;
-
-    private Boolean emailVerified;
-
     @JsonProperty("is_agen")
     private Boolean isAgen;
 
-    public RegisterDTO(String name, String description, String image, String phone, String email, String password, Boolean isAgen){
+    public RegisterDTO(String name, String description, String phone, String email, String password, Boolean isAgen){
         this.name = name;
         this.description = description;
-        this.image = image;
         this.phone = phone;
         this.email = email;
         this.password = password;
-        this.phoneVerified = false;
-        this.emailVerified = false;
         this.isAgen = isAgen;
     }
 }
