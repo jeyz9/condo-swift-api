@@ -1,6 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.dto;
 
 import com.cs.jeyz9.condoswiftapi.models.Role;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,9 +9,6 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -46,9 +44,10 @@ public class RegisterDTO {
 
     private Boolean emailVerified;
 
-    private Set<Role> roles = new HashSet<>();
+    @JsonProperty("is_agen")
+    private Boolean isAgen;
 
-    public RegisterDTO(String name, String description, String image, String phone, String email, String password, Set<Role> roles){
+    public RegisterDTO(String name, String description, String image, String phone, String email, String password, Boolean isAgen){
         this.name = name;
         this.description = description;
         this.image = image;
@@ -57,6 +56,6 @@ public class RegisterDTO {
         this.password = password;
         this.phoneVerified = false;
         this.emailVerified = false;
-        this.roles = roles;
+        this.isAgen = isAgen;
     }
 }
