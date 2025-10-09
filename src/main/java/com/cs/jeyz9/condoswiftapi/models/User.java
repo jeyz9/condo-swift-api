@@ -41,9 +41,9 @@ public class User {
     
     private String password;
     
-    private Boolean phoneVerified;
+    private Boolean phoneVerified = false;
     
-    private Boolean emailVerified;
+    private Boolean emailVerified = false;
     
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -62,8 +62,6 @@ public class User {
         this.phone = phone;
         this.email = email;
         this.password = password;
-        this.phoneVerified = false;
-        this.emailVerified = false;
         this.roles = roles;
         this.createdAt = LocalDateTime.now();
     }

@@ -10,20 +10,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "badges")
-@Setter
 @Getter
-@AllArgsConstructor
+@Setter
+@Entity
+@Table(name = "announce_types")
 @NoArgsConstructor
-public class Badge {
+@AllArgsConstructor
+public class AnnounceType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String badgeName;
+    private String typeName;
     
-    public Badge(String badgeName) {
-        this.badgeName = badgeName;
+    public AnnounceType(String typeName) {
+        this.typeName = typeName;
     }
 }

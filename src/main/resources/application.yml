@@ -13,8 +13,13 @@ spring:
     username: postgres
     password: 257890
     
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 25MB
+
 jwt-secret: 91269b51685854a2fd44cea280aa2873917b548cdb131692ae0ec534d2032c10
 jwt-expiration: 604800000
 
 file:
-  upload-dir: ./uploads
+  upload-dir: ./uploads/announce-images

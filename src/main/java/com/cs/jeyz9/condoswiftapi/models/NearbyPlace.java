@@ -10,20 +10,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "badges")
-@Setter
 @Getter
-@AllArgsConstructor
+@Setter
+@Entity
+@Table(name = "nearby_places")
 @NoArgsConstructor
-public class Badge {
+@AllArgsConstructor
+public class NearbyPlace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String badgeName;
+    private String name;
+    private String type;
     
-    public Badge(String badgeName) {
-        this.badgeName = badgeName;
+    public NearbyPlace(String name, String type) {
+        this.name = name;
+        this.type = type;
     }
 }

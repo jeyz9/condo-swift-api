@@ -11,19 +11,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "badges")
-@Setter
+@Table(name = "sale_types")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Badge {
+public class SaleType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String badgeName;
+    private String type;
     
-    public Badge(String badgeName) {
-        this.badgeName = badgeName;
+    public SaleType(String type) {
+        this.type = type;
     }
 }

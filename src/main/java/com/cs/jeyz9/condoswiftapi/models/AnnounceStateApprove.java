@@ -16,7 +16,6 @@ import lombok.Setter;
 @Table(name = "announce_state_approve")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class AnnounceStateApprove {
     @Id
@@ -24,5 +23,9 @@ public class AnnounceStateApprove {
     private Long id;
     
     @Enumerated(EnumType.STRING)
-    private ApproveStatus StatusName;
+    private ApproveStatus statusName;
+    
+    public AnnounceStateApprove(ApproveStatus statusName){
+        this.statusName = statusName;
+    }
 }

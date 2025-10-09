@@ -1,8 +1,19 @@
 package com.cs.jeyz9.condoswiftapi.seeders;
 
+import com.cs.jeyz9.condoswiftapi.models.AnnounceStateApprove;
+import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
+import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
+import com.cs.jeyz9.condoswiftapi.models.Badge;
+import com.cs.jeyz9.condoswiftapi.models.NearbyPlace;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
+import com.cs.jeyz9.condoswiftapi.models.SaleType;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceStateApproveRepository;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceTypeRepository;
+import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
+import com.cs.jeyz9.condoswiftapi.repository.NearbyPlaceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
+import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -13,10 +24,20 @@ import java.util.List;
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
     private final RoleRepository roleRepository;
-    
+    private final AnnounceStateApproveRepository approveRepository;
+    private final BadgeRepository badgeRepository;
+    private final AnnounceTypeRepository announceTypeRepository;
+    private final SaleTypeRepository saleTypeRepository;
+    private final NearbyPlaceRepository nearbyPlaceRepository;
+
     @Autowired
-    public DatabaseSeeder(RoleRepository roleRepository) {
+    public DatabaseSeeder(RoleRepository roleRepository, AnnounceStateApproveRepository approveRepository, BadgeRepository badgeRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, NearbyPlaceRepository nearbyPlaceRepository) {
         this.roleRepository = roleRepository;
+        this.approveRepository = approveRepository;
+        this.badgeRepository = badgeRepository;
+        this.announceTypeRepository = announceTypeRepository;
+        this.saleTypeRepository = saleTypeRepository;
+        this.nearbyPlaceRepository = nearbyPlaceRepository;
     }
     
     @Override
@@ -28,6 +49,45 @@ public class DatabaseSeeder implements CommandLineRunner {
             roles.add(new Role(RoleName.AGEN));
             roles.add(new Role(RoleName.USER));
             roleRepository.saveAll(roles);
+        }
+        
+        if(approveRepository.count() == 0L) {
+            List<AnnounceStateApprove> approves = new ArrayList<>();
+            approves.add(new AnnounceStateApprove(ApproveStatus.APPROVED));
+            approves.add(new AnnounceStateApprove(ApproveStatus.REJECTED));
+            approves.add(new AnnounceStateApprove(ApproveStatus.PENDING));
+            approves.add(new AnnounceStateApprove(ApproveStatus.DRAFT));
+            approveRepository.saveAll(approves);
+        }
+        
+        if(badgeRepository.count() == 0L) {
+            List<Badge> badges = new ArrayList<>();
+            badges.add(new Badge("แนะนำ"));
+            badges.add(new Badge("คอนโด"));
+            badges.add(new Badge("เช่า"));
+            badgeRepository.saveAll(badges);
+        }
+        
+        if(announceTypeRepository.count() == 0L){
+            List<AnnounceType> announceTypes = new ArrayList<>();
+            announceTypes.add(new AnnounceType("คอนโด"));
+            announceTypes.add(new AnnounceType("ที่ดิน"));
+            announceTypes.add(new AnnounceType("บ้านหรู"));
+            announceTypes.add(new AnnounceType("วิลล่า"));
+            announceTypeRepository.saveAll(announceTypes);
+        }
+
+        if(saleTypeRepository.count() == 0L){
+            List<SaleType> saleTypes = new ArrayList<>();
+            saleTypes.add(new SaleType("เช่า"));
+            saleTypes.add(new SaleType("ขาย"));
+            saleTypeRepository.saveAll(saleTypes);
+        }
+        
+        if(nearbyPlaceRepository.count() == 0L) {
+            List<NearbyPlace> nearbyPlaces = new ArrayList<>();
+            nearbyPlaces.add(new NearbyPlace("ใกล้ BTS", "BTS station"));
+            nearbyPlaceRepository.saveAll(nearbyPlaces);
         }
     }
 }
