@@ -9,9 +9,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/condo_swift_db
-    username: postgres
-    password: 257890
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/condo_swift_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:257890}
     
   servlet:
     multipart:
