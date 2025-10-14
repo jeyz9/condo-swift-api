@@ -28,7 +28,7 @@ public class AuthController {
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> register(@Valid @RequestBody RegisterDTO registerDTO) throws WebException {
         String user = authService.register(registerDTO);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
     
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,6 +36,6 @@ public class AuthController {
         String token = authService.login(loginDTO);
         JwtAuthResponse response = new JwtAuthResponse();
         response.setAccessToken(token);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
