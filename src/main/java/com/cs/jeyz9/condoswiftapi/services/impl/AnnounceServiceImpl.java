@@ -249,6 +249,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                         RecommendAnnounceDTO recommendAnnounce = new RecommendAnnounceDTO();
                         recommendAnnounce.setId(announce.getId());
                         recommendAnnounce.setTitle(announce.getTitle());
+                        recommendAnnounce.setPrice(announce.getPrice());
                         
                         if (announce.getImageList() != null && !announce.getImageList().isEmpty()) {
                             AnnounceImage firstImage = announce.getImageList().get(0);
@@ -258,6 +259,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                         }
                         recommendAnnounce.setBathroomCount(announce.getBathroomCount());
                         recommendAnnounce.setBedroomCount(announce.getBedroomCount());
+                        recommendAnnounce.setAreaSize(announce.getAreaSize());
                         recommendAnnounce.setBadges(announce.getBadges());
                         return recommendAnnounce;
                     }).limit(4)
@@ -321,7 +323,8 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
-    public List<AnnounceDTO> filterAnnounceWithAgen (String keyword, Integer page, Integer size) {
+    public List<AnnounceDTO> filterAnnounceWithAgen (String keyword, String type, Integer bedroomCount, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
+//        List<>
         return null;
     }
     
