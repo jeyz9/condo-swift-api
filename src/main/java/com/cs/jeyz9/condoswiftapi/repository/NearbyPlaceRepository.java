@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NearbyPlaceRepository extends JpaRepository<NearbyPlace, Long> {
+//    Integer findNearbyPlaceCountById(Long nearbyPlaceId);
 }

@@ -13,5 +13,4 @@ public class AnnounceByTypeDTO {
     private Long id;
     private String title;
     private String location;
-    private String image;
 }

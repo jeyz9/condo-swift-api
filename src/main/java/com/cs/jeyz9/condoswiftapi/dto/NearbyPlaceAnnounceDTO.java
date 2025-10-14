@@ -14,7 +14,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class NearbyPlaceAnnounceDTO {
     private Long id;
-    private String title;
-    private String image;
-    private Set<Badge> badges;
+    private String name;
+    private Integer totalAnnounces;
 }

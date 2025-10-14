@@ -52,7 +52,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "roleId", referencedColumnName = "id")
     )
     private Set<Role> roles = new HashSet<>();
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
     
     public User() {}
     public User(String name, String description, String phone, String email, String password, Set<Role> roles){

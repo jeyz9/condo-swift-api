@@ -1,6 +1,8 @@
 package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,9 +24,13 @@ public class NearbyPlace {
     private Long id;
     
     private String name;
-    private String type;
     
-    public NearbyPlace(String name, String type) {
+    @Enumerated(EnumType.STRING)
+    private NearbyPlaceTypes type;
+    
+    private String image;
+    
+    public NearbyPlace(String name, NearbyPlaceTypes type) {
         this.name = name;
         this.type = type;
     }

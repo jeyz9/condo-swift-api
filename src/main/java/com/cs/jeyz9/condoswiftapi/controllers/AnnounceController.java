@@ -12,9 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -55,6 +57,12 @@ public class AnnounceController {
         return ResponseEntity.ok("Images uploaded successfully");
     }
     
+    @PutMapping(value = "/editAnnounce/{announceId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AnnounceDTO> editAnnounce(@PathVariable Long announceId, @Valid @RequestBody AnnounceDTO announceDTO) throws WebException {
+        AnnounceDTO announce = announceService.editAnnounce(announceId, announceDTO);
+        return new ResponseEntity<>(announce, HttpStatus.OK);
+    }
+    
     @GetMapping(value = "/showAnnounceDetails/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnnounceDetailsSelected> showAnnounceDetails(@PathVariable Long announceId) {
         return new ResponseEntity<> (announceService.getAnnounceDetailsById(announceId), HttpStatus.OK);
@@ -63,5 +71,10 @@ public class AnnounceController {
     @GetMapping(value = "/showAnnounceWithCategory", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ShowAnnounceWithCategoryResponse> showAnnounceWithCategory() throws WebException {
         return new ResponseEntity<>(announceService.showAnnounceWithCategory(), HttpStatus.OK);
+    }
+    
+    @DeleteMapping("/deletedAnnounce/{announceId}")
+    public ResponseEntity<String> deletedAnnounce(@PathVariable Long announceId) {
+        return new ResponseEntity<>(announceService.deletedAnnounce(announceId), HttpStatus.OK);
     }
 }

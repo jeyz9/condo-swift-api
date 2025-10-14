@@ -5,6 +5,7 @@ import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.NearbyPlace;
+import com.cs.jeyz9.condoswiftapi.models.NearbyPlaceTypes;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
@@ -64,6 +65,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             List<Badge> badges = new ArrayList<>();
             badges.add(new Badge("แนะนำ"));
             badges.add(new Badge("คอนโด"));
+            badges.add(new Badge("วิลล่า"));
             badges.add(new Badge("เช่า"));
             badgeRepository.saveAll(badges);
         }
@@ -86,7 +88,11 @@ public class DatabaseSeeder implements CommandLineRunner {
         
         if(nearbyPlaceRepository.count() == 0L) {
             List<NearbyPlace> nearbyPlaces = new ArrayList<>();
-            nearbyPlaces.add(new NearbyPlace("ใกล้ BTS", "BTS station"));
+            nearbyPlaces.add(new NearbyPlace("ใกล้ BTS", NearbyPlaceTypes.BTS_STATION));
+            nearbyPlaces.add(new NearbyPlace("วิลล่าชลบุรี", NearbyPlaceTypes.PROVINCE));
+            nearbyPlaces.add(new NearbyPlace("วิลล่าราชบุรี", NearbyPlaceTypes.PROVINCE));
+            nearbyPlaces.add(new NearbyPlace("วิลล่าเพชรบุรี", NearbyPlaceTypes.PROVINCE));
+            nearbyPlaces.add(new NearbyPlace("วิลล่านครปฐม", NearbyPlaceTypes.PROVINCE));
             nearbyPlaceRepository.saveAll(nearbyPlaces);
         }
     }

@@ -37,9 +37,9 @@ public class Announce {
     private String title;
     private String location;
     private Double price;
-    private Number bathroomCount;
-    private Number bedroomCount;
-    private Number areaSize;
+    private Integer bathroomCount;
+    private Integer bedroomCount;
+    private Integer areaSize;
     private Boolean hasPool;
     private Boolean hasConvenienceStore;
     private Boolean hasFitness;

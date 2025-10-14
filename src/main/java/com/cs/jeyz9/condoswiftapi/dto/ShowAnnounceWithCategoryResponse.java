@@ -16,4 +16,5 @@ public class ShowAnnounceWithCategoryResponse {
     private List<RecommendAnnounceDTO> recommendAnnounces = new ArrayList<>();
     private List<NearbyPlaceAnnounceDTO> nearbyPlaces = new ArrayList<>();
     private List<AnnounceByTypeDTO> luxuryHouses = new ArrayList<>();
+    private List<NearbyPlaceAnnounceDTO> villaProvince = new ArrayList<>();
 }

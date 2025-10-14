@@ -19,9 +19,9 @@ public class AnnounceDetailsSelected {
     private String location;
     private Double price;
     private List<AnnounceImageDTO> imageList;
-    private Number bathroomCount;
-    private Number bedroomCount;
-    private Number areaSize;
+    private Integer bathroomCount;
+    private Integer bedroomCount;
+    private Integer areaSize;
     private Boolean hasPool;
     private Boolean hasConvenienceStore;
     private Boolean hasFitness;
