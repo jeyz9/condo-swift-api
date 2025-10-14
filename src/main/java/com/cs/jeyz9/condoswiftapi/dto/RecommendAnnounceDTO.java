@@ -15,8 +15,10 @@ import java.util.Set;
 public class RecommendAnnounceDTO {
     private Long id;
     private String title;
+    private Double price;
     private Integer bathroomCount;
     private Integer bedroomCount;
+    private Integer areaSize;
     private String image;
     private Set<Badge> badges;
 }
