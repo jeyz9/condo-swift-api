@@ -87,6 +87,13 @@ public class AnnounceServiceImpl implements AnnounceService {
         AnnounceDetailsSelected announceDetailsSelected = mapToAnnounceDetailsSelected(announce);
         announceDetailsSelected.setImageList(imageDTOS);
         announceDetailsSelected.setAgen(agen);
+        announceDetailsSelected.setMapPoint(
+                announce.getMapPointList()
+                        .stream()
+                        .findFirst()
+                        .map(map -> modelMapper.map(map, MapPointDTO.class))
+                        .orElse(new MapPointDTO())
+        );
         return announceDetailsSelected;
     }
     

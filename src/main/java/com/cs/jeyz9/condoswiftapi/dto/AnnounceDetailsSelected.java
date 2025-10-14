@@ -28,7 +28,7 @@ public class AnnounceDetailsSelected {
     private Boolean hasElevator;
     private Boolean hasParking;
     private Boolean hasSecurity;
-    private List<MapPointDTO> mapPointList;
+    private MapPointDTO mapPoint;
     private AgenDTO agen;
     private List<Badge> badges;
     private LocalDateTime announcementDate;
