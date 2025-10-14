@@ -6,6 +6,7 @@ import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface AnnounceService {
@@ -15,5 +16,5 @@ public interface AnnounceService {
     AnnounceDetailsSelected getAnnounceDetailsById(Long announceId);
     ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException;
     String deletedAnnounce(Long announceId);
-    List<AnnounceDTO> filterAnnounceWithAgen(String keyword, Integer page, Integer size);
+    List<AnnounceDTO> filterAnnounceWithAgen(String keyword, String type, Integer bedroomCount, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException;
 }
