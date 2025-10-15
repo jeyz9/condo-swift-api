@@ -51,7 +51,7 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> 
                         authorize
-                                .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/**", "/api/v1/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/uploads/**","/uploads/announce-images/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasRole(RoleName.AGEN.toString())
