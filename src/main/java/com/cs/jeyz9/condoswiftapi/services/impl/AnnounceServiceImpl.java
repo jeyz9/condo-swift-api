@@ -1,6 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.services.impl;
 
-import com.cs.jeyz9.condoswiftapi.dto.AgenDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AgentDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
@@ -8,6 +8,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.NearbyPlaceAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
@@ -39,11 +40,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class AnnounceServiceImpl implements AnnounceService {
@@ -81,12 +81,12 @@ public class AnnounceServiceImpl implements AnnounceService {
         List<AnnounceImageDTO> imageDTOS = images.stream().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).toList();
         
         User user = userRepository.findById(announce.getUser().getId()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not fond by id" + announce.getUser().getId()));
-        AgenDTO agen = modelMapper.map(user, AgenDTO.class);
+        AgentDTO agen = modelMapper.map(user, AgentDTO.class);
         agen.setIsVerify(user.getEmailVerified().equals(true) && user.getPhoneVerified().equals(true));
         
         AnnounceDetailsSelected announceDetailsSelected = mapToAnnounceDetailsSelected(announce);
         announceDetailsSelected.setImageList(imageDTOS);
-        announceDetailsSelected.setAgen(agen);
+        announceDetailsSelected.setAgent(agen);
         announceDetailsSelected.setMapPoint(
                 announce.getMapPointList()
                         .stream()
@@ -331,8 +331,35 @@ public class AnnounceServiceImpl implements AnnounceService {
     
     @Override
     public List<AnnounceDTO> filterAnnounceWithAgen (String keyword, String type, Integer bedroomCount, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
-//        List<>
+        List<ShowAllAnnounceDetailsWithAgent> showAllAnnounceDetailsWithAgens = findAllAnnounce();
+        Stream<ShowAllAnnounceDetailsWithAgent> stream = showAllAnnounceDetailsWithAgens.stream();
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            stream = stream.filter(a ->
+                    a.getTitle().toLowerCase().contains(keyword.toLowerCase())
+            );
+        }
+
+//        if (type != null && !type.trim().isEmpty()) {
+//            stream = stream.filter(a -> a.getType().equalsIgnoreCase(type));
+//        }
+//
+//        if (bedroomCount != null) {
+//            stream = stream.filter(a -> a.getBedroomCount() != null && a.getBedroomCount().equals(bedroomCount));
+//        }
+
+        if (minPrice != null) {
+            stream = stream.filter(a -> a.getPrice() != null && a.getPrice() >= minPrice);
+        }
+
+        if (maxPrice != null) {
+            stream = stream.filter(a -> a.getPrice() != null && a.getPrice() <= maxPrice);
+        }
         return null;
+    }
+    
+    private List<ShowAllAnnounceDetailsWithAgent> findAllAnnounce() {
+        List<Announce> announceList = announceRepository.findAll();
+        return mapToShowAllAnnounce(announceList);
     }
     
     private Announce mapToAnnounce(AnnounceDTO announceDTO){
@@ -388,4 +415,17 @@ public class AnnounceServiceImpl implements AnnounceService {
         return modelMapper.map(announce, AnnounceDetailsSelected.class);
     }
     
+    private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {
+        return announce.stream().map(ann -> {
+            ShowAllAnnounceDetailsWithAgent showAllAnnounceDetailsWithAgen = new ShowAllAnnounceDetailsWithAgent();
+            showAllAnnounceDetailsWithAgen.setId(ann.getId());
+            showAllAnnounceDetailsWithAgen.setTitle(ann.getTitle());
+            showAllAnnounceDetailsWithAgen.setPrice(ann.getPrice());
+            showAllAnnounceDetailsWithAgen.setImageList(
+                    ann.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
+            );
+            showAllAnnounceDetailsWithAgen.setBadgeSet(ann.getBadges());
+            return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
+        }).toList();
+    }
 }

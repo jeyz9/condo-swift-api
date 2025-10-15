@@ -35,15 +35,15 @@ public class RegisterDTO {
     @NotBlank(message = "จำเป็นต้องยืนยันรหัสผ่าน")
     private String ConfirmPassword;
     
-    @JsonProperty("is_agen")
-    private Boolean isAgen;
+    @JsonProperty("is_agent")
+    private Boolean isAgent;
 
-    public RegisterDTO(String name, String description, String phone, String email, String password, Boolean isAgen){
+    public RegisterDTO(String name, String description, String phone, String email, String password, Boolean isAgent){
         this.name = name;
         this.description = description;
         this.phone = phone;
         this.email = email;
         this.password = password;
-        this.isAgen = isAgen;
+        this.isAgent = isAgent;
     }
 }
