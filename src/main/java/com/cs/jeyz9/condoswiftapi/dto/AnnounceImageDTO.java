@@ -12,4 +12,5 @@ import lombok.Setter;
 public class AnnounceImageDTO {
     private Long id;
     private String imageName;
+    private String imageUrl;
 }

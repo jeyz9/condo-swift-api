@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/uploads/**","/uploads/announce-images/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasRole(RoleName.AGEN.toString())
+                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasRole(RoleName.AGENT.toString())
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasRole(RoleName.AGENT.toString())
                                 .requestMatchers( "/swagger-ui.html","/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated()
                 ).exceptionHandling(exception -> exception

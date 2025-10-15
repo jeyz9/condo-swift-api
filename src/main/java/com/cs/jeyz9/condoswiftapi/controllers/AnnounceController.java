@@ -73,6 +73,12 @@ public class AnnounceController {
         return new ResponseEntity<>(announceService.showAnnounceWithCategory(), HttpStatus.OK);
     }
     
+    @DeleteMapping("/deletedAnnounceImage/{announceImageId}")
+    public ResponseEntity<String> deletedAnnounceImage(@PathVariable Long announceImageId){
+        announceImageService.deleteImageById(announceImageId);
+        return new ResponseEntity<>("Announce image is deleted by Id: " + announceImageId, HttpStatus.OK);
+    }
+    
     @DeleteMapping("/deletedAnnounce/{announceId}")
     public ResponseEntity<String> deletedAnnounce(@PathVariable Long announceId) {
         return new ResponseEntity<>(announceService.deletedAnnounce(announceId), HttpStatus.OK);

@@ -25,8 +25,9 @@ public class AnnounceImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String imageName;
+    private String imageUrl;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "announce_id", referencedColumnName = "id")
