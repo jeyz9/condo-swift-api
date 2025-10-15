@@ -2,6 +2,7 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
@@ -19,10 +20,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -71,6 +74,11 @@ public class AnnounceController {
     @GetMapping(value = "/showAnnounceWithCategory", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ShowAnnounceWithCategoryResponse> showAnnounceWithCategory() throws WebException {
         return new ResponseEntity<>(announceService.showAnnounceWithCategory(), HttpStatus.OK);
+    }
+    
+    @GetMapping(value = "/filterAnnounceWithAgen", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AnnounceResponse> filterAnnounce(@RequestParam(defaultValue = "", required = false) String keyword, @RequestParam(defaultValue = "", required = false) String type, @RequestParam(defaultValue = "", required = false) Integer bedroomCount, @RequestParam(defaultValue = "", required = false) Double minPrice, @RequestParam(defaultValue = "", required = false) Double maxPrice, @RequestParam(defaultValue = "0", required = false) Integer page, @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
+        return new ResponseEntity<>(announceService.filterAnnounceWithAgen(keyword, type, bedroomCount, minPrice, maxPrice, page, size), HttpStatus.OK);
     }
     
     @DeleteMapping("/deletedAnnounceImage/{announceImageId}")

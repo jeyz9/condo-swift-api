@@ -5,6 +5,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.NearbyPlaceAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
@@ -34,12 +35,14 @@ import com.cs.jeyz9.condoswiftapi.services.AnnounceImageService;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -330,36 +333,55 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
-    public List<AnnounceDTO> filterAnnounceWithAgen (String keyword, String type, Integer bedroomCount, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
-        List<ShowAllAnnounceDetailsWithAgent> showAllAnnounceDetailsWithAgens = findAllAnnounce();
-        Stream<ShowAllAnnounceDetailsWithAgent> stream = showAllAnnounceDetailsWithAgens.stream();
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            stream = stream.filter(a ->
-                    a.getTitle().toLowerCase().contains(keyword.toLowerCase())
-            );
+    public AnnounceResponse filterAnnounceWithAgen (String keyword, String type, Integer bedroomCount, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
+        try{
+            List<Announce> announceList = findAllAnnounce();
+            Stream<Announce> stream = announceList.stream();
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                stream = stream.filter(a ->
+                        a.getTitle().toLowerCase().contains(keyword.toLowerCase())
+                );
+            }
+    
+            if (type != null && !type.trim().isEmpty()) {
+                stream = stream.filter(a -> a.getAnnounceType().getTypeName().equalsIgnoreCase(type));
+            }
+    
+            if (bedroomCount != null) {
+                stream = stream.filter(a -> a.getBedroomCount() != null && a.getBedroomCount().equals(bedroomCount));
+            }
+    
+            if (minPrice != null) {
+                stream = stream.filter(a -> a.getPrice() != null && a.getPrice() >= minPrice);
+            }
+    
+            if (maxPrice != null) {
+                stream = stream.filter(a -> a.getPrice() != null && a.getPrice() <= maxPrice);
+            }
+            
+            List<ShowAllAnnounceDetailsWithAgent> announces = mapToShowAllAnnounce(stream.toList());
+    
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), announces.size());
+            int total = announces.size();
+            
+            List<ShowAllAnnounceDetailsWithAgent> paginatedList = announces.subList(start, end);
+            Page<ShowAllAnnounceDetailsWithAgent> announcePage = new PageImpl<>(paginatedList, pageable, announces.size());
+            
+            AnnounceResponse announceResponse = new AnnounceResponse();
+            announceResponse.setAnnounceDetailsWithAgents(announcePage.getContent());
+            announceResponse.setPage(page);
+            announceResponse.setSize(size);
+            announceResponse.setTotal(total);
+            return announceResponse;
+        }catch(Exception err) {
+            throw new IOException("Error while searching for announce", err);
         }
-
-//        if (type != null && !type.trim().isEmpty()) {
-//            stream = stream.filter(a -> a.getType().equalsIgnoreCase(type));
-//        }
-//
-//        if (bedroomCount != null) {
-//            stream = stream.filter(a -> a.getBedroomCount() != null && a.getBedroomCount().equals(bedroomCount));
-//        }
-
-        if (minPrice != null) {
-            stream = stream.filter(a -> a.getPrice() != null && a.getPrice() >= minPrice);
-        }
-
-        if (maxPrice != null) {
-            stream = stream.filter(a -> a.getPrice() != null && a.getPrice() <= maxPrice);
-        }
-        return null;
     }
     
-    private List<ShowAllAnnounceDetailsWithAgent> findAllAnnounce() {
-        List<Announce> announceList = announceRepository.findAll();
-        return mapToShowAllAnnounce(announceList);
+    private List<Announce> findAllAnnounce() {
+        return announceRepository.findAll();
     }
     
     private Announce mapToAnnounce(AnnounceDTO announceDTO){
