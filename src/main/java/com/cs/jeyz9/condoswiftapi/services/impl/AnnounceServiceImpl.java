@@ -260,8 +260,8 @@ public class AnnounceServiceImpl implements AnnounceService {
                         
                         if (announce.getImageList() != null && !announce.getImageList().isEmpty()) {
                             AnnounceImage firstImage = announce.getImageList().get(0);
-                            if (firstImage != null && firstImage.getImageName() != null && !firstImage.getImageName().isEmpty()) {
-                                recommendAnnounce.setImage(firstImage.getImageName());
+                            if (firstImage != null && firstImage.getImageUrl() != null && !firstImage.getImageUrl().isEmpty()) {
+                                recommendAnnounce.setImage(firstImage.getImageUrl());
                             }
                         }
                         recommendAnnounce.setBathroomCount(announce.getBathroomCount());
