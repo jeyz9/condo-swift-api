@@ -20,11 +20,10 @@ spring:
 
 jwt-secret: 91269b51685854a2fd44cea280aa2873917b548cdb131692ae0ec534d2032c10
 jwt-expiration: 604800000
-
-file:
-  upload-dir: ./uploads/announce-images
   
 supabase:
   url: https://syrkqqdlwkpzpwuedspt.storage.supabase.co/storage/v1
   key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cmtxcWRsd2twenB3dWVkc3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDUwNjcyMiwiZXhwIjoyMDc2MDgyNzIyfQ.XHYJHhtPVS4GGRpLJYe8Zb3WqxDR4gd-bhIYMkZiDrw
-  bucket: announce-images
+  bucket:
+    announce: announce-images
+    profile: profile-picture
