@@ -2,6 +2,8 @@ package com.cs.jeyz9.condoswiftapi.services.impl;
 
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
+import com.cs.jeyz9.condoswiftapi.models.Announce;
+import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.Terms;
@@ -14,9 +16,19 @@ import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +39,15 @@ public class UserServiceImpl implements UserService {
     private final TermsRepository termsRepository;
     private final UserTermsAcceptLogRepository userTermsAcceptLogRepository;
     private final RoleRepository roleRepository;
+
+    @Value("${supabase.url}")
+    private String supabaseUrl;
+
+    @Value("${supabase.key}")
+    private String supabaseKey;
+
+    @Value("${supabase.bucket.profile}")
+    private String bucket;
 
     public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
@@ -69,6 +90,63 @@ public class UserServiceImpl implements UserService {
                     recommendedAgenDTO.setIsVerified(agen.getEmailVerified() && agen.getPhoneVerified());    
                     return recommendedAgenDTO;         
         }).limit(3).toList();
+    }
+
+    @Override
+    public void saveImages(Long userId, MultipartFile imageFiles) {
+        if (imageFiles == null || imageFiles.isEmpty()) return;
+        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
+        if(!user.getImage().isEmpty()){
+            deleteImage(userId);
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+            String fileName = System.currentTimeMillis() + "_" + imageFiles.getOriginalFilename();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.set("apikey", supabaseKey);
+            headers.set("Authorization", "Bearer " + supabaseKey);
+
+            HttpEntity<byte[]> entity = new HttpEntity<>(imageFiles.getBytes(), headers);
+
+            String url = supabaseUrl + "/object/" + bucket + "/" + fileName;
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload image: " + fileName);
+            }
+            user.setImage(supabaseUrl + "/object/public/" + bucket + "/" + fileName);
+
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to store image: " + imageFiles.getOriginalFilename());
+        }
+    }
+    
+    @Override
+    @Transactional
+    public void deleteImage(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("apikey", supabaseKey);
+            headers.set("Authorization", "Bearer " + supabaseKey);
+
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            String publicPrefix = supabaseUrl + "/object/public/";
+            String imagePath = user.getImage().replace(publicPrefix, "");
+            String deleteUrl = supabaseUrl + "/object/" + imagePath;
+            restTemplate.exchange(deleteUrl, HttpMethod.DELETE, entity, String.class);
+
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to delete image: " + user.getImage());
+        }
     }
 }
 
