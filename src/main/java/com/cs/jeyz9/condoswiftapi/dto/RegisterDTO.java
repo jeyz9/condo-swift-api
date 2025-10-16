@@ -37,13 +37,17 @@ public class RegisterDTO {
     
     @JsonProperty("is_agent")
     private Boolean isAgent;
+    
+    @JsonProperty("is_Agree")
+    private Boolean isAgree;
 
-    public RegisterDTO(String name, String description, String phone, String email, String password, Boolean isAgent){
+    public RegisterDTO(String name, String description, String phone, String email, String password, Boolean isAgent, Boolean isAgree){
         this.name = name;
         this.description = description;
         this.phone = phone;
         this.email = email;
         this.password = password;
         this.isAgent = isAgent;
+        this.isAgree = isAgree;
     }
 }
