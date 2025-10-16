@@ -76,7 +76,7 @@ public class AnnounceController {
         return new ResponseEntity<>(announceService.showAnnounceWithCategory(), HttpStatus.OK);
     }
     
-    @GetMapping(value = "/filterAnnounceWithAgen", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/filterAnnounceWithAgent", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnnounceResponse> filterAnnounce(@RequestParam(defaultValue = "", required = false) String keyword,
                                                            @RequestParam(defaultValue = "", required = false) String type,
                                                            @RequestParam(defaultValue = "", required = false) Integer bedroomCount,
