@@ -86,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
             user.setRoles(roles);
             userRepository.save(user);
 
-            Terms terms = termsRepository.findByTypeAndIsActiveTrue(TermsType.AGENT_CONTACT_POLICY)
+            Terms terms = termsRepository.findByTypeAndIsActiveTrue(TermsType.REGISTER_TERMS)
                     .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Terms not found."));
             
             UserTermsAcceptLog termsAcceptLog = new UserTermsAcceptLog();
