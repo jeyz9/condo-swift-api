@@ -77,7 +77,13 @@ public class AnnounceController {
     }
     
     @GetMapping(value = "/filterAnnounceWithAgen", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnnounceResponse> filterAnnounce(@RequestParam(defaultValue = "", required = false) String keyword, @RequestParam(defaultValue = "", required = false) String type, @RequestParam(defaultValue = "", required = false) Integer bedroomCount, @RequestParam(defaultValue = "", required = false) Double minPrice, @RequestParam(defaultValue = "", required = false) Double maxPrice, @RequestParam(defaultValue = "0", required = false) Integer page, @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
+    public ResponseEntity<AnnounceResponse> filterAnnounce(@RequestParam(defaultValue = "", required = false) String keyword,
+                                                           @RequestParam(defaultValue = "", required = false) String type,
+                                                           @RequestParam(defaultValue = "", required = false) Integer bedroomCount,
+                                                           @RequestParam(defaultValue = "", required = false) Double minPrice,
+                                                           @RequestParam(defaultValue = "", required = false) Double maxPrice,
+                                                           @RequestParam(defaultValue = "0", required = false) Integer page,
+                                                           @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
         return new ResponseEntity<>(announceService.filterAnnounceWithAgen(keyword, type, bedroomCount, minPrice, maxPrice, page, size), HttpStatus.OK);
     }
     
