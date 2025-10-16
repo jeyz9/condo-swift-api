@@ -38,7 +38,7 @@ public class RegisterDTO {
     @JsonProperty("is_agent")
     private Boolean isAgent;
     
-    @JsonProperty("is_Agree")
+    @JsonProperty("is_agree")
     private Boolean isAgree;
 
     public RegisterDTO(String name, String description, String phone, String email, String password, Boolean isAgent, Boolean isAgree){
