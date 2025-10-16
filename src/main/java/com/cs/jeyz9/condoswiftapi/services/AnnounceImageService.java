@@ -25,7 +25,7 @@ public class AnnounceImageService {
     @Value("${supabase.key}")
     private String supabaseKey;
     
-    @Value("${supabase.bucket}")
+    @Value("${supabase.bucket.announce}")
     private String bucket;
 
     public AnnounceImageService(AnnounceImageRepository announceImageRepository) {
