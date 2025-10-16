@@ -6,10 +6,16 @@ import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
+import com.cs.jeyz9.condoswiftapi.models.Terms;
+import com.cs.jeyz9.condoswiftapi.models.TermsType;
 import com.cs.jeyz9.condoswiftapi.models.User;
+import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
+import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
+import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,26 +39,33 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    
+    private final UserTermsAcceptLogRepository userTermsAcceptLogRepository;
+    private final TermsRepository termsRepository;
+
     @Autowired
-    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider){
+    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserTermsAcceptLogRepository userTermsAcceptLogRepository, TermsRepository termsRepository){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
+        this.termsRepository = termsRepository;
     }
     @Override
-    public String register(RegisterDTO register) throws WebException {
+    public String register(RegisterDTO register, HttpServletRequest request) throws WebException {
         try{
-            
             if(userRepository.existsByEmail(register.getEmail())){
                 throw new WebException(HttpStatus.BAD_REQUEST, "Email already exist!");
             }
 
             if (!register.getPassword().equals(register.getConfirmPassword())) {
-                throw new WebException(HttpStatus.BAD_REQUEST, "ยืนยันรหัสผ่านไม่ตรงกัน");
+                throw new WebException(HttpStatus.BAD_REQUEST, "Password does not match");
+            }
+            
+            if(!register.getIsAgree()){
+                throw new WebException(HttpStatus.BAD_REQUEST, "You must accept the terms and conditions");
             }
     
             User user = mapToUser(register);
@@ -72,8 +85,18 @@ public class AuthServiceImpl implements AuthService {
             }
             user.setRoles(roles);
             userRepository.save(user);
+
+            Terms terms = termsRepository.findByTypeAndIsActiveTrue(TermsType.AGENT_CONTACT_POLICY)
+                    .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Terms not found."));
             
-            return "User registered successfully!";
+            UserTermsAcceptLog termsAcceptLog = new UserTermsAcceptLog();
+            termsAcceptLog.setUser(user);
+            termsAcceptLog.setTerms(terms);
+            termsAcceptLog.setUserAgent(request.getHeader("User-Agent"));
+            termsAcceptLog.setIpAddress(request.getRemoteAddr());
+            userTermsAcceptLogRepository.save(termsAcceptLog);
+            
+            return "Register Success and Terms Accepted.";
         }catch (WebException e){
             throw e;
         }catch (Exception e){

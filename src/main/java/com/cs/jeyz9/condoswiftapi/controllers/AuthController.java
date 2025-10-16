@@ -5,6 +5,7 @@ import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -28,8 +29,8 @@ public class AuthController {
     }
     
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterDTO registerDTO) throws WebException {
-        String user = authService.register(registerDTO);
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterDTO registerDTO, HttpServletRequest request) throws WebException {
+        String user = authService.register(registerDTO, request);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
