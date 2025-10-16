@@ -447,6 +447,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                     ann.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
             );
             showAllAnnounceDetailsWithAgen.setBadgeSet(ann.getBadges());
+            showAllAnnounceDetailsWithAgen.setAgent(modelMapper.map(ann.getUser(), AgentDTO.class));
             return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
         }).toList();
     }
