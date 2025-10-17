@@ -1,5 +1,8 @@
 package com.cs.jeyz9.condoswiftapi.seeders;
 
+import com.cs.jeyz9.condoswiftapi.constants.AnnounceTypeConstant;
+import com.cs.jeyz9.condoswiftapi.constants.BadgeConstant;
+import com.cs.jeyz9.condoswiftapi.constants.SaleTypeConstant;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceStateApprove;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
@@ -63,26 +66,26 @@ public class DatabaseSeeder implements CommandLineRunner {
         
         if(badgeRepository.count() == 0L) {
             List<Badge> badges = new ArrayList<>();
-            badges.add(new Badge("แนะนำ"));
-            badges.add(new Badge("คอนโด"));
-            badges.add(new Badge("วิลล่า"));
-            badges.add(new Badge("เช่า"));
+            badges.add(new Badge(BadgeConstant.RECOMMEND));
+            badges.add(new Badge(BadgeConstant.CONDO));
+            badges.add(new Badge(BadgeConstant.VILLA));
+            badges.add(new Badge(BadgeConstant.RENT));
             badgeRepository.saveAll(badges);
         }
         
         if(announceTypeRepository.count() == 0L){
             List<AnnounceType> announceTypes = new ArrayList<>();
-            announceTypes.add(new AnnounceType("คอนโด"));
-            announceTypes.add(new AnnounceType("ที่ดิน"));
-            announceTypes.add(new AnnounceType("บ้านหรู"));
-            announceTypes.add(new AnnounceType("วิลล่า"));
+            announceTypes.add(new AnnounceType(AnnounceTypeConstant.CONDO));
+            announceTypes.add(new AnnounceType(AnnounceTypeConstant.LAND));
+            announceTypes.add(new AnnounceType(AnnounceTypeConstant.LUXURY_HOUSE));
+            announceTypes.add(new AnnounceType(AnnounceTypeConstant.VILLA));
             announceTypeRepository.saveAll(announceTypes);
         }
 
         if(saleTypeRepository.count() == 0L){
             List<SaleType> saleTypes = new ArrayList<>();
-            saleTypes.add(new SaleType("เช่า"));
-            saleTypes.add(new SaleType("ขาย"));
+            saleTypes.add(new SaleType(SaleTypeConstant.RENT));
+            saleTypes.add(new SaleType(SaleTypeConstant.SALE));
             saleTypeRepository.saveAll(saleTypes);
         }
         

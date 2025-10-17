@@ -1,6 +1,10 @@
 package com.cs.jeyz9.condoswiftapi.services.impl;
 
+import com.cs.jeyz9.condoswiftapi.constants.AnnounceTypeConstant;
+import com.cs.jeyz9.condoswiftapi.constants.SaleTypeConstant;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
+import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
@@ -10,7 +14,9 @@ import com.cs.jeyz9.condoswiftapi.models.Terms;
 import com.cs.jeyz9.condoswiftapi.models.TermsType;
 import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
+import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
@@ -28,8 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -39,6 +45,7 @@ public class UserServiceImpl implements UserService {
     private final TermsRepository termsRepository;
     private final UserTermsAcceptLogRepository userTermsAcceptLogRepository;
     private final RoleRepository roleRepository;
+    private final AnnounceRepository announceRepository;
 
     @Value("${supabase.url}")
     private String supabaseUrl;
@@ -49,11 +56,12 @@ public class UserServiceImpl implements UserService {
     @Value("${supabase.bucket.profile}")
     private String bucket;
 
-    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository, AnnounceRepository announceRepository) {
         this.userRepository = userRepository;
         this.termsRepository = termsRepository;
         this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
         this.roleRepository = roleRepository;
+        this.announceRepository = announceRepository;
     }
 
     @Override
@@ -93,10 +101,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void saveImages(Long userId, MultipartFile imageFiles) {
         if (imageFiles == null || imageFiles.isEmpty()) return;
         User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
-        if(!user.getImage().isEmpty()){
+        if(user.getImage() != null){
             deleteImage(userId);
         }
 
@@ -119,6 +128,7 @@ public class UserServiceImpl implements UserService {
                 throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload image: " + fileName);
             }
             user.setImage(supabaseUrl + "/object/public/" + bucket + "/" + fileName);
+            userRepository.save(user);
 
         } catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -142,11 +152,61 @@ public class UserServiceImpl implements UserService {
             String imagePath = user.getImage().replace(publicPrefix, "");
             String deleteUrl = supabaseUrl + "/object/" + imagePath;
             restTemplate.exchange(deleteUrl, HttpMethod.DELETE, entity, String.class);
-
+            user.setImage(null);
+            userRepository.save(user);
         } catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to delete image: " + user.getImage());
         }
+    }
+    
+    @Override
+    public UserProfileOverviewDTO userProfileOverview(Long userId, String saleType){
+        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
+        UserProfileOverviewDTO userOverview = new UserProfileOverviewDTO();
+        userOverview.setId(userId);
+        userOverview.setName(user.getName());
+        userOverview.setDescription(user.getDescription());
+        userOverview.setImage(user.getImage());
+        userOverview.setJoinAt(user.getCreatedAt());
+
+        List<Announce> announceList = announceRepository.findAllByUserId(userId);
+        
+        userOverview.setAnnounceSellCount(announceList.stream()
+                .filter(announce -> announce.getSaleType().getType().equalsIgnoreCase(SaleTypeConstant.SALE)).toList().size()
+        );
+        
+        userOverview.setAnnounceRentCount(announceList.stream()
+                .filter(announce -> announce.getSaleType().getType().equals(SaleTypeConstant.RENT)).toList().size()
+        );
+
+        String mappedSaleType;
+        if(saleType.equals("เช่า")) {
+            mappedSaleType = SaleTypeConstant.RENT;
+        } else if(saleType.equals("ขาย")) {
+            mappedSaleType = SaleTypeConstant.SALE;
+        } else {
+            mappedSaleType = saleType;
+        }
+        
+        userOverview.setAnnounceList(announceList.stream().filter(announce -> announce.getSaleType().getType().equalsIgnoreCase(mappedSaleType) && announce.getUser().getId().equals(userId))
+                .map(
+                announce -> {
+                    AnnounceByTypeDTO announceByType = new AnnounceByTypeDTO();
+                    announceByType.setId(announce.getId());
+                    announceByType.setTitle(announce.getTitle());
+                    announceByType.setImage(
+                            Optional.ofNullable(announce.getImageList())
+                            .flatMap(list -> list.stream().findFirst())
+                            .map(AnnounceImage::getImageUrl)
+                            .orElse(null)
+                    );
+                    announceByType.setLocation(announce.getLocation());
+                    return announceByType;
+                }
+            ).toList()
+        );
+        return userOverview;
     }
 }
 
