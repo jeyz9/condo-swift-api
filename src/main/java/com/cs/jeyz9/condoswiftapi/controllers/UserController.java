@@ -1,6 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
+import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +40,12 @@ public class UserController {
     public ResponseEntity<List<RecommendedAgenDTO>> showRecommendedAgents() {
         return new ResponseEntity<>(userService.showRecommendedAgents(), HttpStatus.OK);
     }
+    
+    @GetMapping(value = "/users/showUserProfileOverview/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserProfileOverviewDTO> showUserProfileOverview(@PathVariable Long userId, @RequestParam(defaultValue = "ขาย") String type){
+        return new ResponseEntity<>(userService.userProfileOverview(userId, type), HttpStatus.OK);
+    }
+    
     
     @PostMapping(value = "/users/{userId}/uploadProfilePicture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadProfile(@PathVariable Long userId, @RequestPart MultipartFile imageFile){

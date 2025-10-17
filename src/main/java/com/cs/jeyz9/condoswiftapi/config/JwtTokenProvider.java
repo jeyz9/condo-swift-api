@@ -1,6 +1,8 @@
 package com.cs.jeyz9.condoswiftapi.config;
 
 import com.cs.jeyz9.condoswiftapi.exceptions.JwtFailException;
+import com.cs.jeyz9.condoswiftapi.models.User;
+import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -20,14 +22,20 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
+    private final UserRepository userRepository;
     @Value("${jwt-secret}")
     private String jwtSecret;
     
     @Value("${jwt-expiration}")
     private Long jwtExpiration;
-    
+
+    public JwtTokenProvider(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     public String generateToken(Authentication authentication) {
         String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
         Date currentDate = new Date();
         Date expirationDate = new Date(currentDate.getTime() + jwtExpiration);
         String roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
@@ -36,6 +44,7 @@ public class JwtTokenProvider {
                 .setIssuedAt(currentDate)
                 .setExpiration(expirationDate)
                 .claim("roles", roles)
+                .claim("userId", user.getId())
                 .signWith(key())
                 .compact();
     }
@@ -47,6 +56,15 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
+    }
+
+    public Long getUserId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", Long.class);
     }
 
     public boolean validateToken(String token) {

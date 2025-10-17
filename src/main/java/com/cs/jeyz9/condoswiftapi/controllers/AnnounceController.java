@@ -2,6 +2,7 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
@@ -41,10 +42,10 @@ public class AnnounceController {
     }
     
     @PostMapping(value = "/addAnnounce", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnnounceDTO> addAnnounce(
+    public ResponseEntity<AnnounceRequestDTO> addAnnounce(
             @Valid @RequestBody AnnounceDTO announceDTO
     ) throws WebException {
-        AnnounceDTO savedAnnounce = announceService.addAnnounce(announceDTO);
+        AnnounceRequestDTO savedAnnounce = announceService.addAnnounce(announceDTO);
         return new ResponseEntity<>(savedAnnounce, HttpStatus.CREATED);
     }
 

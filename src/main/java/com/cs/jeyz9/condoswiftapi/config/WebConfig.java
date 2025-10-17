@@ -26,7 +26,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://localhost:5173",
-                        "https://condo-swift.onrender.com"
+                        "https://condo-swift.onrender.com",
+                        "https://sundayyogurt.github.io"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
