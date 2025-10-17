@@ -6,6 +6,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.NearbyPlaceAnnounceDTO;
@@ -110,9 +111,9 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
-    public AnnounceDTO addAnnounce(AnnounceDTO announceDTO) throws WebException {
+    public AnnounceRequestDTO addAnnounce(AnnounceDTO announceDTO) throws WebException {
         try{
-            Announce announce = mapToAnnounce(announceDTO);
+            Announce announce = new Announce();
             announce.setId(null);
             announce.setTitle(announceDTO.getTitle());
             announce.setLocation(announceDTO.getLocation());
@@ -134,14 +135,6 @@ public class AnnounceServiceImpl implements AnnounceService {
                 throw new WebException(HttpStatus.BAD_REQUEST, "Approve status must be DRAFT or PENDING only");
             }
             announce.setApprove(approveStatus);
-            
-            if (announceDTO.getBadges() != null && !announceDTO.getBadges().isEmpty()) {
-                Set<Badge> badges = announceDTO.getBadges().stream()
-                        .map(id -> badgeRepository.findById(id)
-                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Badge not found id: " + id)))
-                        .collect(Collectors.toSet());
-                announce.setBadges(badges);
-            }
     
             if (announceDTO.getMapPoints() != null) {
                 announceDTO.getMapPoints().forEach(mpDTO -> {
@@ -156,6 +149,9 @@ public class AnnounceServiceImpl implements AnnounceService {
             AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
             announce.setAnnounceType(type);
 
+            Set<Badge> badges = badgeRepository.findBadgesByBadgeName(type.getTypeName());
+            announce.setBadges(badges);
+            
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
 
@@ -168,7 +164,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             }
     
             announceRepository.save(announce);
-            return mapToAnnounceDTO(announce);
+            return mapToAnnounceRequestDTO(announce);
             
         }catch (WebException e){
             throw e;
@@ -205,14 +201,14 @@ public class AnnounceServiceImpl implements AnnounceService {
             }
             announce.setApprove(approveStatus);
 
-            if(announceDTO.getBadges() != null){
-                announce.getBadges().clear();
-                Set<Badge> badges = announceDTO.getBadges().stream()
-                        .map(id -> badgeRepository.findById(id)
-                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Badge not found id: " + id)))
-                        .collect(Collectors.toSet());
-                announce.setBadges(badges);
-            }
+//            if(announceDTO.getBadges() != null){
+//                announce.getBadges().clear();
+//                Set<Badge> badges = announceDTO.getBadges().stream()
+//                        .map(id -> badgeRepository.findById(id)
+//                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Badge not found id: " + id)))
+//                        .collect(Collectors.toSet());
+//                announce.setBadges(badges);
+//            }
 
             if (announceDTO.getMapPoints() != null) {
                 announce.getMapPointList().clear();
@@ -227,6 +223,9 @@ public class AnnounceServiceImpl implements AnnounceService {
 
             AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
             announce.setAnnounceType(type);
+
+            Set<Badge> badges = badgeRepository.findBadgesByBadgeName(type.getTypeName());
+            announce.setBadges(badges);
 
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
@@ -436,6 +435,51 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setAnnounceType(announce.getAnnounceType().getId());
         dto.setSaleType(announce.getSaleType().getId());
         
+        if(announce.getNearbyPlaces() != null && !announce.getNearbyPlaces().isEmpty()) {
+            Set<Long> nearbyPlaces = announce.getNearbyPlaces().stream()
+                    .map(NearbyPlace::getId)
+                    .collect(Collectors.toSet());
+            dto.setNearbyPlaces(nearbyPlaces);
+        }
+
+        return dto;
+    }
+
+    private AnnounceRequestDTO mapToAnnounceRequestDTO(Announce announce) {
+        AnnounceRequestDTO dto = new AnnounceRequestDTO();
+        dto.setId(announce.getId());
+        dto.setTitle(announce.getTitle());
+        dto.setLocation(announce.getLocation());
+        dto.setPrice(announce.getPrice());
+        dto.setBathroomCount(announce.getBathroomCount());
+        dto.setBedroomCount(announce.getBedroomCount());
+        dto.setAreaSize(announce.getAreaSize());
+        dto.setHasPool(announce.getHasPool());
+        dto.setHasConvenienceStore(announce.getHasConvenienceStore());
+        dto.setHasFitness(announce.getHasFitness());
+        dto.setHasElevator(announce.getHasElevator());
+        dto.setHasParking(announce.getHasParking());
+        dto.setHasSecurity(announce.getHasSecurity());
+        dto.setUserId(announce.getUser().getId());
+        dto.setApproveStatusId(announce.getApprove().getId());
+
+        if (announce.getBadges() != null && !announce.getBadges().isEmpty()) {
+            Set<Long> badgeIds = announce.getBadges().stream()
+                    .map(Badge::getId)
+                    .collect(Collectors.toSet());
+            dto.setBadges(badgeIds);
+        }
+
+        if (announce.getMapPointList() != null) {
+            List<MapPointDTO> mapPoints = announce.getMapPointList().stream()
+                    .map(mp -> new MapPointDTO(mp.getLat(), mp.getLng()))
+                    .collect(Collectors.toList());
+            dto.setMapPoints(mapPoints);
+        }
+
+        dto.setAnnounceType(announce.getAnnounceType().getId());
+        dto.setSaleType(announce.getSaleType().getId());
+
         if(announce.getNearbyPlaces() != null && !announce.getNearbyPlaces().isEmpty()) {
             Set<Long> nearbyPlaces = announce.getNearbyPlaces().stream()
                     .map(NearbyPlace::getId)
