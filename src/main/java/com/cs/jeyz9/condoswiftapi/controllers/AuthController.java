@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
+import com.cs.jeyz9.condoswiftapi.config.JwtTokenProvider;
 import com.cs.jeyz9.condoswiftapi.dto.JwtAuthResponse;
 import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
@@ -22,10 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
-    
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtTokenProvider jwtTokenProvider) {
         this.authService = authService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
     
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -37,6 +40,7 @@ public class AuthController {
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<JwtAuthResponse> login(@Valid @RequestBody LoginDTO loginDTO) throws WebException {
         String token = authService.login(loginDTO);
+        Long userId = jwtTokenProvider.getUserId(token);
 
         ResponseCookie jwtCookie = ResponseCookie.from("token", token)
                 .httpOnly(true)      
@@ -47,6 +51,7 @@ public class AuthController {
                 .build();
 
         JwtAuthResponse response = new JwtAuthResponse();
+        response.setUserId(userId);
         response.setAccessToken(token);
 
         return ResponseEntity.status(HttpStatus.CREATED)
