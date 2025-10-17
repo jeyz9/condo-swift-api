@@ -1,14 +1,9 @@
 package com.cs.jeyz9.condoswiftapi.dto;
 
-import com.cs.jeyz9.condoswiftapi.models.NearbyPlace;
-import com.cs.jeyz9.condoswiftapi.models.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +32,4 @@ public class AnnounceDTO {
     private Long announceType;
     private Long saleType;
     private Set<Long> nearbyPlaces;
-    
-//    @JsonIgnore
-//    private List<MultipartFile> imageList;
 }

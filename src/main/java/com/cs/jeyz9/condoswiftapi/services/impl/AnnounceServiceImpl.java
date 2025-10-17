@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.services.impl;
 
+import com.cs.jeyz9.condoswiftapi.constants.AnnounceTypeConstant;
 import com.cs.jeyz9.condoswiftapi.dto.AgentDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -290,8 +292,19 @@ public class AnnounceServiceImpl implements AnnounceService {
             }).toList();
 
             List<AnnounceByTypeDTO> announceByTypeList = announces.stream()
-                    .filter(announce -> announce.getAnnounceType() != null && announce.getAnnounceType().getId().equals(3L))
-                    .map(announce -> modelMapper.map(announce, AnnounceByTypeDTO.class)).limit(4)
+                    .filter(announce -> announce.getAnnounceType() != null && announce.getAnnounceType().getTypeName().equals(AnnounceTypeConstant.LUXURY_HOUSE))
+                    .map(announce -> {
+                        AnnounceByTypeDTO announceByType = new AnnounceByTypeDTO();
+                        announceByType.setId(announce.getId());
+                        announceByType.setTitle(announce.getTitle());
+                        announceByType.setLocation(announce.getLocation());
+                        String imageUrl = Optional.ofNullable(announce.getImageList())
+                                .flatMap(list -> list.stream().findFirst())
+                                .map(AnnounceImage::getImageUrl)
+                                .orElse(null);
+                        announceByType.setImage(imageUrl);
+                        return announceByType;
+                    }).limit(4)
                     .toList();
 
             List<NearbyPlaceAnnounceDTO> villaProvince = nearbyPlaceRepository.findAll().stream().filter(
