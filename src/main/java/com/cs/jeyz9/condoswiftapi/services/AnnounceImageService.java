@@ -4,6 +4,7 @@ import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceImageRepository;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 public class AnnounceImageService {
 
     private final AnnounceImageRepository announceImageRepository;
+    private final AnnounceRepository announceRepository;
 
     @Value("${supabase.url}")
     private String supabaseUrl;
@@ -28,17 +30,19 @@ public class AnnounceImageService {
     @Value("${supabase.bucket.announce}")
     private String bucket;
 
-    public AnnounceImageService(AnnounceImageRepository announceImageRepository) {
+    public AnnounceImageService(AnnounceImageRepository announceImageRepository, AnnounceRepository announceRepository) {
         this.announceImageRepository = announceImageRepository;
+        this.announceRepository = announceRepository;
     }
 
-    public void saveImages(List<MultipartFile> imageFiles, Announce announce) {
+    public void saveImages(Long announceId, List<MultipartFile> imageFiles) {
+        Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found by id: " + announceId));
         if (imageFiles == null || imageFiles.isEmpty()) return;
         if (imageFiles.size() > 5) {
             throw new WebException(HttpStatus.BAD_REQUEST, "You can upload max 5 images");
         }
         
-        if(announce.getImageList().size() >= 5){
+        if(announce.getImageList() != null && announce.getImageList().size() >= 5){
             throw new WebException(HttpStatus.BAD_REQUEST, "You can upload max 5 images");
         }
 

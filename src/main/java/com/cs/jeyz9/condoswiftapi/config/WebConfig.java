@@ -28,7 +28,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:5173",
                         "https://condo-swift.onrender.com",
                         "https://sundayyogurt.github.io",
-                        "https://condo-swift.vercel.app/"
+                        "https://condo-swift.vercel.app",
+                        "http://127.0.0.1:5500"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
