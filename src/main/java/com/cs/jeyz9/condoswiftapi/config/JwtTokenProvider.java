@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -45,7 +46,7 @@ public class JwtTokenProvider {
                 .setExpiration(expirationDate)
                 .claim("roles", roles)
                 .claim("userId", user.getId())
-                .signWith(key())
+                .signWith(key(), SignatureAlgorithm.HS384)
                 .compact();
     }
     
@@ -72,7 +73,7 @@ public class JwtTokenProvider {
             Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
-                    .parse(token);
+                    .parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException ex) {
             throw new JwtFailException(HttpStatus.BAD_REQUEST, "Invalid JWT token");
