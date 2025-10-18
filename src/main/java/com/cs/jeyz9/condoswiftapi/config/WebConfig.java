@@ -27,7 +27,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:5173",
                         "https://condo-swift.onrender.com",
-                        "https://sundayyogurt.github.io"
+                        "https://sundayyogurt.github.io",
+                        "https://condo-swift.vercel.app/"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
