@@ -116,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
         } catch (AuthenticationException e) {
             throw new WebException(HttpStatus.UNAUTHORIZED ,"อีเมลหรือรหัสผ่านไม่ถูกต้อง");
         } catch (Exception e) {
-            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดภายในระบบ");
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดภายในระบบ: " + e.getMessage());
         }
     }
     
