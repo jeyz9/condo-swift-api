@@ -6,9 +6,9 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
-import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceImageService;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,13 +41,15 @@ public class AnnounceController {
         this.announceImageService = announceImageService;
     }
     
-    @PostMapping(value = "/addAnnounce", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnnounceRequestDTO> addAnnounce(
-            @Valid @RequestBody AnnounceDTO announceDTO
-    ) throws WebException {
-        AnnounceRequestDTO savedAnnounce = announceService.addAnnounce(announceDTO);
-        return new ResponseEntity<>(savedAnnounce, HttpStatus.CREATED);
-    }
+//    @PostMapping(value = "/addAnnounceWithImage", )
+    
+//    @PostMapping(value = "/addAnnounce", consumes = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<AnnounceRequestDTO> addAnnounce(
+//            @Valid @RequestBody AnnounceDTO announceDTO
+//    ) throws WebException {
+//        AnnounceRequestDTO savedAnnounce = announceService.addAnnounce(announceDTO);
+//        return new ResponseEntity<>(savedAnnounce, HttpStatus.CREATED);
+//    }
 
     @PostMapping(value = "/uploadImages/{announceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadAnnounceImages(
@@ -55,8 +57,7 @@ public class AnnounceController {
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) throws WebException {
 
-        Announce announce = announceService.getAnnounceById(announceId);
-        announceImageService.saveImages(images, announce);
+        announceImageService.saveImages(announceId, images);
 
         return ResponseEntity.ok("Images uploaded successfully");
     }
@@ -97,5 +98,13 @@ public class AnnounceController {
     @DeleteMapping("/deletedAnnounce/{announceId}")
     public ResponseEntity<String> deletedAnnounce(@PathVariable Long announceId) {
         return new ResponseEntity<>(announceService.deletedAnnounce(announceId), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/addAnnounceWithImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AnnounceRequestDTO> addAnnounceWithImage(
+            @Parameter(description = "Announce data") @Valid @RequestPart("announce") AnnounceDTO announce,
+            @Parameter(description = "List of images") @RequestPart(value = "images", required = false) List<MultipartFile> imageFile
+    ) throws WebException {
+        return new ResponseEntity<>(announceService.addAnnounceWithImage(announce, imageFile), HttpStatus.CREATED);
     }
 }

@@ -43,6 +43,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -166,6 +167,72 @@ public class AnnounceServiceImpl implements AnnounceService {
             announceRepository.save(announce);
             return mapToAnnounceRequestDTO(announce);
             
+        }catch (WebException e){
+            throw e;
+        }catch (Exception e){
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Added \"Announce\" fails " + e.getMessage());
+        }
+    }
+
+    @Override
+    public AnnounceRequestDTO addAnnounceWithImage(AnnounceDTO announceDTO, List<MultipartFile> imageFile) throws WebException {
+        try{
+            Announce announce = new Announce();
+            announce.setId(null);
+            announce.setTitle(announceDTO.getTitle());
+            announce.setLocation(announceDTO.getLocation());
+            announce.setPrice(announceDTO.getPrice());
+            announce.setBathroomCount(announceDTO.getBathroomCount());
+            announce.setBedroomCount(announceDTO.getBedroomCount());
+            announce.setAreaSize(announceDTO.getAreaSize());
+            announce.setHasPool(announceDTO.getHasPool());
+            announce.setHasConvenienceStore(announceDTO.getHasConvenienceStore());
+            announce.setHasFitness(announceDTO.getHasFitness());
+            announce.setHasElevator(announceDTO.getHasElevator());
+            announce.setHasParking(announceDTO.getHasParking());
+            announce.setHasSecurity(announceDTO.getHasSecurity());
+            User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found by id: " + announceDTO.getUserId()));
+            announce.setUser(user);
+
+            AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
+            if(!approveStatus.getStatusName().equals(ApproveStatus.DRAFT) && !approveStatus.getStatusName().equals(ApproveStatus.PENDING)){
+                throw new WebException(HttpStatus.BAD_REQUEST, "Approve status must be DRAFT or PENDING only");
+            }
+            announce.setApprove(approveStatus);
+
+            if (announceDTO.getMapPoints() != null) {
+                announceDTO.getMapPoints().forEach(mpDTO -> {
+                    MapPoint mapPoint = new MapPoint();
+                    mapPoint.setLat(mpDTO.getLat());
+                    mapPoint.setLng(mpDTO.getLng());
+                    mapPoint.setAnnounce(announce);
+                    announce.getMapPointList().add(mapPoint);
+                });
+            }
+
+            AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
+            announce.setAnnounceType(type);
+
+            Set<Badge> badges = badgeRepository.findBadgesByBadgeName(type.getTypeName());
+            announce.setBadges(badges);
+
+            SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
+            announce.setSaleType(saleType);
+
+            if (announceDTO.getNearbyPlaces() != null && !announceDTO.getNearbyPlaces().isEmpty()) {
+                Set<NearbyPlace> nearbyPlaces = announceDTO.getNearbyPlaces().stream()
+                        .map(id -> nearbyPlaceRepository.findById(id)
+                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "NearbyPlace not found id: " + id)))
+                        .collect(Collectors.toSet());
+                announce.setNearbyPlaces(nearbyPlaces);
+            }
+
+            Long announceId = announceRepository.save(announce).getId();
+            
+            announceImageService.saveImages(announceId, imageFile);
+            
+            return mapToAnnounceRequestDTO(announce);
+
         }catch (WebException e){
             throw e;
         }catch (Exception e){
