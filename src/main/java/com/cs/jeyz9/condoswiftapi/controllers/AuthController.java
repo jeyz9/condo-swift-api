@@ -6,6 +6,7 @@ import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -72,6 +77,19 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
                 .body("Logout success");
+    }
+    
+    @PostMapping("/send-verify")
+    public ResponseEntity<?> sendVerificationEmail(@RequestParam Long userId) throws MessagingException {
+        authService.sendVerificationEmail(userId);
+        return ResponseEntity.ok(Map.of("message", "ส่งอีเมลยืนยันเรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย"));
+    }
+
+    /** เมื่อผู้ใช้คลิกลิงก์จากอีเมล */
+    @GetMapping("/verify")
+    public ResponseEntity<?> verify(@RequestParam String token) {
+        String msg = authService.verifyEmail(token);
+        return ResponseEntity.ok(Map.of("message", msg));
     }
 
 }
