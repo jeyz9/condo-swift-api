@@ -1,6 +1,5 @@
 package com.cs.jeyz9.condoswiftapi.services.impl;
 
-import com.cs.jeyz9.condoswiftapi.constants.AnnounceTypeConstant;
 import com.cs.jeyz9.condoswiftapi.constants.SaleTypeConstant;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
@@ -16,7 +15,6 @@ import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
-import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
