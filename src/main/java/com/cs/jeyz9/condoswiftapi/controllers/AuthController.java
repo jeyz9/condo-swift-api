@@ -85,7 +85,6 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "ส่งอีเมลยืนยันเรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย"));
     }
 
-    /** เมื่อผู้ใช้คลิกลิงก์จากอีเมล */
     @GetMapping("/verify")
     public ResponseEntity<?> verify(@RequestParam String token) {
         String msg = authService.verifyEmail(token);
