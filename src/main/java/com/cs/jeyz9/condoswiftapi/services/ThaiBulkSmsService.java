@@ -101,9 +101,7 @@ public class ThaiBulkSmsService {
                     "&secret=" + apiSecret +
                     "&token=" + token +
                     "&pin=" + otpCode;
-            System.out.println("body " + body);
             HttpEntity<String> requestEntity = new HttpEntity<>(body, header);
-            System.out.println("requestEntity " + requestEntity);
             
             ResponseEntity<String> response = restTemplate.exchange(
                     verifyUrl,
@@ -111,8 +109,6 @@ public class ThaiBulkSmsService {
                     requestEntity,
                     String.class
             );
-            
-            System.out.println("response " + response);
             
             User user = verificationToken.getUser();
             user.setPhoneVerified(true);
