@@ -1,6 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.config;
 
 import com.cs.jeyz9.condoswiftapi.exceptions.JwtFailException;
+import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -36,7 +37,7 @@ public class JwtTokenProvider {
 
     public String generateToken(Authentication authentication) {
         String email = authentication.getName();
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Email not found."));
         Date currentDate = new Date();
         Date expirationDate = new Date(currentDate.getTime() + jwtExpiration);
         String roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));

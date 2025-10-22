@@ -3,32 +3,48 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 import com.cs.jeyz9.condoswiftapi.config.JwtTokenProvider;
 import com.cs.jeyz9.condoswiftapi.dto.JwtAuthResponse;
 import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
+import com.cs.jeyz9.condoswiftapi.dto.OtpRequest;
+import com.cs.jeyz9.condoswiftapi.dto.OtpResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
+import com.cs.jeyz9.condoswiftapi.dto.VerifyOtpRequest;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
+import com.cs.jeyz9.condoswiftapi.services.ThaiBulkSmsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ThaiBulkSmsService thaiBulkSmsService;
 
     @Autowired
-    public AuthController(AuthService authService, JwtTokenProvider jwtTokenProvider) {
+    public AuthController(AuthService authService, JwtTokenProvider jwtTokenProvider, ThaiBulkSmsService thaiBulkSmsService) {
         this.authService = authService;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.thaiBulkSmsService = thaiBulkSmsService;
     }
     
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -72,6 +88,30 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
                 .body("Logout success");
+    }
+    
+    @PostMapping("/send-verify")
+    public ResponseEntity<?> sendVerificationEmail(@RequestParam Long userId) throws MessagingException {
+        authService.sendVerificationEmail(userId);
+        return ResponseEntity.ok(Map.of("message", "ส่งอีเมลยืนยันเรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย"));
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verify(@RequestParam String token) {
+        String msg = authService.verifyEmail(token);
+        return ResponseEntity.ok(Map.of("message", msg));
+    }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<OtpResponse> requestOtp(@RequestBody OtpRequest otpRequest) throws JsonProcessingException {
+        return new ResponseEntity<>(thaiBulkSmsService.requestOtp(otpRequest.getMsisdn()), HttpStatus.CREATED);
+    }
+
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(@RequestParam String token, @RequestParam String otpCode) {
+         String result = thaiBulkSmsService.verifyOtp(token, otpCode);
+        return ResponseEntity.ok(result);
     }
 
 }

@@ -10,17 +10,20 @@ import com.cs.jeyz9.condoswiftapi.models.Terms;
 import com.cs.jeyz9.condoswiftapi.models.TermsType;
 import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
+import com.cs.jeyz9.condoswiftapi.models.VerificationToken;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
+import com.cs.jeyz9.condoswiftapi.repository.VerificationTokenRepository;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
+import com.cs.jeyz9.condoswiftapi.services.EmailService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -28,8 +31,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -41,9 +46,20 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserTermsAcceptLogRepository userTermsAcceptLogRepository;
     private final TermsRepository termsRepository;
+    private final VerificationTokenRepository tokenRepository;
+    private final EmailService emailService;
 
     @Autowired
-    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserTermsAcceptLogRepository userTermsAcceptLogRepository, TermsRepository termsRepository){
+    public AuthServiceImpl(UserRepository userRepository,
+                           RoleRepository roleRepository,
+                           ModelMapper modelMapper,
+                           PasswordEncoder passwordEncoder,
+                           AuthenticationManager authenticationManager,
+                           JwtTokenProvider jwtTokenProvider,
+                           UserTermsAcceptLogRepository userTermsAcceptLogRepository,
+                           TermsRepository termsRepository,
+                           VerificationTokenRepository tokenRepository,
+                           EmailService emailService){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
@@ -52,6 +68,8 @@ public class AuthServiceImpl implements AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
         this.termsRepository = termsRepository;
+        this.tokenRepository = tokenRepository;
+        this.emailService = emailService;
     }
     @Override
     public String register(RegisterDTO register, HttpServletRequest request) throws WebException {
@@ -118,6 +136,57 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดภายในระบบ: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void sendVerificationEmail(Long userId) throws MessagingException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("ไม่พบผู้ใช้"));
+
+        if (user.getEmailVerified()) {
+            throw new RuntimeException("บัญชีนี้ได้รับการยืนยันแล้ว");
+        }
+
+        String token = UUID.randomUUID().toString();
+
+        tokenRepository.findByToken(tokenRepository.toString()).ifPresent(tokenRepository::delete);
+
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUser(user);
+        verificationToken.setExiryDate(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
+        tokenRepository.save(verificationToken);
+
+        String verificationUrl = "http://localhost:8080/api/v1/auth/verify?token=" + token;
+        String html = """
+            <html>
+              <body>
+                <h2>ยืนยันอีเมลของคุณ</h2>
+                <p>คลิกลิงก์ด้านล่างเพื่อยืนยันอีเมลของคุณ:</p>
+                <a href="%s" style="background:#4CAF50;color:#fff;padding:10px 20px;text-decoration:none;border-radius:6px;">ยืนยันอีเมล</a>
+                <p>ลิงก์นี้จะหมดอายุใน 24 ชั่วโมง</p>
+              </body>
+            </html>
+        """.formatted(verificationUrl);
+
+        emailService.sendHtmlEmail(user.getEmail(), "ยืนยันอีเมลของคุณ", html);
+    }
+
+    @Override
+    public String verifyEmail(String token) {
+        VerificationToken verificationToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Token ไม่ถูกต้อง"));
+
+        if (verificationToken.getExiryDate().before(new Date())) {
+            return "ลิงก์หมดอายุแล้ว";
+        }
+
+        User user = verificationToken.getUser();
+        user.setEmailVerified(true);
+        userRepository.save(user);
+        tokenRepository.delete(verificationToken);
+
+        return "บัญชีของคุณได้รับการยืนยันเรียบร้อย ✅";
     }
     
     private User mapToUser(RegisterDTO register) {
