@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,5 +20,5 @@ public class RecommendAnnounceDTO {
     private Integer bedroomCount;
     private Integer areaSize;
     private String image;
-    private Set<Badge> badges;
+    private List<Badge> badges;
 }
