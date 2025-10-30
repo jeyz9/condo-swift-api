@@ -49,3 +49,12 @@ thaibulksms:
   request_url: https://otp.thaibulksms.com/v2/otp/request
   verify_url: https://otp.thaibulksms.com/v2/otp/verify
   
+thaibulkemail:
+  key: zqSRyAj03fChpV2k-LmU2496TaeJGK
+  secret: i8gb4qZBRr-RDDW_xZAfYfn0SDoeRv
+  send_url: https://email-api.thaibulksms.com/email/v1/send_template
+  email_sender: ggjj4511@1704.tbmailsend.com
+  template_uuid: 25103013-0259-83fd-9f73-ac373281f7e1
+  production_url: https://condo-swift.onrender.com/api/v1/auth
+  dev_url: http://localhost:8080/api/v1/auth
+  

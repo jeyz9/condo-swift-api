@@ -91,9 +91,8 @@ public class AuthController {
     }
     
     @PostMapping("/send-verify")
-    public ResponseEntity<?> sendVerificationEmail(@RequestParam Long userId) throws MessagingException {
-        authService.sendVerificationEmail(userId);
-        return ResponseEntity.ok(Map.of("message", "ส่งอีเมลยืนยันเรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย"));
+    public ResponseEntity<String> sendVerificationEmail(@RequestParam Long userId) {
+        return ResponseEntity.ok(thaiBulkSmsService.verifyEmail(userId));
     }
 
     @GetMapping("/verify")

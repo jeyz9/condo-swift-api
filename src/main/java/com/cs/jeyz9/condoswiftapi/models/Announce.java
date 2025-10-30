@@ -59,11 +59,8 @@ public class Announce {
     @JoinColumn(name = "approve_by", referencedColumnName = "id")
     private User approveBy;
     
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "announce_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "badge_id", referencedColumnName = "id"))
-    private Set<Badge> badges = new HashSet<>();
+    @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<AnnounceBadge> announceBadges = new HashSet<>();
     
     @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<MapPoint> mapPointList = new ArrayList<>();
