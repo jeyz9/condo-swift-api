@@ -67,9 +67,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         if(badgeRepository.count() == 0L) {
             List<Badge> badges = new ArrayList<>();
             badges.add(new Badge(BadgeConstant.RECOMMEND));
-            badges.add(new Badge(BadgeConstant.CONDO));
-            badges.add(new Badge(BadgeConstant.VILLA));
-            badges.add(new Badge(BadgeConstant.RENT));
+            badges.add(new Badge(BadgeConstant.NEW));
+            badges.add(new Badge(BadgeConstant.PREMIUM));
             badgeRepository.saveAll(badges);
         }
         

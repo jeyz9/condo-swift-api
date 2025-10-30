@@ -28,7 +28,6 @@ public class AnnounceRequestDTO {
     private Boolean hasSecurity;
     private Long userId;
     private Long approveStatusId;
-    private Set<Long> badges;
     private List<MapPointDTO> mapPoints;
     private Long announceType;
     private Long saleType;

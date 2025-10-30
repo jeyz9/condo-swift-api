@@ -1,6 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.services.impl;
 
 import com.cs.jeyz9.condoswiftapi.constants.AnnounceTypeConstant;
+import com.cs.jeyz9.condoswiftapi.constants.BadgeConstant;
 import com.cs.jeyz9.condoswiftapi.dto.AgentDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
@@ -15,6 +16,7 @@ import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
+import com.cs.jeyz9.condoswiftapi.models.AnnounceBadge;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceStateApprove;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
@@ -25,6 +27,7 @@ import com.cs.jeyz9.condoswiftapi.models.NearbyPlace;
 import com.cs.jeyz9.condoswiftapi.models.NearbyPlaceTypes;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
 import com.cs.jeyz9.condoswiftapi.models.User;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceBadgeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceImageRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceStateApproveRepository;
@@ -46,6 +49,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -57,26 +61,28 @@ public class AnnounceServiceImpl implements AnnounceService {
     private final AnnounceRepository announceRepository;
     private final UserRepository userRepository;
     private final AnnounceStateApproveRepository announceStateApproveRepository;
-    private final BadgeRepository badgeRepository;
     private final AnnounceImageRepository announceImageRepository;
     private final ModelMapper modelMapper;
     private final AnnounceImageService announceImageService;
     private final NearbyPlaceRepository nearbyPlaceRepository;
     private final AnnounceTypeRepository announceTypeRepository;
     private final SaleTypeRepository saleTypeRepository;
+    private final AnnounceBadgeRepository announceBadgeRepository;
+    private final BadgeRepository badgeRepository;
 
     @Autowired
-    public AnnounceServiceImpl(AnnounceRepository announceRepository, UserRepository userRepository, AnnounceStateApproveRepository announceStateApproveRepository, BadgeRepository badgeRepository, AnnounceImageRepository announceImageRepository, ModelMapper modelMapper, AnnounceImageService announceImageService, NearbyPlaceRepository nearbyPlaceRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository) {
+    public AnnounceServiceImpl(AnnounceRepository announceRepository, UserRepository userRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceImageRepository announceImageRepository, ModelMapper modelMapper, AnnounceImageService announceImageService, NearbyPlaceRepository nearbyPlaceRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceBadgeRepository announceBadgeRepository, BadgeRepository badgeRepository) {
         this.announceRepository = announceRepository;
         this.userRepository = userRepository;
         this.announceStateApproveRepository = announceStateApproveRepository;
-        this.badgeRepository = badgeRepository;
         this.announceImageRepository = announceImageRepository;
         this.modelMapper = modelMapper;
         this.announceImageService = announceImageService;
         this.nearbyPlaceRepository = nearbyPlaceRepository;
         this.announceTypeRepository = announceTypeRepository;
         this.saleTypeRepository = saleTypeRepository;
+        this.announceBadgeRepository = announceBadgeRepository;
+        this.badgeRepository = badgeRepository;
     }
 
     @Override
@@ -149,9 +155,6 @@ public class AnnounceServiceImpl implements AnnounceService {
 
             AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
             announce.setAnnounceType(type);
-
-            Set<Badge> badges = badgeRepository.findBadgesByBadgeName(type.getTypeName());
-            announce.setBadges(badges);
             
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
@@ -164,7 +167,15 @@ public class AnnounceServiceImpl implements AnnounceService {
                 announce.setNearbyPlaces(nearbyPlaces);
             }
     
-            announceRepository.save(announce);
+            Announce response = announceRepository.save(announce);
+            
+            Badge badge = badgeRepository.findByBadgeNameIgnoreCase(BadgeConstant.RECOMMEND).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
+            AnnounceBadge announceBadge = new AnnounceBadge();
+            announceBadge.setBadge(badge);
+            announceBadge.setAnnounce(response);
+            announceBadge.setExpiresAt(LocalDateTime.now().plusDays(7));
+            announceBadgeRepository.save(announceBadge);
+            
             return mapToAnnounceRequestDTO(announce);
             
         }catch (WebException e){
@@ -213,9 +224,6 @@ public class AnnounceServiceImpl implements AnnounceService {
             AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
             announce.setAnnounceType(type);
 
-            Set<Badge> badges = badgeRepository.findBadgesByBadgeName(type.getTypeName());
-            announce.setBadges(badges);
-
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
 
@@ -227,9 +235,16 @@ public class AnnounceServiceImpl implements AnnounceService {
                 announce.setNearbyPlaces(nearbyPlaces);
             }
 
-            Long announceId = announceRepository.save(announce).getId();
+            Announce response = announceRepository.save(announce);
+
+            Badge badge = badgeRepository.findByBadgeNameIgnoreCase(BadgeConstant.NEW).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
+            AnnounceBadge announceBadge = new AnnounceBadge();
+            announceBadge.setBadge(badge);
+            announceBadge.setAnnounce(response);
+            announceBadge.setExpiresAt(LocalDateTime.now().plusDays(7));
+            announceBadgeRepository.save(announceBadge);
             
-            announceImageService.saveImages(announceId, imageFile);
+            announceImageService.saveImages(response.getId(), imageFile);
             
             return mapToAnnounceRequestDTO(announce);
 
@@ -268,15 +283,6 @@ public class AnnounceServiceImpl implements AnnounceService {
             }
             announce.setApprove(approveStatus);
 
-//            if(announceDTO.getBadges() != null){
-//                announce.getBadges().clear();
-//                Set<Badge> badges = announceDTO.getBadges().stream()
-//                        .map(id -> badgeRepository.findById(id)
-//                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Badge not found id: " + id)))
-//                        .collect(Collectors.toSet());
-//                announce.setBadges(badges);
-//            }
-
             if (announceDTO.getMapPoints() != null) {
                 announce.getMapPointList().clear();
                 announceDTO.getMapPoints().forEach(mpDTO -> {
@@ -290,9 +296,6 @@ public class AnnounceServiceImpl implements AnnounceService {
 
             AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
             announce.setAnnounceType(type);
-
-            Set<Badge> badges = badgeRepository.findBadgesByBadgeName(type.getTypeName());
-            announce.setBadges(badges);
 
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
@@ -321,7 +324,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             ShowAnnounceWithCategoryResponse response = new ShowAnnounceWithCategoryResponse();
             List<Announce> announces = announceRepository.findAll();
             List<RecommendAnnounceDTO> recommendList = announces.stream()
-                    .filter(announce -> announce.getBadges() != null && announce.getBadges().stream()
+                    .filter(announce -> announce.getAnnounceBadges() != null && announce.getAnnounceBadges().stream()
                             .anyMatch(badge -> badge != null && badge.getId() != null && badge.getId().equals(1L)))
                     .map(announce -> {
                         RecommendAnnounceDTO recommendAnnounce = new RecommendAnnounceDTO();
@@ -338,7 +341,11 @@ public class AnnounceServiceImpl implements AnnounceService {
                         recommendAnnounce.setBathroomCount(announce.getBathroomCount());
                         recommendAnnounce.setBedroomCount(announce.getBedroomCount());
                         recommendAnnounce.setAreaSize(announce.getAreaSize());
-                        recommendAnnounce.setBadges(announce.getBadges());
+                        recommendAnnounce.setBadges(
+                                announce.getAnnounceBadges().stream()
+                                        .map(AnnounceBadge::getBadge)
+                                        .toList()
+                        );
                         return recommendAnnounce;
                     }).limit(4)
                     .toList();
@@ -485,12 +492,12 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setUserId(announce.getUser().getId());
         dto.setApproveStatusId(announce.getApprove().getId());
 
-        if (announce.getBadges() != null && !announce.getBadges().isEmpty()) {
-            Set<Long> badgeIds = announce.getBadges().stream()
-                    .map(Badge::getId)
-                    .collect(Collectors.toSet());
-            dto.setBadges(badgeIds);
-        }
+//        if (announce.getBadges() != null && !announce.getBadges().isEmpty()) {
+//            Set<Long> badgeIds = announce.getBadges().stream()
+//                    .map(Badge::getId)
+//                    .collect(Collectors.toSet());
+//            dto.setBadges(badgeIds);
+//        }
 
         if (announce.getMapPointList() != null) {
             List<MapPointDTO> mapPoints = announce.getMapPointList().stream()
@@ -530,12 +537,12 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setUserId(announce.getUser().getId());
         dto.setApproveStatusId(announce.getApprove().getId());
 
-        if (announce.getBadges() != null && !announce.getBadges().isEmpty()) {
-            Set<Long> badgeIds = announce.getBadges().stream()
-                    .map(Badge::getId)
-                    .collect(Collectors.toSet());
-            dto.setBadges(badgeIds);
-        }
+//        if (announce.getBadges() != null && !announce.getBadges().isEmpty()) {
+//            Set<Long> badgeIds = announce.getBadges().stream()
+//                    .map(Badge::getId)
+//                    .collect(Collectors.toSet());
+//            dto.setBadges(badgeIds);
+//        }
 
         if (announce.getMapPointList() != null) {
             List<MapPointDTO> mapPoints = announce.getMapPointList().stream()
@@ -570,7 +577,6 @@ public class AnnounceServiceImpl implements AnnounceService {
             showAllAnnounceDetailsWithAgen.setImageList(
                     ann.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
             );
-            showAllAnnounceDetailsWithAgen.setBadgeSet(ann.getBadges());
             showAllAnnounceDetailsWithAgen.setAgent(modelMapper.map(ann.getUser(), AgentDTO.class));
             return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
         }).toList();

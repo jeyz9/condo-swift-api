@@ -9,12 +9,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -52,7 +54,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "roleId", referencedColumnName = "id")
     )
     private Set<Role> roles = new HashSet<>();
+    
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+//    @OneToMany
+//    private List<Notification> notifications;
     
     public User() {}
     public User(String name, String description, String phone, String email, String password, Set<Role> roles){

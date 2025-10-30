@@ -10,6 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface AuthService {
     String register(RegisterDTO register, HttpServletRequest request) throws WebException;
     String login(LoginDTO login) throws WebException;
-    void sendVerificationEmail(Long userId) throws MessagingException;
+//    void sendVerificationEmail(Long userId) throws MessagingException;
     String verifyEmail(String token);
 }
