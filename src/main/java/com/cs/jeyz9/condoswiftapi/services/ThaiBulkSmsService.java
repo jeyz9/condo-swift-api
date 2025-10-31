@@ -80,15 +80,15 @@ public class ThaiBulkSmsService {
         this.tokenRepository = tokenRepository;
     }
 
-    public OtpResponse requestOtp(String msisdn) throws JsonProcessingException {
+    public OtpResponse requestOtp(Long userId) throws JsonProcessingException {
 
-        User user = userRepository.findByPhone(msisdn).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by phone number."));
+        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by phone number."));
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        msisdn = msisdn.replaceAll("[\\s-]", "");
+        String msisdn = user.getPhone().replaceAll("[\\s-]", "");
         if (msisdn.startsWith("0")) {
             msisdn = "+66" + msisdn.substring(1);
         }
