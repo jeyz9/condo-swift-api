@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
@@ -81,41 +82,47 @@ public class ThaiBulkSmsService {
     }
 
     public OtpResponse requestOtp(Long userId) throws JsonProcessingException {
+        try {
+            User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by phone number."));
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by phone number."));
-        
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        String msisdn = user.getPhone().replaceAll("[\\s-]", "");
-        if (msisdn.startsWith("0")) {
-            msisdn = "+66" + msisdn.substring(1);
+            String msisdn = user.getPhone().replaceAll("[\\s-]", "");
+            if (msisdn.startsWith("0")) {
+                msisdn = "+66" + msisdn.substring(1);
+            }
+
+            String cleanedMsisdn = msisdn.trim();
+            String encodedMsisdn = URLEncoder.encode(cleanedMsisdn, StandardCharsets.UTF_8);
+            String body = "key=" + apiKey +
+                    "&secret=" + apiSecret +
+                    "&msisdn=" + encodedMsisdn;
+
+            HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    requestUrl,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            OtpResponse otpResponse = mapper.readValue(response.getBody(), OtpResponse.class);
+            VerificationOtpToken otpToken = new VerificationOtpToken();
+            otpToken.setToken(otpResponse.getToken());
+            otpToken.setRefno(otpResponse.getRefno());
+            otpToken.setUser(user);
+            verificationOtpTokenRepository.save(otpToken);
+
+            return otpResponse;
+        }catch (HttpClientErrorException e) {
+            if (e.getResponseBodyAsString().contains("ERROR_INSUFFICIENT_CREDIT")) {
+                throw new WebException(HttpStatus.BAD_GATEWAY, "ThaiBulkSMS: เครดิตไม่เพียงพอ กรุณาเติมก่อนส่ง OTP");
+            }
+            throw e;
         }
-        
-        String cleanedMsisdn = msisdn.trim();
-        String encodedMsisdn = URLEncoder.encode(cleanedMsisdn, StandardCharsets.UTF_8);
-        String body = "key=" + apiKey +
-                "&secret=" + apiSecret +
-                "&msisdn=" + encodedMsisdn;
-
-        HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                requestUrl,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
-
-        OtpResponse otpResponse = mapper.readValue(response.getBody(), OtpResponse.class);
-        VerificationOtpToken otpToken = new VerificationOtpToken();
-        otpToken.setToken(otpResponse.getToken());
-        otpToken.setRefno(otpResponse.getRefno());
-        otpToken.setUser(user);
-        verificationOtpTokenRepository.save(otpToken);
-        
-        return otpResponse;
     }
 
     public String verifyOtp(String token, String otpCode) {
