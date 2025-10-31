@@ -102,8 +102,8 @@ public class AuthController {
     }
 
     @PostMapping("/send-otp")
-    public ResponseEntity<OtpResponse> requestOtp(@RequestBody OtpRequest otpRequest) throws JsonProcessingException {
-        return new ResponseEntity<>(thaiBulkSmsService.requestOtp(otpRequest.getMsisdn()), HttpStatus.CREATED);
+    public ResponseEntity<OtpResponse> requestOtp(@RequestParam Long userId) throws JsonProcessingException {
+        return new ResponseEntity<>(thaiBulkSmsService.requestOtp(userId), HttpStatus.CREATED);
     }
 
 
