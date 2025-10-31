@@ -44,8 +44,8 @@ supabase:
     profile: profile-picture
     
 thaibulksms:
-  key: 1846586846639492
-  secret: 2306616f92143457e259dd60d9034553
+  key: 1847479714411839
+  secret: 3b48b4d50a40502eacc994ac833e24c0
   request_url: https://otp.thaibulksms.com/v2/otp/request
   verify_url: https://otp.thaibulksms.com/v2/otp/verify
   
