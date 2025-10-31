@@ -31,7 +31,7 @@ public class UserController {
         this.userService = userService;
     }
     
-    @PostMapping("/users/{userId}/acceptTerms")
+    @PostMapping("/{userId}/acceptTerms")
     public ResponseEntity<String> acceptTerms(@PathVariable Long userId, HttpServletRequest request) throws WebException {
         return new ResponseEntity<>(userService.userTermsAcceptLog(userId, request), HttpStatus.CREATED);
     }
