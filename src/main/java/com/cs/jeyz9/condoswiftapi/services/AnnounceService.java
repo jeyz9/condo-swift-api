@@ -19,6 +19,6 @@ public interface AnnounceService {
     AnnounceDetailsSelected getAnnounceDetailsById(Long announceId);
     ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException;
     String deletedAnnounce(Long announceId);
-    AnnounceResponse filterAnnounceWithAgen(String keyword, String type, String saleType, Integer bedroomCount, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException;
+    AnnounceResponse filterAnnounceWithAgen(String keyword, String type, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException;
     AnnounceRequestDTO addAnnounceWithImage(AnnounceDTO announceDTO, List<MultipartFile> imageFile) throws WebException;
 }
