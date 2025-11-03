@@ -325,7 +325,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             List<Announce> announces = announceRepository.findAll();
             List<RecommendAnnounceDTO> recommendList = announces.stream()
                     .filter(announce -> announce.getAnnounceBadges() != null && announce.getAnnounceBadges().stream()
-                            .anyMatch(badge -> badge != null && badge.getId() != null && badge.getId().equals(1L)))
+                            .anyMatch(badge -> badge != null && badge.getId() != null && badge.getBadge().getBadgeName().equalsIgnoreCase(BadgeConstant.RECOMMEND)))
                     .map(announce -> {
                         RecommendAnnounceDTO recommendAnnounce = new RecommendAnnounceDTO();
                         recommendAnnounce.setId(announce.getId());
