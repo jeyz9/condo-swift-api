@@ -419,7 +419,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
-    public AnnounceResponse filterAnnounceWithAgen (String keyword, String type, String saleType, Integer bedroomCount, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
+    public AnnounceResponse filterAnnounceWithAgen (String keyword, String type, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
         try{
             List<Announce> announceList = findAllAnnounce();
             Stream<Announce> stream = announceList.stream();
@@ -439,6 +439,10 @@ public class AnnounceServiceImpl implements AnnounceService {
     
             if (bedroomCount != null) {
                 stream = stream.filter(a -> a.getBedroomCount() != null && a.getBedroomCount().equals(bedroomCount));
+            }
+            
+            if(badge != null) {
+                stream = stream.filter(a -> a.getAnnounceBadges() != null && a.getAnnounceBadges().stream().anyMatch(b -> b.getBadge().getBadgeName().equalsIgnoreCase(badge)));
             }
     
             if (minPrice != null) {
