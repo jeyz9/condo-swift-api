@@ -167,6 +167,8 @@ public class UserServiceImpl implements UserService {
         userOverview.setDescription(user.getDescription());
         userOverview.setImage(user.getImage());
         userOverview.setJoinAt(user.getCreatedAt());
+        userOverview.setPhoneVerified(user.getPhoneVerified());
+        userOverview.setEmailVerified(user.getEmailVerified());
 
         List<Announce> announceList = announceRepository.findAllByUserId(userId);
         

@@ -21,4 +21,6 @@ public class UserProfileOverviewDTO {
     private Integer announceSellCount;
     private Integer announceRentCount;
     private List<AnnounceByTypeDTO> announceList;
+    private Boolean phoneVerified;
+    private Boolean emailVerified;
 }

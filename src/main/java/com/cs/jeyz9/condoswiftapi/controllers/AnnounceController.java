@@ -83,11 +83,12 @@ public class AnnounceController {
                                                            @RequestParam(defaultValue = "", required = false) String type,
                                                            @RequestParam(defaultValue = "", required = false) String saleType,
                                                            @RequestParam(defaultValue = "", required = false) Integer bedroomCount,
+                                                           @RequestParam(defaultValue = "", required = false) String badge,
                                                            @RequestParam(defaultValue = "", required = false) Double minPrice,
                                                            @RequestParam(defaultValue = "", required = false) Double maxPrice,
                                                            @RequestParam(defaultValue = "0", required = false) Integer page,
                                                            @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
-        return new ResponseEntity<>(announceService.filterAnnounceWithAgen(keyword, type, saleType, bedroomCount, minPrice, maxPrice, page, size), HttpStatus.OK);
+        return new ResponseEntity<>(announceService.filterAnnounceWithAgen(keyword, type, saleType, bedroomCount, badge, minPrice, maxPrice, page, size), HttpStatus.OK);
     }
     
     @DeleteMapping("/deletedAnnounceImage/{announceImageId}")

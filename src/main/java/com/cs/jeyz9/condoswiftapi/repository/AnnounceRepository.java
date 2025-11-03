@@ -12,4 +12,7 @@ import java.util.List;
 public interface AnnounceRepository extends JpaRepository<Announce, Long> {
     @Query("SELECT a FROM Announce a WHERE a.user.id = :userId")
     List<Announce> findAllByUserId(@Param("userId") Long userId);
+    
+    @Query("SELECT a FROM Announce a ORDER BY a.announcementDate DESC")
+    List<Announce> findAll();
 }
