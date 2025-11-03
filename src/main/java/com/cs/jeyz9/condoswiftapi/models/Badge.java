@@ -33,7 +33,8 @@ public class Badge {
 //    @JsonIgnore
 //    @OneToMany(mappedBy = "badge", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 //    private Set<AnnounceBadge> announceBadge = new HashSet<>();
-//    public Badge(String badgeName) {
-//        this.badgeName = badgeName;
-//    }
+    
+    public Badge(String badgeName) {
+        this.badgeName = badgeName;
+    }
 }
