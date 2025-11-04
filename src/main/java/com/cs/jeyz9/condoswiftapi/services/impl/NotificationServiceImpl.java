@@ -89,8 +89,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
     
     private List<NotificationDTO> mapToDTO(List<Notification> notifications) {
-        return notifications.stream().map(notify -> 
-            modelMapper.map(notify, NotificationDTO.class)
+        return notifications.stream().map(notify -> {
+            NotificationDTO response = modelMapper.map(notify, NotificationDTO.class);
+            response.setIsRead(notify.getIs_read());
+            return response;
+        }
         ).toList();
     }
 }
