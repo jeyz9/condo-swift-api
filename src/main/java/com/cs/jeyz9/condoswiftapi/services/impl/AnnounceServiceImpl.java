@@ -441,7 +441,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                 stream = stream.filter(a -> a.getBedroomCount() != null && a.getBedroomCount().equals(bedroomCount));
             }
             
-            if(badge != null) {
+            if(badge != null && !saleType.trim().isEmpty()) {
                 stream = stream.filter(a -> a.getAnnounceBadges() != null && a.getAnnounceBadges().stream().anyMatch(b -> b.getBadge().getBadgeName().equalsIgnoreCase(badge)));
             }
     
