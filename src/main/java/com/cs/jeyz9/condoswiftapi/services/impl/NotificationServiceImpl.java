@@ -71,7 +71,10 @@ public class NotificationServiceImpl implements NotificationService {
                 notification.setIs_read(true);
                 notificationRepository.save(notification);
             }
-            return modelMapper.map(notification, NotificationDTO.class);
+            NotificationDTO response = modelMapper.map(notification, NotificationDTO.class);
+            response.setIsRead(notification.getIs_read());
+            response.setCreatedDate(notification.getCreatedDate());
+            return response;
         } catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }

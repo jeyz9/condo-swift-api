@@ -19,8 +19,6 @@ import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
 import com.cs.jeyz9.condoswiftapi.repository.VerificationTokenRepository;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
-import com.cs.jeyz9.condoswiftapi.services.EmailService;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -50,7 +47,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserTermsAcceptLogRepository userTermsAcceptLogRepository;
     private final TermsRepository termsRepository;
     private final VerificationTokenRepository tokenRepository;
-    private final EmailService emailService;
     private final NotificationRepository notificationRepository;
 
     @Autowired
@@ -63,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
                            UserTermsAcceptLogRepository userTermsAcceptLogRepository,
                            TermsRepository termsRepository,
                            VerificationTokenRepository tokenRepository,
-                           EmailService emailService, NotificationRepository notificationRepository){
+                           NotificationRepository notificationRepository){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
@@ -73,7 +69,6 @@ public class AuthServiceImpl implements AuthService {
         this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
         this.termsRepository = termsRepository;
         this.tokenRepository = tokenRepository;
-        this.emailService = emailService;
         this.notificationRepository = notificationRepository;
     }
     @Override
@@ -90,6 +85,9 @@ public class AuthServiceImpl implements AuthService {
             if(!register.getIsAgree()){
                 throw new WebException(HttpStatus.BAD_REQUEST, "You must accept the terms and conditions");
             }
+
+            Terms terms = termsRepository.findByTypeAndIsActiveTrue(TermsType.REGISTER_TERMS)
+                    .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Terms not found."));
     
             User user = mapToUser(register);
             user.setName(register.getName());
@@ -108,9 +106,6 @@ public class AuthServiceImpl implements AuthService {
             }
             user.setRoles(roles);
             userRepository.save(user);
-
-            Terms terms = termsRepository.findByTypeAndIsActiveTrue(TermsType.REGISTER_TERMS)
-                    .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Terms not found."));
             
             UserTermsAcceptLog termsAcceptLog = new UserTermsAcceptLog();
             termsAcceptLog.setUser(user);
