@@ -1,5 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,4 +18,7 @@ public class NotificationDTO {
     private String title;
     private String message;
     private LocalDateTime createdDate;
+    
+    @JsonProperty("is_read")
+    private Boolean isRead;
 }
