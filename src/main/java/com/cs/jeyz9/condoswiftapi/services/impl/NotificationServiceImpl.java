@@ -57,7 +57,7 @@ public class NotificationServiceImpl implements NotificationService {
         }catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
-    };
+    }
     
     @Override
     public NotificationDTO showNotificationDetailsSelected(Long userId, Long notifyId){
