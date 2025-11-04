@@ -7,10 +7,10 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceNearDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
-import com.cs.jeyz9.condoswiftapi.dto.NearbyPlaceAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
@@ -23,19 +23,20 @@ import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.MapPoint;
-import com.cs.jeyz9.condoswiftapi.models.NearbyPlace;
-import com.cs.jeyz9.condoswiftapi.models.NearbyPlaceTypes;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
+import com.cs.jeyz9.condoswiftapi.models.Station;
 import com.cs.jeyz9.condoswiftapi.models.User;
+import com.cs.jeyz9.condoswiftapi.models.Villa;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceBadgeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceImageRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceStateApproveRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
-import com.cs.jeyz9.condoswiftapi.repository.NearbyPlaceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
+import com.cs.jeyz9.condoswiftapi.repository.StationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
+import com.cs.jeyz9.condoswiftapi.repository.VillaRepository;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceImageService;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceService;
 import org.modelmapper.ModelMapper;
@@ -50,6 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -64,25 +66,27 @@ public class AnnounceServiceImpl implements AnnounceService {
     private final AnnounceImageRepository announceImageRepository;
     private final ModelMapper modelMapper;
     private final AnnounceImageService announceImageService;
-    private final NearbyPlaceRepository nearbyPlaceRepository;
     private final AnnounceTypeRepository announceTypeRepository;
     private final SaleTypeRepository saleTypeRepository;
     private final AnnounceBadgeRepository announceBadgeRepository;
     private final BadgeRepository badgeRepository;
+    private final StationRepository stationRepository;
+    private final VillaRepository villaRepository;
 
     @Autowired
-    public AnnounceServiceImpl(AnnounceRepository announceRepository, UserRepository userRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceImageRepository announceImageRepository, ModelMapper modelMapper, AnnounceImageService announceImageService, NearbyPlaceRepository nearbyPlaceRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceBadgeRepository announceBadgeRepository, BadgeRepository badgeRepository) {
+    public AnnounceServiceImpl(AnnounceRepository announceRepository, UserRepository userRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceImageRepository announceImageRepository, ModelMapper modelMapper, AnnounceImageService announceImageService, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceBadgeRepository announceBadgeRepository, BadgeRepository badgeRepository, StationRepository stationRepository, VillaRepository villaRepository) {
         this.announceRepository = announceRepository;
         this.userRepository = userRepository;
         this.announceStateApproveRepository = announceStateApproveRepository;
         this.announceImageRepository = announceImageRepository;
         this.modelMapper = modelMapper;
         this.announceImageService = announceImageService;
-        this.nearbyPlaceRepository = nearbyPlaceRepository;
         this.announceTypeRepository = announceTypeRepository;
         this.saleTypeRepository = saleTypeRepository;
         this.announceBadgeRepository = announceBadgeRepository;
         this.badgeRepository = badgeRepository;
+        this.stationRepository = stationRepository;
+        this.villaRepository = villaRepository;
     }
 
     @Override
@@ -148,6 +152,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                     MapPoint mapPoint = new MapPoint();
                     mapPoint.setLat(mpDTO.getLat());
                     mapPoint.setLng(mpDTO.getLng());
+                    mapPoint.setCreatedAt(LocalDateTime.now());
                     mapPoint.setAnnounce(announce);
                     announce.getMapPointList().add(mapPoint);
                 });
@@ -159,14 +164,6 @@ public class AnnounceServiceImpl implements AnnounceService {
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
 
-            if (announceDTO.getNearbyPlaces() != null && !announceDTO.getNearbyPlaces().isEmpty()) {
-                Set<NearbyPlace> nearbyPlaces = announceDTO.getNearbyPlaces().stream()
-                        .map(id -> nearbyPlaceRepository.findById(id)
-                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "NearbyPlace not found id: " + id)))
-                        .collect(Collectors.toSet());
-                announce.setNearbyPlaces(nearbyPlaces);
-            }
-    
             Announce response = announceRepository.save(announce);
             
             Badge badge = badgeRepository.findByBadgeNameIgnoreCase(BadgeConstant.RECOMMEND).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
@@ -216,6 +213,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                     MapPoint mapPoint = new MapPoint();
                     mapPoint.setLat(mpDTO.getLat());
                     mapPoint.setLng(mpDTO.getLng());
+                    mapPoint.setCreatedAt(LocalDateTime.now());
                     mapPoint.setAnnounce(announce);
                     announce.getMapPointList().add(mapPoint);
                 });
@@ -226,14 +224,6 @@ public class AnnounceServiceImpl implements AnnounceService {
 
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
-
-            if (announceDTO.getNearbyPlaces() != null && !announceDTO.getNearbyPlaces().isEmpty()) {
-                Set<NearbyPlace> nearbyPlaces = announceDTO.getNearbyPlaces().stream()
-                        .map(id -> nearbyPlaceRepository.findById(id)
-                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "NearbyPlace not found id: " + id)))
-                        .collect(Collectors.toSet());
-                announce.setNearbyPlaces(nearbyPlaces);
-            }
 
             Announce response = announceRepository.save(announce);
 
@@ -300,14 +290,6 @@ public class AnnounceServiceImpl implements AnnounceService {
             SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
             announce.setSaleType(saleType);
 
-            if (announceDTO.getNearbyPlaces() != null && !announceDTO.getNearbyPlaces().isEmpty()) {
-                Set<NearbyPlace> nearbyPlaces = announceDTO.getNearbyPlaces().stream()
-                        .map(id -> nearbyPlaceRepository.findById(id)
-                                .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "NearbyPlace not found id: " + id)))
-                        .collect(Collectors.toSet());
-                announce.setNearbyPlaces(nearbyPlaces);
-            }
-
             announceRepository.save(announce);
             return mapToAnnounceDTO(announce);
 
@@ -350,19 +332,15 @@ public class AnnounceServiceImpl implements AnnounceService {
                     }).limit(4)
                     .toList();
             
-            List<NearbyPlaceAnnounceDTO> nearbyPlaceAnnounce = nearbyPlaceRepository.findAll().stream().filter(
-                    nearbyPlace -> nearbyPlace.getType().equals(NearbyPlaceTypes.BTS_STATION)
-            ).map(near -> {
-                NearbyPlaceAnnounceDTO nearPlate = new NearbyPlaceAnnounceDTO();
-                nearPlate.setId(near.getId());
-                nearPlate.setName(near.getName());
-                Integer announceCount = announces.stream()
-                        .filter(announce -> announce.getNearbyPlaces().stream()
-                                .anyMatch(nearplace -> nearplace.getId().equals(near.getId())))
-                        .toList().size();
-                nearPlate.setTotalAnnounces(announceCount);
-                return nearPlate;
-            }).toList();
+            List<Station> stationList = stationRepository.findAll().stream().toList();
+            List<AnnounceNearDTO> announceNearDTO = stationList.stream().map(station -> {
+                AnnounceNearDTO announceNearStation = new AnnounceNearDTO();
+                announceNearStation.setId(station.getId());
+                announceNearStation.setName(station.getName());
+                Long countAnnounceNear = announceRepository.countListingsNear(station.getLat(), station.getLng(), 1.5);
+                announceNearStation.setTotalAnnounce(countAnnounceNear);
+                return announceNearStation;
+            }).sorted(Comparator.comparingLong(AnnounceNearDTO::getTotalAnnounce).reversed()).limit(4).toList();
 
             List<AnnounceByTypeDTO> announceByTypeList = announces.stream()
                     .filter(announce -> announce.getAnnounceType() != null && announce.getAnnounceType().getTypeName().equals(AnnounceTypeConstant.LUXURY_HOUSE))
@@ -379,25 +357,20 @@ public class AnnounceServiceImpl implements AnnounceService {
                         return announceByType;
                     }).limit(4)
                     .toList();
-
-            List<NearbyPlaceAnnounceDTO> villaProvince = nearbyPlaceRepository.findAll().stream().filter(
-                    nearbyPlace -> nearbyPlace.getType().equals(NearbyPlaceTypes.PROVINCE)
-            ).map(near -> {
-                NearbyPlaceAnnounceDTO nearPlate = new NearbyPlaceAnnounceDTO();
-                nearPlate.setId(near.getId());
-                nearPlate.setName(near.getName());
-                Integer announceCount = announces.stream()
-                        .filter(announce -> announce.getNearbyPlaces().stream()
-                                .anyMatch(nearplace -> nearplace.getId().equals(near.getId())))
-                        .toList().size();
-                nearPlate.setTotalAnnounces(announceCount);
-                return nearPlate;
-            }).toList();
+            
+            List<Villa> villaList = villaRepository.findAll();
+            List<AnnounceNearDTO> villaNear = villaList.stream().map(villa -> {
+                AnnounceNearDTO villaNearProvince = new AnnounceNearDTO();
+                villaNearProvince.setId(villa.getId());
+                villaNearProvince.setName(villa.getName());
+                villaNearProvince.setTotalAnnounce(announceRepository.countVillaInProvince(villa.getProvince()));
+                return villaNearProvince;
+            }).sorted(Comparator.comparingLong(AnnounceNearDTO::getTotalAnnounce).reversed()).limit(4).toList();
             
             response.setRecommendAnnounces(recommendList);
-            response.setNearbyPlaces(nearbyPlaceAnnounce);
+            response.setNearbyPlaces(announceNearDTO);
             response.setLuxuryHouses(announceByTypeList);
-            response.setVillaProvince(villaProvince);
+            response.setVillaProvince(villaNear);
             
             return response;
         }catch (Exception e) {
@@ -419,7 +392,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
-    public AnnounceResponse filterAnnounceWithAgen (String keyword, String type, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
+    public AnnounceResponse filterAnnounceWithAgen (String keyword, String type, String province, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
         try{
             List<Announce> announceList = findAllAnnounce();
             Stream<Announce> stream = announceList.stream();
@@ -431,6 +404,10 @@ public class AnnounceServiceImpl implements AnnounceService {
     
             if (type != null && !type.trim().isEmpty()) {
                 stream = stream.filter(a -> a.getAnnounceType().getTypeName().equalsIgnoreCase(type));
+            }
+            
+            if(province != null && !province.trim().isEmpty()){
+                stream = stream.filter(a -> a.getLocation().toLowerCase().contains(province.toLowerCase()));
             }
 
             if (saleType != null && !saleType.trim().isEmpty()) {
@@ -500,13 +477,6 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setUserId(announce.getUser().getId());
         dto.setApproveStatusId(announce.getApprove().getId());
 
-//        if (announce.getBadges() != null && !announce.getBadges().isEmpty()) {
-//            Set<Long> badgeIds = announce.getBadges().stream()
-//                    .map(Badge::getId)
-//                    .collect(Collectors.toSet());
-//            dto.setBadges(badgeIds);
-//        }
-
         if (announce.getMapPointList() != null) {
             List<MapPointDTO> mapPoints = announce.getMapPointList().stream()
                     .map(mp -> new MapPointDTO(mp.getLat(), mp.getLng()))
@@ -517,13 +487,6 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setAnnounceType(announce.getAnnounceType().getId());
         dto.setSaleType(announce.getSaleType().getId());
         
-        if(announce.getNearbyPlaces() != null && !announce.getNearbyPlaces().isEmpty()) {
-            Set<Long> nearbyPlaces = announce.getNearbyPlaces().stream()
-                    .map(NearbyPlace::getId)
-                    .collect(Collectors.toSet());
-            dto.setNearbyPlaces(nearbyPlaces);
-        }
-
         return dto;
     }
 
@@ -545,13 +508,6 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setUserId(announce.getUser().getId());
         dto.setApproveStatusId(announce.getApprove().getId());
 
-//        if (announce.getBadges() != null && !announce.getBadges().isEmpty()) {
-//            Set<Long> badgeIds = announce.getBadges().stream()
-//                    .map(Badge::getId)
-//                    .collect(Collectors.toSet());
-//            dto.setBadges(badgeIds);
-//        }
-
         if (announce.getMapPointList() != null) {
             List<MapPointDTO> mapPoints = announce.getMapPointList().stream()
                     .map(mp -> new MapPointDTO(mp.getLat(), mp.getLng()))
@@ -561,13 +517,6 @@ public class AnnounceServiceImpl implements AnnounceService {
 
         dto.setAnnounceType(announce.getAnnounceType().getId());
         dto.setSaleType(announce.getSaleType().getId());
-
-        if(announce.getNearbyPlaces() != null && !announce.getNearbyPlaces().isEmpty()) {
-            Set<Long> nearbyPlaces = announce.getNearbyPlaces().stream()
-                    .map(NearbyPlace::getId)
-                    .collect(Collectors.toSet());
-            dto.setNearbyPlaces(nearbyPlaces);
-        }
 
         return dto;
     }

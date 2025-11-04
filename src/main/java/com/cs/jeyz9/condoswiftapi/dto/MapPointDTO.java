@@ -9,10 +9,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MapPointDTO {
     private Long id;
-    private String lat;
-    private String lng;
+    private Double lat;
+    private Double lng;
     
-    public MapPointDTO(String lat, String lng) {
+    public MapPointDTO(Double lat, Double lng) {
         this.lat = lat;
         this.lng = lng;
     }

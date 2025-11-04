@@ -74,14 +74,6 @@ public class Announce {
     @ManyToOne(fetch = FetchType.EAGER)
     private SaleType saleType;
     
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "announce_nearby_places",
-            joinColumns = @JoinColumn(name = "announce_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "nearbyPlaceId", referencedColumnName = "id")
-    )
-    private Set<NearbyPlace> nearbyPlaces;
-    
     private String announceRemark;
     
     private LocalDateTime approveDate;

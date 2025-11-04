@@ -31,5 +31,4 @@ public class AnnounceRequestDTO {
     private List<MapPointDTO> mapPoints;
     private Long announceType;
     private Long saleType;
-    private Set<Long> nearbyPlaces;
 }
