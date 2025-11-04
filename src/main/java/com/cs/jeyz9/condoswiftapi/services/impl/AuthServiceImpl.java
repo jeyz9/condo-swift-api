@@ -216,6 +216,12 @@ public class AuthServiceImpl implements AuthService {
         return "บัญชีของคุณได้รับการยืนยันอีเมลเรียบร้อย";
     }
     
+    @Override
+    public String changePassword(Long userId, String password, String newPassword) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+        
+        return null;
+    }
     private User mapToUser(RegisterDTO register) {
         return modelMapper.map(register, User.class);
     }

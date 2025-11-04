@@ -12,4 +12,5 @@ public interface AuthService {
     String login(LoginDTO login) throws WebException;
 //    void sendVerificationEmail(Long userId) throws MessagingException;
     String verifyEmail(String token);
+    String changePassword(Long userId, String password, String newPassword);
 }
