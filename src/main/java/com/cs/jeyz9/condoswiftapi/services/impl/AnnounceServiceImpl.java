@@ -14,6 +14,7 @@ import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
+import com.cs.jeyz9.condoswiftapi.dto.VillaDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceBadge;
@@ -121,66 +122,66 @@ public class AnnounceServiceImpl implements AnnounceService {
                         "Announce not found with id: " + announceId));
     }
     
-    @Override
-    public AnnounceRequestDTO addAnnounce(AnnounceDTO announceDTO) throws WebException {
-        try{
-            Announce announce = new Announce();
-            announce.setId(null);
-            announce.setTitle(announceDTO.getTitle());
-            announce.setLocation(announceDTO.getLocation());
-            announce.setPrice(announceDTO.getPrice());
-            announce.setBathroomCount(announceDTO.getBathroomCount());
-            announce.setBedroomCount(announceDTO.getBedroomCount());
-            announce.setAreaSize(announceDTO.getAreaSize());
-            announce.setHasPool(announceDTO.getHasPool());
-            announce.setHasConvenienceStore(announceDTO.getHasConvenienceStore());
-            announce.setHasFitness(announceDTO.getHasFitness());
-            announce.setHasElevator(announceDTO.getHasElevator());
-            announce.setHasParking(announceDTO.getHasParking());
-            announce.setHasSecurity(announceDTO.getHasSecurity());
-            User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found by id: " + announceDTO.getUserId()));
-            announce.setUser(user);
-            
-            AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
-            if(!approveStatus.getStatusName().equals(ApproveStatus.DRAFT) && !approveStatus.getStatusName().equals(ApproveStatus.PENDING)){
-                throw new WebException(HttpStatus.BAD_REQUEST, "Approve status must be DRAFT or PENDING only");
-            }
-            announce.setApprove(approveStatus);
-    
-            if (announceDTO.getMapPoints() != null) {
-                announceDTO.getMapPoints().forEach(mpDTO -> {
-                    MapPoint mapPoint = new MapPoint();
-                    mapPoint.setLat(mpDTO.getLat());
-                    mapPoint.setLng(mpDTO.getLng());
-                    mapPoint.setCreatedAt(LocalDateTime.now());
-                    mapPoint.setAnnounce(announce);
-                    announce.getMapPointList().add(mapPoint);
-                });
-            }
-
-            AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
-            announce.setAnnounceType(type);
-            
-            SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
-            announce.setSaleType(saleType);
-
-            Announce response = announceRepository.save(announce);
-            
-            Badge badge = badgeRepository.findByBadgeNameIgnoreCase(BadgeConstant.RECOMMEND).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
-            AnnounceBadge announceBadge = new AnnounceBadge();
-            announceBadge.setBadge(badge);
-            announceBadge.setAnnounce(response);
-            announceBadge.setExpiresAt(LocalDateTime.now().plusDays(7));
-            announceBadgeRepository.save(announceBadge);
-            
-            return mapToAnnounceRequestDTO(announce);
-            
-        }catch (WebException e){
-            throw e;
-        }catch (Exception e){
-            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Added \"Announce\" fails " + e.getMessage());
-        }
-    }
+//    @Override
+//    public AnnounceRequestDTO addAnnounce(AnnounceDTO announceDTO) throws WebException {
+//        try{
+//            Announce announce = new Announce();
+//            announce.setId(null);
+//            announce.setTitle(announceDTO.getTitle());
+//            announce.setLocation(announceDTO.getLocation());
+//            announce.setPrice(announceDTO.getPrice());
+//            announce.setBathroomCount(announceDTO.getBathroomCount());
+//            announce.setBedroomCount(announceDTO.getBedroomCount());
+//            announce.setAreaSize(announceDTO.getAreaSize());
+//            announce.setHasPool(announceDTO.getHasPool());
+//            announce.setHasConvenienceStore(announceDTO.getHasConvenienceStore());
+//            announce.setHasFitness(announceDTO.getHasFitness());
+//            announce.setHasElevator(announceDTO.getHasElevator());
+//            announce.setHasParking(announceDTO.getHasParking());
+//            announce.setHasSecurity(announceDTO.getHasSecurity());
+//            User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found by id: " + announceDTO.getUserId()));
+//            announce.setUser(user);
+//            
+//            AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
+//            if(!approveStatus.getStatusName().equals(ApproveStatus.DRAFT) && !approveStatus.getStatusName().equals(ApproveStatus.PENDING)){
+//                throw new WebException(HttpStatus.BAD_REQUEST, "Approve status must be DRAFT or PENDING only");
+//            }
+//            announce.setApprove(approveStatus);
+//    
+//            if (announceDTO.getMapPoints() != null) {
+//                announceDTO.getMapPoints().forEach(mpDTO -> {
+//                    MapPoint mapPoint = new MapPoint();
+//                    mapPoint.setLat(mpDTO.getLat());
+//                    mapPoint.setLng(mpDTO.getLng());
+//                    mapPoint.setCreatedAt(LocalDateTime.now());
+//                    mapPoint.setAnnounce(announce);
+//                    announce.getMapPointList().add(mapPoint);
+//                });
+//            }
+//
+//            AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
+//            announce.setAnnounceType(type);
+//            
+//            SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
+//            announce.setSaleType(saleType);
+//
+//            Announce response = announceRepository.save(announce);
+//            
+//            Badge badge = badgeRepository.findByBadgeNameIgnoreCase(BadgeConstant.RECOMMEND).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
+//            AnnounceBadge announceBadge = new AnnounceBadge();
+//            announceBadge.setBadge(badge);
+//            announceBadge.setAnnounce(response);
+//            announceBadge.setExpiresAt(LocalDateTime.now().plusDays(7));
+//            announceBadgeRepository.save(announceBadge);
+//            
+//            return mapToAnnounceRequestDTO(announce);
+//            
+//        }catch (WebException e){
+//            throw e;
+//        }catch (Exception e){
+//            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Added \"Announce\" fails " + e.getMessage());
+//        }
+//    }
 
     @Override
     public AnnounceRequestDTO addAnnounceWithImage(AnnounceDTO announceDTO, List<MultipartFile> imageFile) throws WebException {
@@ -359,13 +360,14 @@ public class AnnounceServiceImpl implements AnnounceService {
                     .toList();
             
             List<Villa> villaList = villaRepository.findAll();
-            List<AnnounceNearDTO> villaNear = villaList.stream().map(villa -> {
-                AnnounceNearDTO villaNearProvince = new AnnounceNearDTO();
+            List<VillaDTO> villaNear = villaList.stream().map(villa -> {
+                VillaDTO villaNearProvince = new VillaDTO();
                 villaNearProvince.setId(villa.getId());
                 villaNearProvince.setName(villa.getName());
                 villaNearProvince.setTotalAnnounce(announceRepository.countVillaInProvince(villa.getProvince()));
+                villaNearProvince.setProvince(villa.getProvince());
                 return villaNearProvince;
-            }).sorted(Comparator.comparingLong(AnnounceNearDTO::getTotalAnnounce).reversed()).limit(4).toList();
+            }).sorted(Comparator.comparingLong(VillaDTO::getTotalAnnounce).reversed()).limit(4).toList();
             
             response.setRecommendAnnounces(recommendList);
             response.setNearbyPlaces(announceNearDTO);

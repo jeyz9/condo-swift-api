@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface AnnounceService {
     Announce getAnnounceById(Long announceId);
-    AnnounceRequestDTO addAnnounce(AnnounceDTO announce) throws WebException;
+//    AnnounceRequestDTO addAnnounce(AnnounceDTO announce) throws WebException;
     AnnounceDTO editAnnounce(Long announceId, AnnounceDTO announce) throws WebException;
     AnnounceDetailsSelected getAnnounceDetailsById(Long announceId);
     ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException;
