@@ -52,6 +52,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -394,9 +395,15 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
-    public AnnounceResponse filterAnnounceWithAgen (String keyword, String type, String province, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
+    public AnnounceResponse filterAnnounceWithAgen (String keyword, String type, String station, String province, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException {
         try{
-            List<Announce> announceList = findAllAnnounce();
+            List<Announce> announceList;
+            if(station != null && !station.trim().isEmpty()){
+                announceList = announceRepository.findAnnounceNearStation(station);
+            }else {
+                announceList = findAllAnnounce();
+            }
+            
             Stream<Announce> stream = announceList.stream();
             if (keyword != null && !keyword.trim().isEmpty()) {
                 stream = stream.filter(a ->

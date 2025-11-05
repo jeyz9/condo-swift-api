@@ -40,4 +40,51 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
         WHERE at.type_name = 'วิลล่า' AND a.location LIKE CONCAT('%', :province, '%')
     """, nativeQuery = true)
     long countVillaInProvince(@Param("province") String province);
+    
+    @Query(value = """
+        SELECT
+            a.id,
+            a.title,
+            a.price,
+            a.announce_remark,
+            a.announcement_date,
+            a.area_size,
+            a.announce_type_id,
+            a.approve_id,
+            a.approve_by,
+            a.bathroom_count,
+            a.bedroom_count,
+            a.location,
+            a.sale_type_id,
+            a.user_id,
+            a.approve_date,
+            a.has_convenience_store,
+            a.has_pool,
+            a.has_elevator,
+            a.has_security,
+            a.has_fitness,
+            a.has_parking,
+            s.name AS station_name,
+            s.lat AS station_lat,
+            s.lng AS station_lng
+        FROM announces a
+                 JOIN map_point m ON m.announce_id = a.id
+                 JOIN announce_types at ON a.announce_type_id = at.id
+                 LEFT JOIN (
+            SELECT name, lat, lng
+            FROM stations
+            WHERE (:stationName IS NULL OR name ILIKE '%' || :stationName || '%')
+            LIMIT 1
+        ) s ON TRUE
+        WHERE 
+            (:stationName IS NULL OR :stationName = '')
+                OR (
+                       6371 * acos(
+                               cos(radians(s.lat)) * cos(radians(m.lat)) *
+                               cos(radians(m.lng) - radians(s.lng)) +
+                               sin(radians(s.lat)) * sin(radians(m.lat))
+                              )
+                       ) <= 1.5
+    """, nativeQuery = true)
+    List<Announce> findAnnounceNearStation(@Param("stationName") String stationName);
 }
