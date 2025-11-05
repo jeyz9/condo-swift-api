@@ -81,6 +81,7 @@ public class AnnounceController {
     @GetMapping(value = "/filterAnnounceWithAgent", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnnounceResponse> filterAnnounce(@RequestParam(defaultValue = "", required = false) String keyword,
                                                            @RequestParam(defaultValue = "", required = false) String type,
+                                                           @RequestParam(defaultValue = "", required = false) String station,
                                                            @RequestParam(defaultValue = "", required = false) String province,
                                                            @RequestParam(defaultValue = "", required = false) String saleType,
                                                            @RequestParam(defaultValue = "", required = false) Integer bedroomCount,
@@ -89,7 +90,7 @@ public class AnnounceController {
                                                            @RequestParam(defaultValue = "", required = false) Double maxPrice,
                                                            @RequestParam(defaultValue = "0", required = false) Integer page,
                                                            @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
-        return new ResponseEntity<>(announceService.filterAnnounceWithAgen(keyword, type, province, saleType, bedroomCount, badge, minPrice, maxPrice, page, size), HttpStatus.OK);
+        return new ResponseEntity<>(announceService.filterAnnounceWithAgen(keyword, type, station, province, saleType, bedroomCount, badge, minPrice, maxPrice, page, size), HttpStatus.OK);
     }
     
     @DeleteMapping("/deletedAnnounceImage/{announceImageId}")

@@ -14,11 +14,11 @@ import java.util.List;
 
 public interface AnnounceService {
     Announce getAnnounceById(Long announceId);
-    AnnounceRequestDTO addAnnounce(AnnounceDTO announce) throws WebException;
+//    AnnounceRequestDTO addAnnounce(AnnounceDTO announce) throws WebException;
     AnnounceDTO editAnnounce(Long announceId, AnnounceDTO announce) throws WebException;
     AnnounceDetailsSelected getAnnounceDetailsById(Long announceId);
     ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException;
     String deletedAnnounce(Long announceId);
-    AnnounceResponse filterAnnounceWithAgen(String keyword, String type, String province, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException;
+    AnnounceResponse filterAnnounceWithAgen(String keyword, String type, String station, String province, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException;
     AnnounceRequestDTO addAnnounceWithImage(AnnounceDTO announceDTO, List<MultipartFile> imageFile) throws WebException;
 }
