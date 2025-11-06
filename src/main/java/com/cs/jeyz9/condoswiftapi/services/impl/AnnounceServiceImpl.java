@@ -398,12 +398,42 @@ public class AnnounceServiceImpl implements AnnounceService {
             throw new IOException("Error while searching for announce", err);
         }
     }
+
+    @Override
+    public TableResponse<AnnounceApproveDTO> showAllAnnouncePending(String keyword, Integer page, Integer size) throws IOException {
+        try{
+            List<AnnounceApproveDTO> announce = announceRepository.findAnnouncePending();
+            Stream<AnnounceApproveDTO> stream = announce.stream();
+            if(keyword != null && !keyword.trim().isEmpty()){
+                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgenName().toLowerCase().contains(keyword.toLowerCase()));
+            }
+
+            List<AnnounceApproveDTO> announceApproveList = stream.toList();
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), announceApproveList.size());
+            int total = announceApproveList.size();
+
+            List<AnnounceApproveDTO> paginatedList = announceApproveList.subList(start, end);
+            Page<AnnounceApproveDTO> announceApprovePage = new PageImpl<>(paginatedList, pageable, announceApproveList.size());
+
+            TableResponse<AnnounceApproveDTO> announceApproveTableResponse = new TableResponse<>();
+            announceApproveTableResponse.setData(announceApprovePage.getContent());
+            announceApproveTableResponse.setPage(page);
+            announceApproveTableResponse.setSize(size);
+            announceApproveTableResponse.setTotal(total);
+            return announceApproveTableResponse;
+
+        }catch (Exception e) {
+            throw new IOException("Error while searching for badge", e);
+        }
+    }
     
     @Override
     public TableResponse<AnnounceApproveDTO> showAllAnnounceApprove(String keyword, Integer page, Integer size) throws IOException {
         try{
             List<AnnounceApproveDTO> announce = announceRepository.findAnnounceApprove();
-            Stream<AnnounceApproveDTO> stream = announce.stream().filter(an -> an.getStatus().equalsIgnoreCase(ApproveStatus.APPROVED.toString()));
+            Stream<AnnounceApproveDTO> stream = announce.stream();
             if(keyword != null && !keyword.trim().isEmpty()){
                 stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgenName().toLowerCase().contains(keyword.toLowerCase()));
             }
@@ -424,6 +454,36 @@ public class AnnounceServiceImpl implements AnnounceService {
             announceApproveTableResponse.setTotal(total);
             return announceApproveTableResponse;
             
+        }catch (Exception e) {
+            throw new IOException("Error while searching for badge", e);
+        }
+    }
+
+    @Override
+    public TableResponse<AnnounceApproveDTO> showAllAnnounceHistory(String keyword, Integer page, Integer size) throws IOException {
+        try{
+            List<AnnounceApproveDTO> announce = announceRepository.findAnnounceHistory();
+            Stream<AnnounceApproveDTO> stream = announce.stream();
+            if(keyword != null && !keyword.trim().isEmpty()){
+                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgenName().toLowerCase().contains(keyword.toLowerCase()));
+            }
+
+            List<AnnounceApproveDTO> announceApproveList = stream.toList();
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), announceApproveList.size());
+            int total = announceApproveList.size();
+
+            List<AnnounceApproveDTO> paginatedList = announceApproveList.subList(start, end);
+            Page<AnnounceApproveDTO> announceApprovePage = new PageImpl<>(paginatedList, pageable, announceApproveList.size());
+
+            TableResponse<AnnounceApproveDTO> announceApproveTableResponse = new TableResponse<>();
+            announceApproveTableResponse.setData(announceApprovePage.getContent());
+            announceApproveTableResponse.setPage(page);
+            announceApproveTableResponse.setSize(size);
+            announceApproveTableResponse.setTotal(total);
+            return announceApproveTableResponse;
+
         }catch (Exception e) {
             throw new IOException("Error while searching for badge", e);
         }
