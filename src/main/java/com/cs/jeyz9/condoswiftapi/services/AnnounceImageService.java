@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -59,7 +61,8 @@ public class AnnounceImageService {
 
                 HttpEntity<byte[]> entity = new HttpEntity<>(file.getBytes(), headers);
 
-                String url = supabaseUrl + "/object/" + bucket + "/" + fileName;
+                String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
+                String url = supabaseUrl + "/object/" + bucket + "/" + encodedFileName;
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 
                 if (!response.getStatusCode().is2xxSuccessful()) {

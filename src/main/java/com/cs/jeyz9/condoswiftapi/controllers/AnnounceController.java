@@ -1,10 +1,12 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
+import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceImageService;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceService;
@@ -41,16 +43,6 @@ public class AnnounceController {
         this.announceImageService = announceImageService;
     }
     
-//    @PostMapping(value = "/addAnnounceWithImage", )
-    
-//    @PostMapping(value = "/addAnnounce", consumes = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<AnnounceRequestDTO> addAnnounce(
-//            @Valid @RequestBody AnnounceDTO announceDTO
-//    ) throws WebException {
-//        AnnounceRequestDTO savedAnnounce = announceService.addAnnounce(announceDTO);
-//        return new ResponseEntity<>(savedAnnounce, HttpStatus.CREATED);
-//    }
-
     @PostMapping(value = "/uploadImages/{announceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadAnnounceImages(
             @PathVariable Long announceId,
@@ -110,5 +102,12 @@ public class AnnounceController {
             @Parameter(description = "List of images") @RequestPart(value = "images", required = false) List<MultipartFile> imageFile
     ) throws WebException {
         return new ResponseEntity<>(announceService.addAnnounceWithImage(announce, imageFile), HttpStatus.CREATED);
+    }
+    
+    @GetMapping("/showAllAnnounceApproveByAdmin")
+    public ResponseEntity<TableResponse<AnnounceApproveDTO>> showAllAnnounceApproveByAdmin(@RequestParam(defaultValue = "", required = false) String keyword,
+                                                                                           @RequestParam(defaultValue = "0", required = false) Integer page,
+                                                                                           @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
+        return ResponseEntity.ok(announceService.showAllAnnounceApprove(keyword, page, size));
     }
 }
