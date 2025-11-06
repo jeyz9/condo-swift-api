@@ -103,11 +103,25 @@ public class AnnounceController {
     ) throws WebException {
         return new ResponseEntity<>(announceService.addAnnounceWithImage(announce, imageFile), HttpStatus.CREATED);
     }
+
+    @GetMapping("/showAllAnnouncePendingByAdmin")
+    public ResponseEntity<TableResponse<AnnounceApproveDTO>> showAllAnnouncePendingByAdmin(@RequestParam(defaultValue = "", required = false) String keyword,
+                                                                                           @RequestParam(defaultValue = "0", required = false) Integer page,
+                                                                                           @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
+        return ResponseEntity.ok(announceService.showAllAnnouncePending(keyword, page, size));
+    }
     
     @GetMapping("/showAllAnnounceApproveByAdmin")
     public ResponseEntity<TableResponse<AnnounceApproveDTO>> showAllAnnounceApproveByAdmin(@RequestParam(defaultValue = "", required = false) String keyword,
                                                                                            @RequestParam(defaultValue = "0", required = false) Integer page,
                                                                                            @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
         return ResponseEntity.ok(announceService.showAllAnnounceApprove(keyword, page, size));
+    }
+
+    @GetMapping("/showAllAnnounceHistoryByAdmin")
+    public ResponseEntity<TableResponse<AnnounceApproveDTO>> showAllAnnounceHistoryByAdmin(@RequestParam(defaultValue = "", required = false) String keyword,
+                                                                                           @RequestParam(defaultValue = "0", required = false) Integer page,
+                                                                                           @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
+        return ResponseEntity.ok(announceService.showAllAnnounceHistory(keyword, page, size));
     }
 }

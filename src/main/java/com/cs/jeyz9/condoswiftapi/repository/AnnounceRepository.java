@@ -102,8 +102,44 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
         JOIN announce_state_approve asa ON a.approve_id = asa.id
         JOIN users u ON u.id = a.user_id
         JOIN announce_types at ON at.id = a.announce_type_id
-        WHERE asa.status_name = 'APPROVE'
+        WHERE asa.status_name = 'APPROVED'
         ORDER BY a.approve_date DESC;
     """, nativeQuery = true)
     List<AnnounceApproveDTO> findAnnounceApprove();
+
+    @Query(value = """
+        SELECT a.id AS id,
+               a.title AS title,
+               u.name AS agenName,
+               at.type_name AS type,
+               a.price AS price,
+               asa.status_name AS status,
+               a.announcement_date AS announcementDate,
+               a.approve_date AS approveDate
+        FROM announces a
+        JOIN announce_state_approve asa ON a.approve_id = asa.id
+        JOIN users u ON u.id = a.user_id
+        JOIN announce_types at ON at.id = a.announce_type_id
+        WHERE asa.status_name = 'PENDING'
+        ORDER BY a.approve_date DESC;
+    """, nativeQuery = true)
+    List<AnnounceApproveDTO> findAnnouncePending();
+
+    @Query(value = """
+        SELECT a.id AS id,
+               a.title AS title,
+               u.name AS agenName,
+               at.type_name AS type,
+               a.price AS price,
+               asa.status_name AS status,
+               a.announcement_date AS announcementDate,
+               a.approve_date AS approveDate
+        FROM announces a
+        JOIN announce_state_approve asa ON a.approve_id = asa.id
+        JOIN users u ON u.id = a.user_id
+        JOIN announce_types at ON at.id = a.announce_type_id
+        WHERE asa.status_name = 'APPROVED' OR asa.status_name = 'REJECTED'
+        ORDER BY a.approve_date DESC;
+    """, nativeQuery = true)
+    List<AnnounceApproveDTO> findAnnounceHistory();
 }
