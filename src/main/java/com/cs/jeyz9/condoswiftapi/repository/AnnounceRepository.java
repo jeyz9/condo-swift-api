@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.repository;
 
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -87,4 +88,22 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
                        ) <= 1.5
     """, nativeQuery = true)
     List<Announce> findAnnounceNearStation(@Param("stationName") String stationName);
+    
+    @Query(value = """
+        SELECT a.id AS id,
+               a.title AS title,
+               u.name AS agenName,
+               at.type_name AS type,
+               a.price AS price,
+               asa.status_name AS status,
+               a.announcement_date AS announcementDate,
+               a.approve_date AS approveDate
+        FROM announces a
+        JOIN announce_state_approve asa ON a.approve_id = asa.id
+        JOIN users u ON u.id = a.user_id
+        JOIN announce_types at ON at.id = a.announce_type_id
+        WHERE asa.status_name = 'APPROVE'
+        ORDER BY a.approve_date DESC;
+    """, nativeQuery = true)
+    List<AnnounceApproveDTO> findAnnounceApprove();
 }
