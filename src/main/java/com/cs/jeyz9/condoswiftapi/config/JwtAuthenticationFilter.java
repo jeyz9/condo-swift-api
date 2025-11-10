@@ -1,10 +1,13 @@
 package com.cs.jeyz9.condoswiftapi.config;
 
+import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
+import com.cs.jeyz9.condoswiftapi.services.BlacklistTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,11 +23,13 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
-    
+    private final BlacklistTokenService blacklistTokenService;
+
     @Autowired
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService){
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService, BlacklistTokenService blacklistTokenService){
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
+        this.blacklistTokenService = blacklistTokenService;
     }
     
     @Override
@@ -35,6 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException{
         String token = getTokenFromRequest(request);
         if(StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)){
+
+            if (blacklistTokenService.isBlacklisted(token)) {
+                throw new WebException(HttpStatus.UNAUTHORIZED, "Token is revoked");
+            }
+            
             String email = jwtTokenProvider.getEmail(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

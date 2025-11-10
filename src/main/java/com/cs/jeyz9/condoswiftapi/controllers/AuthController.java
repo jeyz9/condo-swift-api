@@ -1,15 +1,18 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
 import com.cs.jeyz9.condoswiftapi.config.JwtTokenProvider;
+import com.cs.jeyz9.condoswiftapi.dto.ChangePasswordDTO;
 import com.cs.jeyz9.condoswiftapi.dto.JwtAuthResponse;
 import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.OtpRequest;
 import com.cs.jeyz9.condoswiftapi.dto.OtpResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ResetPasswordDTO;
 import com.cs.jeyz9.condoswiftapi.dto.VerifyOtpRequest;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
 import com.cs.jeyz9.condoswiftapi.services.ThaiBulkSmsService;
+import com.cs.jeyz9.condoswiftapi.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -111,6 +117,31 @@ public class AuthController {
     public ResponseEntity<String> verifyOtp(@RequestParam String token, @RequestParam String otpCode) {
          String result = thaiBulkSmsService.verifyOtp(token, otpCode);
         return ResponseEntity.ok(result);
+    }
+    
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordDTO req, BindingResult response, Principal principal, HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        String token = null;
+        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
+            token = bearer.substring(7);
+        }
+        
+        if(response.hasErrors()){
+            return ResponseEntity.badRequest().body(response.getAllErrors().toString());
+        }
+        
+        return ResponseEntity.ok(authService.changePassword(principal.getName(), req, token));
+    }
+    
+    @PostMapping("/sendEmailResetPassword")
+    public ResponseEntity<String> sendEmailResetPassword(@RequestParam String email){
+        return new ResponseEntity<>(thaiBulkSmsService.sendEmailResetPassword(email), HttpStatus.CREATED);
+    }
+    
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(String token, ResetPasswordDTO request) {
+        return new ResponseEntity<>(authService.resetPassword(token, request), HttpStatus.CREATED);
     }
 
 }
