@@ -4,8 +4,10 @@ import com.cs.jeyz9.condoswiftapi.config.JwtTokenProvider;
 import com.cs.jeyz9.condoswiftapi.dto.ChangePasswordDTO;
 import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ResetPasswordDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Notification;
+import com.cs.jeyz9.condoswiftapi.models.PasswordResetToken;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.Terms;
@@ -14,6 +16,7 @@ import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
 import com.cs.jeyz9.condoswiftapi.models.VerificationToken;
 import com.cs.jeyz9.condoswiftapi.repository.NotificationRepository;
+import com.cs.jeyz9.condoswiftapi.repository.PasswordResetTokenRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
@@ -30,6 +33,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +56,7 @@ public class AuthServiceImpl implements AuthService {
     private final VerificationTokenRepository tokenRepository;
     private final NotificationRepository notificationRepository;
     private final BlacklistTokenService blacklistTokenService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Autowired
     public AuthServiceImpl(UserRepository userRepository,
@@ -63,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
                            UserTermsAcceptLogRepository userTermsAcceptLogRepository,
                            TermsRepository termsRepository,
                            VerificationTokenRepository tokenRepository,
-                           NotificationRepository notificationRepository, BlacklistTokenService blacklistTokenService){
+                           NotificationRepository notificationRepository, BlacklistTokenService blacklistTokenService, PasswordResetTokenRepository passwordResetTokenRepository){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
@@ -75,6 +80,7 @@ public class AuthServiceImpl implements AuthService {
         this.tokenRepository = tokenRepository;
         this.notificationRepository = notificationRepository;
         this.blacklistTokenService = blacklistTokenService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
     @Override
     public String register(RegisterDTO register, HttpServletRequest request) throws WebException {
@@ -161,7 +167,7 @@ public class AuthServiceImpl implements AuthService {
         VerificationToken verificationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Token ไม่ถูกต้อง"));
 
-        if (verificationToken.getExiryDate().before(new Date())) {
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             return "ลิงก์หมดอายุแล้ว";
         }
 
@@ -183,18 +189,18 @@ public class AuthServiceImpl implements AuthService {
     }
     
     @Override
-    public String changePassword(String email, ChangePasswordDTO require, String token) {
+    public String changePassword(String email, ChangePasswordDTO request, String token) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         
-        if(!passwordEncoder.matches(require.getOldPassword(), user.getPassword())){
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
             throw new WebException(HttpStatus.BAD_REQUEST, "Old password is incorrect.");
         }
         
-        if(!require.getNewPassword().equalsIgnoreCase(require.getConfirmPassword())){
+        if(!request.getNewPassword().equals(request.getConfirmPassword())){
             throw new WebException(HttpStatus.BAD_REQUEST, "New password and confirm password do not match");
         }
         
-        user.setPassword(passwordEncoder.encode(require.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         if (token != null) {
             LocalDateTime expiry = jwtTokenProvider.extractExpiration(token)
@@ -204,8 +210,34 @@ public class AuthServiceImpl implements AuthService {
             blacklistTokenService.blacklist(token, expiry);
         }
         
+        userRepository.save(user);
+        
         return "Change password success!";
     }
+
+    @Override
+    public String resetPassword(String token, ResetPasswordDTO request){
+        try {
+            PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Token not found."));
+            User user = userRepository.findByEmail(resetToken.getEmail()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+
+            if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "Reset token expired");
+            }
+            
+            if(!request.getNewPassword().equals(request.getConfirmPassword())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "New password and confirm password do not match");
+            }
+
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+            passwordResetTokenRepository.delete(resetToken);
+            return "Reset password success.";
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+    
     private User mapToUser(RegisterDTO register) {
         return modelMapper.map(register, User.class);
     }

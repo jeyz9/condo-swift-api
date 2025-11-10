@@ -7,6 +7,7 @@ import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.OtpRequest;
 import com.cs.jeyz9.condoswiftapi.dto.OtpResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ResetPasswordDTO;
 import com.cs.jeyz9.condoswiftapi.dto.VerifyOtpRequest;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
@@ -118,8 +119,8 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
     
-    @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordDTO require, BindingResult response, Principal principal, HttpServletRequest request) {
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordDTO req, BindingResult response, Principal principal, HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         String token = null;
         if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
@@ -130,7 +131,17 @@ public class AuthController {
             return ResponseEntity.badRequest().body(response.getAllErrors().toString());
         }
         
-        return ResponseEntity.ok(authService.changePassword(principal.getName(), require, token));
+        return ResponseEntity.ok(authService.changePassword(principal.getName(), req, token));
+    }
+    
+    @PostMapping("/sendEmailResetPassword")
+    public ResponseEntity<String> sendEmailResetPassword(@RequestParam String email){
+        return new ResponseEntity<>(thaiBulkSmsService.sendEmailResetPassword(email), HttpStatus.CREATED);
+    }
+    
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(String token, ResetPasswordDTO request) {
+        return new ResponseEntity<>(authService.resetPassword(token, request), HttpStatus.CREATED);
     }
 
 }
