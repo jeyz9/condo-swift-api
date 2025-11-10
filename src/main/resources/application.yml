@@ -54,7 +54,14 @@ thaibulkemail:
   secret: i8gb4qZBRr-RDDW_xZAfYfn0SDoeRv
   send_url: https://email-api.thaibulksms.com/email/v1/send_template
   email_sender: ggjj4511@1704.tbmailsend.com
-  template_uuid: 25103013-0259-83fd-9f73-ac373281f7e1
-  production_url: https://condo-swift.onrender.com/api/v1/auth
-  dev_url: http://localhost:8080/api/v1/auth
+  verify_email_template_uuid: 25103013-0259-83fd-9f73-ac373281f7e1
+  
+  reset_password_template_uuid: 25111015-0909-8542-99a0-31c7bd091bdc
+  
+#  TODO: เปลี่ยนไปใช้ url ของ front แทน
+  verify_production_url: https://condo-swift.onrender.com/api/v1/auth
+  verify_dev_url: http://localhost:8080/api/v1/auth
+  
+#  TODO: เหมือนกับของ verify
+  reset_password_url: http://localhost:8080
   
