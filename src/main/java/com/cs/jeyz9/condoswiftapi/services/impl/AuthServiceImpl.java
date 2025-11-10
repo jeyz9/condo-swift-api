@@ -1,6 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.services.impl;
 
 import com.cs.jeyz9.condoswiftapi.config.JwtTokenProvider;
+import com.cs.jeyz9.condoswiftapi.dto.ChangePasswordDTO;
 import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
@@ -19,6 +20,7 @@ import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
 import com.cs.jeyz9.condoswiftapi.repository.VerificationTokenRepository;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
+import com.cs.jeyz9.condoswiftapi.services.BlacklistTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private final TermsRepository termsRepository;
     private final VerificationTokenRepository tokenRepository;
     private final NotificationRepository notificationRepository;
+    private final BlacklistTokenService blacklistTokenService;
 
     @Autowired
     public AuthServiceImpl(UserRepository userRepository,
@@ -59,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
                            UserTermsAcceptLogRepository userTermsAcceptLogRepository,
                            TermsRepository termsRepository,
                            VerificationTokenRepository tokenRepository,
-                           NotificationRepository notificationRepository){
+                           NotificationRepository notificationRepository, BlacklistTokenService blacklistTokenService){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
@@ -70,6 +74,7 @@ public class AuthServiceImpl implements AuthService {
         this.termsRepository = termsRepository;
         this.tokenRepository = tokenRepository;
         this.notificationRepository = notificationRepository;
+        this.blacklistTokenService = blacklistTokenService;
     }
     @Override
     public String register(RegisterDTO register, HttpServletRequest request) throws WebException {
@@ -150,41 +155,7 @@ public class AuthServiceImpl implements AuthService {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดภายในระบบ: " + e.getMessage());
         }
     }
-
-//    @Override
-//    public void sendVerificationEmail(Long userId) throws MessagingException {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("ไม่พบผู้ใช้"));
-//
-//        if (user.getEmailVerified()) {
-//            throw new RuntimeException("บัญชีนี้ได้รับการยืนยันแล้ว");
-//        }
-//
-//        String token = UUID.randomUUID().toString();
-//
-//        tokenRepository.findByToken(tokenRepository.toString()).ifPresent(tokenRepository::delete);
-//
-//        VerificationToken verificationToken = new VerificationToken();
-//        verificationToken.setToken(token);
-//        verificationToken.setUser(user);
-//        verificationToken.setExiryDate(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
-//        tokenRepository.save(verificationToken);
-//
-//        String verificationUrl = "http://localhost:8080/api/v1/auth/verify?token=" + token;
-//        String html = """
-//            <html>
-//              <body>
-//                <h2>ยืนยันอีเมลของคุณ</h2>
-//                <p>คลิกลิงก์ด้านล่างเพื่อยืนยันอีเมลของคุณ:</p>
-//                <a href="%s" style="background:#4CAF50;color:#fff;padding:10px 20px;text-decoration:none;border-radius:6px;">ยืนยันอีเมล</a>
-//                <p>ลิงก์นี้จะหมดอายุใน 24 ชั่วโมง</p>
-//              </body>
-//            </html>
-//        """.formatted(verificationUrl);
-//
-//        emailService.sendHtmlEmail(user.getEmail(), "ยืนยันอีเมลของคุณ", html);
-//    }
-
+    
     @Override
     public String verifyEmail(String token) {
         VerificationToken verificationToken = tokenRepository.findByToken(token)
@@ -212,10 +183,28 @@ public class AuthServiceImpl implements AuthService {
     }
     
     @Override
-    public String changePassword(Long userId, String password, String newPassword) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+    public String changePassword(String email, ChangePasswordDTO require, String token) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         
-        return null;
+        if(!passwordEncoder.matches(require.getOldPassword(), user.getPassword())){
+            throw new WebException(HttpStatus.BAD_REQUEST, "Old password is incorrect.");
+        }
+        
+        if(!require.getNewPassword().equalsIgnoreCase(require.getConfirmPassword())){
+            throw new WebException(HttpStatus.BAD_REQUEST, "New password and confirm password do not match");
+        }
+        
+        user.setPassword(passwordEncoder.encode(require.getNewPassword()));
+
+        if (token != null) {
+            LocalDateTime expiry = jwtTokenProvider.extractExpiration(token)
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            blacklistTokenService.blacklist(token, expiry);
+        }
+        
+        return "Change password success!";
     }
     private User mapToUser(RegisterDTO register) {
         return modelMapper.map(register, User.class);
