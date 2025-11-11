@@ -13,6 +13,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
+import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
@@ -26,6 +27,8 @@ import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.MapPoint;
+import com.cs.jeyz9.condoswiftapi.models.Role;
+import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
 import com.cs.jeyz9.condoswiftapi.models.Station;
 import com.cs.jeyz9.condoswiftapi.models.User;
@@ -114,13 +117,6 @@ public class AnnounceServiceImpl implements AnnounceService {
                         .orElse(new MapPointDTO())
         );
         return announceDetailsSelected;
-    }
-    
-    @Override
-    public Announce getAnnounceById(Long announceId) {
-        return announceRepository.findById(announceId)
-                .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND,
-                        "Announce not found with id: " + announceId));
     }
 
     @Override
@@ -486,6 +482,62 @@ public class AnnounceServiceImpl implements AnnounceService {
 
         }catch (Exception e) {
             throw new IOException("Error while searching for badge", e);
+        }
+    }
+    
+    @Override
+    public String approveAnnounce(Long announceId, String officialEmail) {
+        try {
+            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
+            
+            if(announce.getApprove().getStatusName().equals(ApproveStatus.APPROVED)){
+                throw new WebException(HttpStatus.BAD_REQUEST, "This announcement has been approved.");
+            }
+            
+            User official = userRepository.findByEmail(officialEmail).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Official not found."));
+            AnnounceStateApprove status = announceStateApproveRepository.findByStatusName(ApproveStatus.APPROVED);
+
+            RoleName role = official.getRoles().stream()
+                    .findFirst()
+                    .map(Role::getRoleName).orElse(null);
+            
+            announce.setApprove(status);
+            announce.setApproveBy(official);
+            announce.setRemark("Approve by " + role);
+            announce.setApproveDate(LocalDateTime.now());
+            announceRepository.save(announce);
+            
+            return "Approve announce success.";
+        } catch (WebException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+    
+    @Override
+    public String rejectAnnounce(Long announceId, String officialEmail, RejectAnnounceDTO reject) {
+        try {
+            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
+
+            if(announce.getApprove().getStatusName().equals(ApproveStatus.REJECTED)){
+                throw new WebException(HttpStatus.BAD_REQUEST, "This announcement has been rejected.");
+            }
+
+            User official = userRepository.findByEmail(officialEmail).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Official not found."));
+            AnnounceStateApprove status = announceStateApproveRepository.findByStatusName(ApproveStatus.REJECTED);
+
+            announce.setApprove(status);
+            announce.setApproveBy(official);
+            announce.setRemark(reject.getRemark());
+            announce.setApproveDate(LocalDateTime.now());
+            announceRepository.save(announce);
+
+            return "Approve announce success.";
+        } catch (WebException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
     

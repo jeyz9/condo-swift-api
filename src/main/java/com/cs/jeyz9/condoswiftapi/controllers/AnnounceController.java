@@ -5,6 +5,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
+import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -123,5 +125,15 @@ public class AnnounceController {
                                                                                            @RequestParam(defaultValue = "0", required = false) Integer page,
                                                                                            @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
         return ResponseEntity.ok(announceService.showAllAnnounceHistory(keyword, page, size));
+    }
+    
+    @PutMapping("/approveAnnounce/{announceId}")
+    public ResponseEntity<String> approveAnnounce(@PathVariable("announceId") Long announceId, Principal principal) {
+        return new ResponseEntity<>(announceService.approveAnnounce(announceId, principal.getName()), HttpStatus.OK);
+    }
+    
+    @PutMapping("/rejectAnnounce/{announceId}")
+    public ResponseEntity<String> rejectAnnounce(@PathVariable("announceId") Long announceId, @RequestBody RejectAnnounceDTO reject, Principal principal) {
+        return new ResponseEntity<>(announceService.rejectAnnounce(announceId, principal.getName(), reject), HttpStatus.OK);
     }
 }

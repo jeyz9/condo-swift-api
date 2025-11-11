@@ -24,6 +24,4 @@ public class PasswordResetToken {
     private String token;
 
     private LocalDateTime expiryDate;
-    
-    private boolean isUsed;
 }
