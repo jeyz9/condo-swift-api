@@ -74,7 +74,7 @@ public class Announce {
     @ManyToOne(fetch = FetchType.EAGER)
     private SaleType saleType;
     
-    private String announceRemark;
+    private String remark;
     
     private LocalDateTime approveDate;
     

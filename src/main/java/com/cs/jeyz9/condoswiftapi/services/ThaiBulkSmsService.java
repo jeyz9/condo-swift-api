@@ -236,7 +236,6 @@ public class ThaiBulkSmsService {
             PasswordResetToken reset = new PasswordResetToken();
             reset.setEmail(email);
             reset.setToken(token);
-            reset.setUsed(false);
             reset.setExpiryDate(LocalDateTime.now().plusMinutes(15));
             passwordResetTokenRepository.save(reset);
             
