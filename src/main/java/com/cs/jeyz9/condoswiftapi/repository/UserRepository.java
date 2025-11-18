@@ -13,8 +13,8 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Boolean existsByEmail(String email);
-    
-    Optional<User> findByPhone(String phone);
+
+    Boolean existsByPhone(String phone);
     
     List<User> findUserByRoles(Set<Role> roles);
 }

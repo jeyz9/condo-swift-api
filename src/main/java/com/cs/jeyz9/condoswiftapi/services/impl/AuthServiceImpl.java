@@ -86,7 +86,11 @@ public class AuthServiceImpl implements AuthService {
     public String register(RegisterDTO register, HttpServletRequest request) throws WebException {
         try{
             if(userRepository.existsByEmail(register.getEmail())){
-                throw new WebException(HttpStatus.BAD_REQUEST, "Email already exist!");
+                throw new WebException(HttpStatus.BAD_REQUEST, "อีเมลนี้มีผู้ใช้แล้ว");
+            }
+            
+            if (userRepository.existsByPhone(register.getPhone())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "เบอร์โทรนี้มีผู้ใช้แล้ว");
             }
 
             if (!register.getPassword().equals(register.getConfirmPassword())) {
@@ -142,7 +146,7 @@ public class AuthServiceImpl implements AuthService {
         }catch (WebException e){
             throw e;
         }catch (Exception e){
-            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Register fails " + e.getMessage());
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดทางเซิร์ฟเวอร์");
         }
     }
     
