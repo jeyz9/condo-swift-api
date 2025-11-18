@@ -401,7 +401,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             List<AnnounceApproveDTO> announce = announceRepository.findAnnouncePending();
             Stream<AnnounceApproveDTO> stream = announce.stream();
             if(keyword != null && !keyword.trim().isEmpty()){
-                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgenName().toLowerCase().contains(keyword.toLowerCase()));
+                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgentName().toLowerCase().contains(keyword.toLowerCase()));
             }
 
             List<AnnounceApproveDTO> announceApproveList = stream.toList();
@@ -431,7 +431,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             List<AnnounceApproveDTO> announce = announceRepository.findAnnounceApprove();
             Stream<AnnounceApproveDTO> stream = announce.stream();
             if(keyword != null && !keyword.trim().isEmpty()){
-                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgenName().toLowerCase().contains(keyword.toLowerCase()));
+                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgentName().toLowerCase().contains(keyword.toLowerCase()));
             }
             
             List<AnnounceApproveDTO> announceApproveList = stream.toList();
@@ -461,7 +461,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             List<AnnounceApproveDTO> announce = announceRepository.findAnnounceHistory();
             Stream<AnnounceApproveDTO> stream = announce.stream();
             if(keyword != null && !keyword.trim().isEmpty()){
-                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgenName().toLowerCase().contains(keyword.toLowerCase()));
+                stream = stream.filter(ann -> ann.getTitle().toLowerCase().contains(keyword.toLowerCase()) || ann.getAgentName().toLowerCase().contains(keyword.toLowerCase()));
             }
 
             List<AnnounceApproveDTO> announceApproveList = stream.toList();
@@ -503,7 +503,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             
             announce.setApprove(status);
             announce.setApproveBy(official);
-            announce.setRemark("Approve by " + role);
+            announce.setRemark("อนุมัติโดย " + role);
             announce.setApproveDate(LocalDateTime.now());
             announceRepository.save(announce);
             

@@ -7,9 +7,9 @@ COPY . .
 
 RUN mvn clean package -DskipTests
 
-ENV SPRING_DATASOURCE_URL=jdbc:postgresql://dpg-d3k9o5l6ubrc73dps1q0-a.singapore-postgres.render.com:5432/condo_swift_db
-ENV SPRING_DATASOURCE_USERNAME=condo_swift_db_user
-ENV SPRING_DATASOURCE_PASSWORD=vfXRbkhZQ9fHtTf7DTdDe78v3WIxUTPe
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres
+ENV SPRING_DATASOURCE_USERNAME=postgres.syrkqqdlwkpzpwuedspt
+ENV SPRING_DATASOURCE_PASSWORD=P9ewo6o9MzgaGFza
 
 EXPOSE 8080
 

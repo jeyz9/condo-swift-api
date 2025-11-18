@@ -92,16 +92,25 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
     @Query(value = """
         SELECT a.id AS id,
                a.title AS title,
-               u.name AS agenName,
+               u.name AS agentName,
                at.type_name AS type,
                a.price AS price,
                asa.status_name AS status,
                a.announcement_date AS announcementDate,
-               a.approve_date AS approveDate
+               a.approve_date AS approveDate,
+               ai.image_url AS image,
+               a.remark
         FROM announces a
         JOIN announce_state_approve asa ON a.approve_id = asa.id
         JOIN users u ON u.id = a.user_id
         JOIN announce_types at ON at.id = a.announce_type_id
+        LEFT JOIN (
+            SELECT DISTINCT ON (announce_id)
+                announce_id,
+                image_url
+            FROM announce_images
+            ORDER BY announce_id, id ASC
+        ) ai ON ai.announce_id = a.id
         WHERE asa.status_name = 'APPROVED'
         ORDER BY a.approve_date DESC;
     """, nativeQuery = true)
@@ -110,16 +119,25 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
     @Query(value = """
         SELECT a.id AS id,
                a.title AS title,
-               u.name AS agenName,
+               u.name AS agentName,
                at.type_name AS type,
                a.price AS price,
                asa.status_name AS status,
                a.announcement_date AS announcementDate,
-               a.approve_date AS approveDate
+               a.approve_date AS approveDate,
+               ai.image_url AS image,
+               a.remark
         FROM announces a
         JOIN announce_state_approve asa ON a.approve_id = asa.id
         JOIN users u ON u.id = a.user_id
         JOIN announce_types at ON at.id = a.announce_type_id
+        LEFT JOIN (
+            SELECT DISTINCT ON (announce_id)
+                announce_id,
+                image_url
+            FROM announce_images
+            ORDER BY announce_id, id ASC
+        ) ai ON ai.announce_id = a.id
         WHERE asa.status_name = 'PENDING'
         ORDER BY a.approve_date DESC;
     """, nativeQuery = true)
@@ -128,16 +146,25 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
     @Query(value = """
         SELECT a.id AS id,
                a.title AS title,
-               u.name AS agenName,
+               u.name AS agentName,
                at.type_name AS type,
                a.price AS price,
                asa.status_name AS status,
                a.announcement_date AS announcementDate,
-               a.approve_date AS approveDate
+               a.approve_date AS approveDate,
+               ai.image_url AS image,
+               a.remark
         FROM announces a
-        JOIN announce_state_approve asa ON a.approve_id = asa.id
-        JOIN users u ON u.id = a.user_id
-        JOIN announce_types at ON at.id = a.announce_type_id
+                 JOIN announce_state_approve asa ON a.approve_id = asa.id
+                 JOIN users u ON u.id = a.user_id
+                 JOIN announce_types at ON at.id = a.announce_type_id
+                 LEFT JOIN (
+                    SELECT DISTINCT ON (announce_id)
+                        announce_id,
+                        image_url
+                    FROM announce_images
+                    ORDER BY announce_id, id ASC
+                ) ai ON ai.announce_id = a.id
         WHERE asa.status_name = 'APPROVED' OR asa.status_name = 'REJECTED'
         ORDER BY a.approve_date DESC;
     """, nativeQuery = true)
