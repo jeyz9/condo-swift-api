@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 public interface AnnounceApproveDTO {
     Long getId();
     String getTitle();
-    String getAgenName();
+    String getAgentName();
     String getType();
     Double getPrice();
     String getStatus();
     LocalDateTime getAnnouncementDate();
     LocalDateTime getApproveDate();
+    String getImage();
+    String getRemark();
 }
