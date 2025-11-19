@@ -14,4 +14,5 @@ public interface UserService {
     void deleteImage(Long userId);
     void saveImages(Long userId, MultipartFile imageFiles);
     UserProfileOverviewDTO userProfileOverview(Long userId, String saleType);
+    String bookmarkAnnounce(String email, Long announceId);
 }

@@ -57,8 +57,13 @@ public class User {
     
     private LocalDateTime createdAt = LocalDateTime.now();
     
-//    @OneToMany
-//    private List<Notification> notifications;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "bookmarks_announce",
+            joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "announceId", referencedColumnName = "id")
+    )
+    private Set<Announce> bookmarks;
     
     public User() {}
     public User(String name, String description, String phone, String email, String password, Set<Role> roles){
