@@ -211,5 +211,20 @@ public class UserServiceImpl implements UserService {
         );
         return userOverview;
     }
+    
+    @Override
+    public String bookmarkAnnounce(String email, Long announceId) {
+        try {
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
+            user.getBookmarks().add(announce);
+            userRepository.save(user);
+            return "บันทึกประกาศสำเร็จ";
+        }catch (WebException e) {
+            throw e;
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
 }
 
