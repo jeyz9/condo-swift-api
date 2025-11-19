@@ -624,6 +624,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             showAllAnnounceDetailsWithAgen.setImageList(
                     ann.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
             );
+            showAllAnnounceDetailsWithAgen.setAddress(ann.getLocation());
             showAllAnnounceDetailsWithAgen.setAgent(modelMapper.map(ann.getUser(), AgentDTO.class));
             return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
         }).toList();

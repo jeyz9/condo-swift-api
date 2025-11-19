@@ -18,5 +18,6 @@ public class ShowAllAnnounceDetailsWithAgent {
     private Double price;
     private AnnounceImageDTO imageList;
     private AgentDTO agent;
+    private String address;
     private Set<Badge> badgeSet;
 }
