@@ -226,5 +226,20 @@ public class UserServiceImpl implements UserService {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
+
+    @Override
+    public String removeFromBookmark(String email, Long announceId) {
+        try {
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
+            user.getBookmarks().remove(announce);
+            userRepository.save(user);
+            return "ยกเลิกบันทึกประกาศสำเร็จ";
+        }catch (WebException e) {
+            throw e;
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
 }
 

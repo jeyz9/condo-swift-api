@@ -52,7 +52,9 @@ public class AnnounceImageService {
 
         for (MultipartFile file : imageFiles) {
             try {
-                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                String originalName = file.getOriginalFilename();
+                String safeName = originalName.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
+                String fileName = System.currentTimeMillis() + "_" + safeName;
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
@@ -74,7 +76,7 @@ public class AnnounceImageService {
                 image.setAnnounce(announce);
                 image.setCreatedAt(LocalDateTime.now());
                 image.setExpireDate(LocalDateTime.now().plusMonths(3));
-                image.setImageUrl(supabaseUrl + "/object/public/" + bucket + "/" + fileName);
+                image.setImageUrl(supabaseUrl + "/object/public/" + bucket + "/" + encodedFileName);
 
                 announceImageRepository.save(image);
 
@@ -84,10 +86,6 @@ public class AnnounceImageService {
             }
         }
     }
-
-//    public List<AnnounceImage> getImagesByAnnounce(Long announceId) {
-//        return announceImageRepository.findByAnnounceId(announceId);
-//    }
 
     @Transactional
     public void deleteImageById(Long announceImageId) {

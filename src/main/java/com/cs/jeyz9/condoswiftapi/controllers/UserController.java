@@ -65,4 +65,9 @@ public class UserController {
     public ResponseEntity<String> bookmarks(@PathVariable Long announceId, Principal principal) {
         return new ResponseEntity<>(userService.bookmarkAnnounce(principal.getName(), announceId), HttpStatus.OK);
     }
+
+    @PutMapping(value = "/removeFromBookmark/{announceId}")
+    public ResponseEntity<String> removeFromBookmark(@PathVariable Long announceId, Principal principal) {
+        return new ResponseEntity<>(userService.removeFromBookmark(principal.getName(), announceId), HttpStatus.OK);
+    }
 }
