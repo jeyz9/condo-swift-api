@@ -11,6 +11,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceNearDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
+import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
@@ -58,8 +59,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -618,6 +621,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {
         return announce.stream().map(ann -> {
             ShowAllAnnounceDetailsWithAgent showAllAnnounceDetailsWithAgen = new ShowAllAnnounceDetailsWithAgent();
+            Set<Badge> badges = badgeRepository.findAllBadgeByAnnounceId(ann.getId());
             showAllAnnounceDetailsWithAgen.setId(ann.getId());
             showAllAnnounceDetailsWithAgen.setTitle(ann.getTitle());
             showAllAnnounceDetailsWithAgen.setPrice(ann.getPrice());
@@ -626,7 +630,12 @@ public class AnnounceServiceImpl implements AnnounceService {
             );
             showAllAnnounceDetailsWithAgen.setAddress(ann.getLocation());
             showAllAnnounceDetailsWithAgen.setAgent(modelMapper.map(ann.getUser(), AgentDTO.class));
+            showAllAnnounceDetailsWithAgen.setBadgeSet(mapToBadgeDTO(badges));
             return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
         }).toList();
+    }
+    
+    private Set<BadgeDTO> mapToBadgeDTO(Set<Badge> badge) {
+        return badge.stream().map(bg -> modelMapper.map(bg, BadgeDTO.class)).collect(Collectors.toSet());
     }
 }

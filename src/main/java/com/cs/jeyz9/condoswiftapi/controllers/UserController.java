@@ -1,10 +1,12 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,5 +71,10 @@ public class UserController {
     @PutMapping(value = "/removeFromBookmark/{announceId}")
     public ResponseEntity<String> removeFromBookmark(@PathVariable Long announceId, Principal principal) {
         return new ResponseEntity<>(userService.removeFromBookmark(principal.getName(), announceId), HttpStatus.OK);
+    }
+    
+    @GetMapping(value = "/showAllAnnounceBookmark")
+    public ResponseEntity<List<ShowAllAnnounceDetailsWithAgent>> showAllAnnounceBookmark(Principal principal) {
+        return new ResponseEntity<>(userService.showAllAnnounceBookmark(principal.getName()), HttpStatus.OK);
     }
 }
