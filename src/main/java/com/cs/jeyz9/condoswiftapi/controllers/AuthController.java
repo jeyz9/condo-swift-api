@@ -140,7 +140,7 @@ public class AuthController {
     }
     
     @PostMapping("/resetPassword")
-    public ResponseEntity<String> resetPassword(String token, ResetPasswordDTO request) {
+    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestBody ResetPasswordDTO request) {
         return new ResponseEntity<>(authService.resetPassword(token, request), HttpStatus.CREATED);
     }
 

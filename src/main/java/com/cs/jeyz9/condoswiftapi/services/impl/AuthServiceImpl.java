@@ -237,7 +237,10 @@ public class AuthServiceImpl implements AuthService {
             userRepository.save(user);
             passwordResetTokenRepository.delete(resetToken);
             return "Reset password success.";
-        } catch (Exception e) {
+        }catch (WebException e) {
+            throw e;
+        }
+        catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
