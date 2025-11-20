@@ -1,12 +1,17 @@
 package com.cs.jeyz9.condoswiftapi.services.impl;
 
 import com.cs.jeyz9.condoswiftapi.constants.SaleTypeConstant;
+import com.cs.jeyz9.condoswiftapi.dto.AgentDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
+import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
+import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.Terms;
@@ -14,12 +19,14 @@ import com.cs.jeyz9.condoswiftapi.models.TermsType;
 import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
+import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -46,6 +54,8 @@ public class UserServiceImpl implements UserService {
     private final UserTermsAcceptLogRepository userTermsAcceptLogRepository;
     private final RoleRepository roleRepository;
     private final AnnounceRepository announceRepository;
+    private final ModelMapper modelMapper;
+    private final BadgeRepository badgeRepository;
 
     @Value("${supabase.url}")
     private String supabaseUrl;
@@ -56,12 +66,14 @@ public class UserServiceImpl implements UserService {
     @Value("${supabase.bucket.profile}")
     private String bucket;
 
-    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository, AnnounceRepository announceRepository) {
+    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository, AnnounceRepository announceRepository, ModelMapper modelMapper, BadgeRepository badgeRepository) {
         this.userRepository = userRepository;
         this.termsRepository = termsRepository;
         this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
         this.roleRepository = roleRepository;
         this.announceRepository = announceRepository;
+        this.modelMapper = modelMapper;
+        this.badgeRepository = badgeRepository;
     }
 
     @Override
@@ -240,6 +252,34 @@ public class UserServiceImpl implements UserService {
         }catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+    
+    @Override
+    public List<ShowAllAnnounceDetailsWithAgent> showAllAnnounceBookmark(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+        List<Announce> announces = user.getBookmarks().stream().toList();
+        return mapToShowAllAnnounce(announces);
+    }
+
+    private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {
+        return announce.stream().map(ann -> {
+            ShowAllAnnounceDetailsWithAgent showAllAnnounceDetailsWithAgen = new ShowAllAnnounceDetailsWithAgent();
+            Set<Badge> badges = badgeRepository.findAllBadgeByAnnounceId(ann.getId());
+            showAllAnnounceDetailsWithAgen.setId(ann.getId());
+            showAllAnnounceDetailsWithAgen.setTitle(ann.getTitle());
+            showAllAnnounceDetailsWithAgen.setPrice(ann.getPrice());
+            showAllAnnounceDetailsWithAgen.setImageList(
+                    ann.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
+            );
+            showAllAnnounceDetailsWithAgen.setAddress(ann.getLocation());
+            showAllAnnounceDetailsWithAgen.setAgent(modelMapper.map(ann.getUser(), AgentDTO.class));
+            showAllAnnounceDetailsWithAgen.setBadgeSet(mapToBadgeDTO(badges));
+            return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
+        }).toList();
+    }
+
+    private Set<BadgeDTO> mapToBadgeDTO(Set<Badge> badge) {
+        return badge.stream().map(bg -> modelMapper.map(bg, BadgeDTO.class)).collect(Collectors.toSet());
     }
 }
 

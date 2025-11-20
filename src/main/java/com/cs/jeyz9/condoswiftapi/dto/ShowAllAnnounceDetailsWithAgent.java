@@ -19,5 +19,5 @@ public class ShowAllAnnounceDetailsWithAgent {
     private AnnounceImageDTO imageList;
     private AgentDTO agent;
     private String address;
-    private Set<Badge> badgeSet;
+    private Set<BadgeDTO> badgeSet;
 }

@@ -63,5 +63,5 @@ thaibulkemail:
   verify_dev_url: http://localhost:8080/api/v1/auth
   
 #  TODO: เหมือนกับของ verify
-  reset_password_url: http://localhost:8080
+  reset_password_url: http://localhost:5173
   

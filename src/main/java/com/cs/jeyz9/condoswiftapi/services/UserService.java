@@ -1,6 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.services;
 
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,4 +17,5 @@ public interface UserService {
     UserProfileOverviewDTO userProfileOverview(Long userId, String saleType);
     String bookmarkAnnounce(String email, Long announceId);
     String removeFromBookmark(String email, Long announceId);
+    List<ShowAllAnnounceDetailsWithAgent> showAllAnnounceBookmark(String email);
 }
