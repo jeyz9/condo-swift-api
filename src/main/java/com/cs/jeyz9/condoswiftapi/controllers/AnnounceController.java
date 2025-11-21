@@ -57,7 +57,7 @@ public class AnnounceController {
     }
     
     @PutMapping(value = "/editAnnounce/{announceId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnnounceDTO> editAnnounce(@PathVariable Long announceId, @Valid @RequestBody AnnounceDTO announceDTO) throws WebException {
+    public ResponseEntity<AnnounceDTO> editAnnounce(@PathVariable Long announceId, @Valid @RequestBody AnnounceRequestDTO announceDTO) throws WebException {
         AnnounceDTO announce = announceService.editAnnounce(announceId, announceDTO);
         return new ResponseEntity<>(announce, HttpStatus.OK);
     }
@@ -99,8 +99,8 @@ public class AnnounceController {
     }
 
     @PostMapping(value = "/addAnnounceWithImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AnnounceRequestDTO> addAnnounceWithImage(
-            @Parameter(description = "Announce data") @Valid @RequestPart("announce") AnnounceDTO announce,
+    public ResponseEntity<AnnounceDTO> addAnnounceWithImage(
+            @Parameter(description = "Announce data") @Valid @RequestPart("announce") AnnounceRequestDTO announce,
             @Parameter(description = "List of images") @RequestPart(value = "images", required = false) List<MultipartFile> imageFile
     ) throws WebException {
         return new ResponseEntity<>(announceService.addAnnounceWithImage(announce, imageFile), HttpStatus.CREATED);
