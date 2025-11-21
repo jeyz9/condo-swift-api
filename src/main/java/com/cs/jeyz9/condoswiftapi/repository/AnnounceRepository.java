@@ -47,7 +47,7 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
             a.id,
             a.title,
             a.price,
-            a.announce_remark,
+            a.remark,
             a.announcement_date,
             a.area_size,
             a.announce_type_id,

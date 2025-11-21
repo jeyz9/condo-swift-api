@@ -8,6 +8,7 @@ import com.cs.jeyz9.condoswiftapi.models.AnnounceStateApprove;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
+import com.cs.jeyz9.condoswiftapi.models.Province;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
@@ -16,6 +17,7 @@ import com.cs.jeyz9.condoswiftapi.models.Villa;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceStateApproveRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
+import com.cs.jeyz9.condoswiftapi.repository.ProvinceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.StationRepository;
@@ -25,6 +27,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -36,9 +39,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final SaleTypeRepository saleTypeRepository;
     private final StationRepository stationRepository;
     private final VillaRepository villaRepository;
+    private final ProvinceRepository provinceRepository;
 
     @Autowired
-    public DatabaseSeeder(RoleRepository roleRepository, AnnounceStateApproveRepository approveRepository, BadgeRepository badgeRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, StationRepository stationRepository, VillaRepository villaRepository) {
+    public DatabaseSeeder(RoleRepository roleRepository, AnnounceStateApproveRepository approveRepository, BadgeRepository badgeRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, StationRepository stationRepository, VillaRepository villaRepository, ProvinceRepository provinceRepository) {
         this.roleRepository = roleRepository;
         this.approveRepository = approveRepository;
         this.badgeRepository = badgeRepository;
@@ -46,6 +50,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         this.saleTypeRepository = saleTypeRepository;
         this.stationRepository = stationRepository;
         this.villaRepository = villaRepository;
+        this.provinceRepository = provinceRepository;
     }
     
     @Override
@@ -91,16 +96,6 @@ public class DatabaseSeeder implements CommandLineRunner {
             saleTypes.add(new SaleType(SaleTypeConstant.SALE));
             saleTypeRepository.saveAll(saleTypes);
         }
-        
-//        if(nearbyPlaceRepository.count() == 0L) {
-//            List<NearbyPlace> nearbyPlaces = new ArrayList<>();
-//            nearbyPlaces.add(new NearbyPlace("ใกล้ BTS", NearbyPlaceTypes.BTS_STATION));
-//            nearbyPlaces.add(new NearbyPlace("วิลล่าชลบุรี", NearbyPlaceTypes.PROVINCE));
-//            nearbyPlaces.add(new NearbyPlace("วิลล่าราชบุรี", NearbyPlaceTypes.PROVINCE));
-//            nearbyPlaces.add(new NearbyPlace("วิลล่าเพชรบุรี", NearbyPlaceTypes.PROVINCE));
-//            nearbyPlaces.add(new NearbyPlace("วิลล่านครปฐม", NearbyPlaceTypes.PROVINCE));
-//            nearbyPlaceRepository.saveAll(nearbyPlaces);
-//        }
         
         if(stationRepository.count() == 0L) {
             List<Station> stations = new ArrayList<>();
@@ -276,7 +271,94 @@ public class DatabaseSeeder implements CommandLineRunner {
             );
 
             villaRepository.saveAll(villas);
+        }
+        
+        if(provinceRepository.count() == 0L){
+            List<String> provinces = Arrays.asList(
+                    "กรุงเทพมหานคร",
+                    "กระบี่",
+                    "กาญจนบุรี",
+                    "กาฬสินธุ์",
+                    "กำแพงเพชร",
+                    "ขอนแก่น",
+                    "จันทบุรี",
+                    "ฉะเชิงเทรา",
+                    "ชลบุรี",
+                    "ชัยนาท",
+                    "ชัยภูมิ",
+                    "ชุมพร",
+                    "เชียงราย",
+                    "เชียงใหม่",
+                    "ตรัง",
+                    "ตราด",
+                    "ตาก",
+                    "นครนายก",
+                    "นครปฐม",
+                    "นครพนม",
+                    "นครราชสีมา",
+                    "นครศรีธรรมราช",
+                    "นครสวรรค์",
+                    "นนทบุรี",
+                    "นราธิวาส",
+                    "น่าน",
+                    "บึงกาฬ",
+                    "บุรีรัมย์",
+                    "ปทุมธานี",
+                    "ประจวบคีรีขันธ์",
+                    "ปราจีนบุรี",
+                    "ปัตตานี",
+                    "พระนครศรีอยุธยา",
+                    "พังงา",
+                    "พัทลุง",
+                    "พิจิตร",
+                    "พิษณุโลก",
+                    "เพชรบุรี",
+                    "เพชรบูรณ์",
+                    "แพร่",
+                    "พะเยา",
+                    "ภูเก็ต",
+                    "มหาสารคาม",
+                    "มุกดาหาร",
+                    "แม่ฮ่องสอน",
+                    "ยโสธร",
+                    "ยะลา",
+                    "ร้อยเอ็ด",
+                    "ระนอง",
+                    "ระยอง",
+                    "ราชบุรี",
+                    "ลพบุรี",
+                    "ลำปาง",
+                    "ลำพูน",
+                    "เลย",
+                    "ศรีสะเกษ",
+                    "สกลนคร",
+                    "สงขลา",
+                    "สตูล",
+                    "สมุทรปราการ",
+                    "สมุทรสงคราม",
+                    "สมุทรสาคร",
+                    "สระแก้ว",
+                    "สระบุรี",
+                    "สิงห์บุรี",
+                    "สุโขทัย",
+                    "สุพรรณบุรี",
+                    "สุราษฎร์ธานี",
+                    "สุรินทร์",
+                    "หนองคาย",
+                    "หนองบัวลำภู",
+                    "อ่างทอง",
+                    "อุดรธานี",
+                    "อุตรดิตถ์",
+                    "อุทัยธานี",
+                    "อุบลราชธานี",
+                    "อำนาจเจริญ"
+            );
 
+            provinces.forEach(name -> {
+                Province p = new Province();
+                p.setName(name);
+                provinceRepository.save(p);
+            });
         }
     }
 }

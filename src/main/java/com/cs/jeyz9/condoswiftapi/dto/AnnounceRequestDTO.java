@@ -13,9 +13,9 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AnnounceRequestDTO {
-    private Long id;
     private String title;
     private String location;
+    private String province;
     private Double price;
     private Integer bathroomCount;
     private Integer bedroomCount;

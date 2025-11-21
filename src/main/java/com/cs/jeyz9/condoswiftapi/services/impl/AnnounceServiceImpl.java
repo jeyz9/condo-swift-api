@@ -28,6 +28,7 @@ import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.MapPoint;
+import com.cs.jeyz9.condoswiftapi.models.Province;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
@@ -40,6 +41,7 @@ import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceStateApproveRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
+import com.cs.jeyz9.condoswiftapi.repository.ProvinceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.StationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
@@ -59,7 +61,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -80,9 +81,10 @@ public class AnnounceServiceImpl implements AnnounceService {
     private final BadgeRepository badgeRepository;
     private final StationRepository stationRepository;
     private final VillaRepository villaRepository;
+    private final ProvinceRepository provinceRepository;
 
     @Autowired
-    public AnnounceServiceImpl(AnnounceRepository announceRepository, UserRepository userRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceImageRepository announceImageRepository, ModelMapper modelMapper, AnnounceImageService announceImageService, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceBadgeRepository announceBadgeRepository, BadgeRepository badgeRepository, StationRepository stationRepository, VillaRepository villaRepository) {
+    public AnnounceServiceImpl(AnnounceRepository announceRepository, UserRepository userRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceImageRepository announceImageRepository, ModelMapper modelMapper, AnnounceImageService announceImageService, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceBadgeRepository announceBadgeRepository, BadgeRepository badgeRepository, StationRepository stationRepository, VillaRepository villaRepository, ProvinceRepository provinceRepository) {
         this.announceRepository = announceRepository;
         this.userRepository = userRepository;
         this.announceStateApproveRepository = announceStateApproveRepository;
@@ -95,6 +97,7 @@ public class AnnounceServiceImpl implements AnnounceService {
         this.badgeRepository = badgeRepository;
         this.stationRepository = stationRepository;
         this.villaRepository = villaRepository;
+        this.provinceRepository = provinceRepository;
     }
 
     @Override
@@ -123,9 +126,10 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
 
     @Override
-    public AnnounceRequestDTO addAnnounceWithImage(AnnounceDTO announceDTO, List<MultipartFile> imageFile) throws WebException {
+    public AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile) throws WebException {
         try{
             Announce announce = new Announce();
+            Province province = provinceRepository.findByName(announceDTO.getProvince()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Province not found."));
             announce.setId(null);
             announce.setTitle(announceDTO.getTitle());
             announce.setLocation(announceDTO.getLocation());
@@ -139,6 +143,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setHasElevator(announceDTO.getHasElevator());
             announce.setHasParking(announceDTO.getHasParking());
             announce.setHasSecurity(announceDTO.getHasSecurity());
+            announce.setProvince(province);
             User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found by id: " + announceDTO.getUserId()));
             announce.setUser(user);
 
@@ -176,7 +181,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             
             announceImageService.saveImages(response.getId(), imageFile);
             
-            return mapToAnnounceRequestDTO(announce);
+            return mapToAnnounceDTO(response);
 
         }catch (WebException e){
             throw e;
@@ -186,10 +191,11 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
 
     @Override
-    public AnnounceDTO editAnnounce(Long announceId, AnnounceDTO announceDTO) throws WebException {
+    public AnnounceDTO editAnnounce(Long announceId, AnnounceRequestDTO announceDTO) throws WebException {
         try{
-            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found by id: " + announceId));
-            User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found by id: " + announceDTO.getUserId()));
+            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
+            User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found."));
+            Province province = provinceRepository.findByName(announceDTO.getProvince()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Province not found."));
             if(!user.getId().equals(announce.getUser().getId())){
                 throw new WebException(HttpStatus.BAD_REQUEST, "User not match");
             }
@@ -205,6 +211,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setHasElevator(announceDTO.getHasElevator());
             announce.setHasParking(announceDTO.getHasParking());
             announce.setHasSecurity(announceDTO.getHasSecurity());
+            announce.setProvince(province);
             announce.setUser(user);
 
             AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
@@ -354,7 +361,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             }
             
             if(province != null && !province.trim().isEmpty()){
-                stream = stream.filter(a -> a.getLocation().toLowerCase().contains(province.toLowerCase()));
+                stream = stream.filter(a -> a.getProvince().getName().equalsIgnoreCase(province));
             }
 
             if (saleType != null && !saleType.trim().isEmpty()) {
@@ -547,10 +554,6 @@ public class AnnounceServiceImpl implements AnnounceService {
     private List<Announce> findAllAnnounce() {
         return announceRepository.findAll();
     }
-
-    private List<AnnounceApproveDTO> mapToAnnounceApprove(List<Announce> announces) {
-        return announces.stream().map(ann -> modelMapper.map(announces, AnnounceApproveDTO.class)).toList();
-    }
     
     private AnnounceDTO mapToAnnounceDTO(Announce announce) {
         AnnounceDTO dto = new AnnounceDTO();
@@ -569,6 +572,7 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setHasSecurity(announce.getHasSecurity());
         dto.setUserId(announce.getUser().getId());
         dto.setApproveStatusId(announce.getApprove().getId());
+        dto.setProvince(announce.getProvince().getName());
 
         if (announce.getMapPointList() != null) {
             List<MapPointDTO> mapPoints = announce.getMapPointList().stream()
@@ -580,37 +584,6 @@ public class AnnounceServiceImpl implements AnnounceService {
         dto.setAnnounceType(announce.getAnnounceType().getId());
         dto.setSaleType(announce.getSaleType().getId());
         
-        return dto;
-    }
-
-    private AnnounceRequestDTO mapToAnnounceRequestDTO(Announce announce) {
-        AnnounceRequestDTO dto = new AnnounceRequestDTO();
-        dto.setId(announce.getId());
-        dto.setTitle(announce.getTitle());
-        dto.setLocation(announce.getLocation());
-        dto.setPrice(announce.getPrice());
-        dto.setBathroomCount(announce.getBathroomCount());
-        dto.setBedroomCount(announce.getBedroomCount());
-        dto.setAreaSize(announce.getAreaSize());
-        dto.setHasPool(announce.getHasPool());
-        dto.setHasConvenienceStore(announce.getHasConvenienceStore());
-        dto.setHasFitness(announce.getHasFitness());
-        dto.setHasElevator(announce.getHasElevator());
-        dto.setHasParking(announce.getHasParking());
-        dto.setHasSecurity(announce.getHasSecurity());
-        dto.setUserId(announce.getUser().getId());
-        dto.setApproveStatusId(announce.getApprove().getId());
-
-        if (announce.getMapPointList() != null) {
-            List<MapPointDTO> mapPoints = announce.getMapPointList().stream()
-                    .map(mp -> new MapPointDTO(mp.getLat(), mp.getLng()))
-                    .collect(Collectors.toList());
-            dto.setMapPoints(mapPoints);
-        }
-
-        dto.setAnnounceType(announce.getAnnounceType().getId());
-        dto.setSaleType(announce.getSaleType().getId());
-
         return dto;
     }
     
@@ -629,10 +602,16 @@ public class AnnounceServiceImpl implements AnnounceService {
                     ann.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
             );
             showAllAnnounceDetailsWithAgen.setAddress(ann.getLocation());
-            showAllAnnounceDetailsWithAgen.setAgent(modelMapper.map(ann.getUser(), AgentDTO.class));
+            showAllAnnounceDetailsWithAgen.setAgent(mapToAgentDTO(ann.getUser()));
             showAllAnnounceDetailsWithAgen.setBadgeSet(mapToBadgeDTO(badges));
             return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
         }).toList();
+    }
+    
+    private AgentDTO mapToAgentDTO(User agent) {
+        AgentDTO agentDTO = modelMapper.map(agent, AgentDTO.class);
+        agentDTO.setIsVerify(agent.getEmailVerified() && agent.getPhoneVerified());
+        return agentDTO;
     }
     
     private Set<BadgeDTO> mapToBadgeDTO(Set<Badge> badge) {

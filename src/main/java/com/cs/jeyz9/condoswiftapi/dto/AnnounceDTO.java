@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -27,9 +26,8 @@ public class AnnounceDTO {
     private Boolean hasSecurity;
     private Long userId;
     private Long approveStatusId;
-    private Set<Long> badges;
     private List<MapPointDTO> mapPoints;
     private Long announceType;
     private Long saleType;
-    private Set<Long> nearbyPlaces;
+    private String province;
 }
