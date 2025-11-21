@@ -272,10 +272,16 @@ public class UserServiceImpl implements UserService {
                     ann.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
             );
             showAllAnnounceDetailsWithAgen.setAddress(ann.getLocation());
-            showAllAnnounceDetailsWithAgen.setAgent(modelMapper.map(ann.getUser(), AgentDTO.class));
+            showAllAnnounceDetailsWithAgen.setAgent(mapToAgentDTO(ann.getUser()));
             showAllAnnounceDetailsWithAgen.setBadgeSet(mapToBadgeDTO(badges));
             return modelMapper.map(showAllAnnounceDetailsWithAgen, ShowAllAnnounceDetailsWithAgent.class);
         }).toList();
+    }
+
+    private AgentDTO mapToAgentDTO(User agent) {
+        AgentDTO agentDTO = modelMapper.map(agent, AgentDTO.class);
+        agentDTO.setIsVerify(agent.getEmailVerified() && agent.getPhoneVerified());
+        return agentDTO;
     }
 
     private Set<BadgeDTO> mapToBadgeDTO(Set<Badge> badge) {
