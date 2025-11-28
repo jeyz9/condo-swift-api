@@ -65,6 +65,7 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
             a.has_security,
             a.has_fitness,
             a.has_parking,
+            a.province_id,
             s.name AS station_name,
             s.lat AS station_lat,
             s.lng AS station_lng

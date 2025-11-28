@@ -5,6 +5,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AgentDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
 import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
+import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
@@ -259,6 +260,24 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         List<Announce> announces = user.getBookmarks().stream().toList();
         return mapToShowAllAnnounce(announces);
+    }
+    
+    @Override
+    public String updateUserProfile(String email, EditProfileDTO editProfile) {
+        try {
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+            user.setName(editProfile.getName());
+            user.setDescription(editProfile.getDescription());
+            user.setPhone(editProfile.getPhone());
+            user.setEmail(editProfile.getEmail());
+            user.setLineId(editProfile.getLineId());
+            userRepository.save(user);
+            return "Update User details success.";
+        }catch (WebException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {
