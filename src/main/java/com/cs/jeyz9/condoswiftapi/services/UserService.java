@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.services;
 
+import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
@@ -18,4 +19,5 @@ public interface UserService {
     String bookmarkAnnounce(String email, Long announceId);
     String removeFromBookmark(String email, Long announceId);
     List<ShowAllAnnounceDetailsWithAgent> showAllAnnounceBookmark(String email);
+    String updateUserProfile(String email, EditProfileDTO editProfile);
 }

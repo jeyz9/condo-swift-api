@@ -1,11 +1,13 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
+import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -76,5 +79,10 @@ public class UserController {
     @GetMapping(value = "/showAllAnnounceBookmark")
     public ResponseEntity<List<ShowAllAnnounceDetailsWithAgent>> showAllAnnounceBookmark(Principal principal) {
         return new ResponseEntity<>(userService.showAllAnnounceBookmark(principal.getName()), HttpStatus.OK);
+    }
+    
+    @PutMapping(value = "/editProfile", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> editProfile(@Valid @RequestBody EditProfileDTO profile, Principal principal) {
+        return new ResponseEntity<>(userService.updateUserProfile(principal.getName(), profile), HttpStatus.OK);
     }
 }

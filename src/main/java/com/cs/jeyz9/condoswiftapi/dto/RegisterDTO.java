@@ -17,12 +17,10 @@ public class RegisterDTO {
 
     private String description;
 
-    @Column(unique = true)
     @Pattern(regexp = "\\d{10}", message = "เบอร์โทรต้องมี 10 หลัก")
     private String phone;
 
     @Email
-    @Column(unique = true)
     private String email;
 
     @Pattern(

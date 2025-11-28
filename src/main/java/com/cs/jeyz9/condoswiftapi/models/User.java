@@ -41,6 +41,8 @@ public class User {
     @Column(unique = true)
     private String email;
     
+    private String LineId;
+    
     private String password;
     
     private Boolean phoneVerified = false;
