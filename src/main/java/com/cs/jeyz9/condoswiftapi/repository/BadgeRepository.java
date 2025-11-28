@@ -24,4 +24,13 @@ public interface BadgeRepository extends JpaRepository<Badge, Long> {
             nativeQuery = true
     )
     Set<Badge> findAllBadgeByAnnounceId(@Param("announceId") Long announceId);
+    
+    @Query(value = """
+        SELECT COUNT(b.badge_id) AS totalAnnounce FROM announce_badge b
+        WHERE b.badge_id = :badgeId
+        GROUP BY b.badge_id
+        ORDER BY b.badge_id ASC;
+        """,
+    nativeQuery = true)
+    Optional<Integer> findCountAnnounce(@Param("badgeId") Long badgeId);
 }

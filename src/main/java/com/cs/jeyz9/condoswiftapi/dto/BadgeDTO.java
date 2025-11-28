@@ -10,8 +10,5 @@ import lombok.Setter;
 public class BadgeDTO {
     private Long id;
     private String badgeName;
-    
-    public BadgeDTO(String badgeName) {
-        this.badgeName = badgeName;
-    }
+    private Integer totalAnnounce;
 }

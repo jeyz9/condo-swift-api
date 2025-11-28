@@ -3,7 +3,11 @@ package com.cs.jeyz9.condoswiftapi.services.impl;
 import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
+import com.cs.jeyz9.condoswiftapi.models.Announce;
+import com.cs.jeyz9.condoswiftapi.models.AnnounceBadge;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceBadgeRepository;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.cs.jeyz9.condoswiftapi.services.BadgeService;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -24,11 +29,15 @@ import java.util.stream.Stream;
 public class BadgeServiceImpl implements BadgeService {
     private final BadgeRepository badgeRepository;
     private final ModelMapper modelMapper;
+    private final AnnounceRepository announceRepository;
+    private final AnnounceBadgeRepository announceBadgeRepository;
 
     @Autowired
-    public BadgeServiceImpl(BadgeRepository badgeRepository, ModelMapper modelMapper) {
+    public BadgeServiceImpl(BadgeRepository badgeRepository, ModelMapper modelMapper, AnnounceRepository announceRepository, AnnounceBadgeRepository announceBadgeRepository) {
         this.badgeRepository = badgeRepository;
         this.modelMapper = modelMapper;
+        this.announceRepository = announceRepository;
+        this.announceBadgeRepository = announceBadgeRepository;
     }
     
     @Override
@@ -113,7 +122,38 @@ public class BadgeServiceImpl implements BadgeService {
         }
     }
     
+    @Override
+    public List<BadgeDTO> getAllBadges() {
+        return mapToDTO(badgeRepository.findAll());
+    }
+
+    @Override
+    public String addAnnounceBadge(Long announceId, Long badgeId){
+        try {
+            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
+            Badge badge = badgeRepository.findById(badgeId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
+
+            AnnounceBadge announceBadge = new AnnounceBadge();
+            announceBadge.setBadge(badge);
+            announceBadge.setAnnounce(announce);
+            announceBadge.setAssignedAt(LocalDateTime.now());
+            announceBadge.setExpiresAt(LocalDateTime.now().plusDays(7));
+            announceBadgeRepository.save(announceBadge);
+
+            return "Add Badge to announce success";
+        } catch (WebException e){
+            throw e;
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+    
     private List<BadgeDTO> mapToDTO(List<Badge> badgeList) {
-        return badgeList.stream().map(badge -> modelMapper.map(badge, BadgeDTO.class)).toList();
+        return badgeList.stream().map(badge -> {
+            Integer totalAnnounce = badgeRepository.findCountAnnounce(badge.getId()).orElse(0);
+            BadgeDTO mapBadge = modelMapper.map(badge, BadgeDTO.class);
+            mapBadge.setTotalAnnounce(totalAnnounce);
+            return mapBadge;
+        }).toList();
     }
 }
