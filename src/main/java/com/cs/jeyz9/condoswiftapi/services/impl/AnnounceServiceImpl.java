@@ -198,63 +198,6 @@ public class AnnounceServiceImpl implements AnnounceService {
         }
     }
 
-//    @Override
-//    public AnnounceDTO editAnnounce(Long announceId, AnnounceRequestDTO announceDTO) throws WebException {
-//        try{
-//            Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
-//            User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found."));
-//            Province province = provinceRepository.findByName(announceDTO.getProvince()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Province not found."));
-//            if(!user.getId().equals(announce.getUser().getId())){
-//                throw new WebException(HttpStatus.BAD_REQUEST, "User not match");
-//            }
-//            announce.setTitle(announceDTO.getTitle());
-//            announce.setLocation(announceDTO.getLocation());
-//            announce.setPrice(announceDTO.getPrice());
-//            announce.setBathroomCount(announceDTO.getBathroomCount());
-//            announce.setBedroomCount(announceDTO.getBedroomCount());
-//            announce.setAreaSize(announceDTO.getAreaSize());
-//            announce.setHasPool(announceDTO.getHasPool());
-//            announce.setHasConvenienceStore(announceDTO.getHasConvenienceStore());
-//            announce.setHasFitness(announceDTO.getHasFitness());
-//            announce.setHasElevator(announceDTO.getHasElevator());
-//            announce.setHasParking(announceDTO.getHasParking());
-//            announce.setHasSecurity(announceDTO.getHasSecurity());
-//            announce.setProvince(province);
-//            announce.setUser(user);
-//
-//            AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
-//            if(!approveStatus.getStatusName().equals(ApproveStatus.DRAFT) && !approveStatus.getStatusName().equals(ApproveStatus.PENDING)){
-//                throw new WebException(HttpStatus.BAD_REQUEST, "Approve status must be DRAFT or PENDING only");
-//            }
-//            announce.setApprove(approveStatus);
-//
-//            if (announceDTO.getMapPoints() != null) {
-//                announce.getMapPointList().clear();
-//                announceDTO.getMapPoints().forEach(mpDTO -> {
-//                    MapPoint mapPoint = new MapPoint();
-//                    mapPoint.setLat(mpDTO.getLat());
-//                    mapPoint.setLng(mpDTO.getLng());
-//                    mapPoint.setAnnounce(announce);
-//                    announce.getMapPointList().add(mapPoint);
-//                });
-//            }
-//
-//            AnnounceType type = announceTypeRepository.findById(announceDTO.getAnnounceType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Type not found by id: " + announceDTO.getAnnounceType()));
-//            announce.setAnnounceType(type);
-//
-//            SaleType saleType = saleTypeRepository.findById(announceDTO.getSaleType()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Sale type not found by id: " + announceDTO.getSaleType()));
-//            announce.setSaleType(saleType);
-//
-//            announceRepository.save(announce);
-//            return mapToAnnounceDTO(announce);
-//
-//        }catch (WebException e){
-//            throw e;
-//        }catch (Exception e){
-//            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Updated \"Announce\" fails " + e.getMessage());
-//        }
-//    };
-
     @Override
     public AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles)
             throws WebException {

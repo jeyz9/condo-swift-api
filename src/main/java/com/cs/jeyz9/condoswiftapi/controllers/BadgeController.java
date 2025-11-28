@@ -2,8 +2,6 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 
 import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
-import com.cs.jeyz9.condoswiftapi.models.Badge;
-import com.cs.jeyz9.condoswiftapi.services.AnnounceService;
 import com.cs.jeyz9.condoswiftapi.services.BadgeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
