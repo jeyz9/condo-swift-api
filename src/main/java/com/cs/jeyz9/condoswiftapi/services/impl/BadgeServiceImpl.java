@@ -115,8 +115,12 @@ public class BadgeServiceImpl implements BadgeService {
     public String deletedBadge(Long id) {
         try {
             Badge badge = badgeRepository.findById(id).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
+            List<AnnounceBadge> announceBadges = announceBadgeRepository.findAllByBadge(badge);
+            announceBadgeRepository.deleteAll(announceBadges);
             badgeRepository.delete(badge);
-            return "Deleted badge success by id: " + id;
+            return "Deleted badge success.";
+        }catch (WebException e) {
+            throw e;
         }catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while deleted badge" + e.getMessage());
         }
