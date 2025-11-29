@@ -17,8 +17,6 @@ import java.util.List;
 public interface AnnounceService {
     AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile) throws WebException;
     AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles);
-    
-//    AnnounceDTO editAnnounce(Long announceId, AnnounceRequestDTO announce) throws WebException;
     AnnounceDetailsSelected getAnnounceDetailsById(Long announceId);
     ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException;
     String deletedAnnounce(Long announceId);
@@ -26,7 +24,6 @@ public interface AnnounceService {
     TableResponse<AnnounceApproveDTO> showAllAnnouncePending(String keyword, Integer page, Integer size) throws IOException;
     TableResponse<AnnounceApproveDTO> showAllAnnounceApprove(String keyword, Integer page, Integer size) throws IOException;
     TableResponse<AnnounceApproveDTO> showAllAnnounceHistory(String keyword, Integer page, Integer size) throws IOException;
-    
     String approveAnnounce(Long announceId, String officialEmail);
     String rejectAnnounce(Long announceId, String officialEmail, RejectAnnounceDTO reject);
 }

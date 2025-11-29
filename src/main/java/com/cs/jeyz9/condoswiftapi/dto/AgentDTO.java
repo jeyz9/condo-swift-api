@@ -15,6 +15,8 @@ public class AgentDTO {
     private String name;
     private String description;
     private String image;
+    private String phone;
+    private String lineId;
     
     @JsonProperty("is_verify")
     private Boolean isVerify;

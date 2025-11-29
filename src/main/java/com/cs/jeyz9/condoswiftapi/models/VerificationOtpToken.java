@@ -13,8 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 @Entity
 @Table(name = "verification_otp_token")
 @Getter
