@@ -10,5 +10,4 @@ public interface NotificationService {
     List<NotificationDTO> showAllNotificationSelectedByUserId(Long userId);
     NotificationDTO showNotificationDetailsSelected(Long userId, Long notifyId);
     String deleteNotification(Long notifyId);
-//    Notification showAllNotificationByAdmin();
 }

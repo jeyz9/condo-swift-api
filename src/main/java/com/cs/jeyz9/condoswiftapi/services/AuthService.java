@@ -6,7 +6,6 @@ import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ResetPasswordDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthService {

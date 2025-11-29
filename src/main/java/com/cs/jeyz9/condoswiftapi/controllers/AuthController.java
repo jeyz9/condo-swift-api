@@ -4,21 +4,16 @@ import com.cs.jeyz9.condoswiftapi.config.JwtTokenProvider;
 import com.cs.jeyz9.condoswiftapi.dto.ChangePasswordDTO;
 import com.cs.jeyz9.condoswiftapi.dto.JwtAuthResponse;
 import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
-import com.cs.jeyz9.condoswiftapi.dto.OtpRequest;
 import com.cs.jeyz9.condoswiftapi.dto.OtpResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ResetPasswordDTO;
-import com.cs.jeyz9.condoswiftapi.dto.VerifyOtpRequest;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
 import com.cs.jeyz9.condoswiftapi.services.ThaiBulkSmsService;
-import com.cs.jeyz9.condoswiftapi.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,12 +26,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 
 @RestController
