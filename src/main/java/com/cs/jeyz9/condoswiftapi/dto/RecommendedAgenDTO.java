@@ -14,5 +14,7 @@ public class RecommendedAgenDTO {
     private String name;
     private String description;
     private String image;
+    private String phone;
+    private String lineId;
     private Boolean isVerified;
 }

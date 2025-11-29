@@ -101,14 +101,16 @@ public class UserServiceImpl implements UserService {
         Set<Role> role = roleRepository.findRoleByRoleName(RoleName.AGENT);
         List<User> user = userRepository.findUserByRoles(role);
         return user.stream()
-                .filter(agen -> agen.getEmailVerified() && agen.getPhoneVerified())
-                .map(agen -> {
+                .filter(agent -> agent.getEmailVerified() && agent.getPhoneVerified())
+                .map(agent -> {
                     RecommendedAgenDTO recommendedAgenDTO = new RecommendedAgenDTO();
-                    recommendedAgenDTO.setId(agen.getId());
-                    recommendedAgenDTO.setName(agen.getName());
-                    recommendedAgenDTO.setDescription(agen.getDescription());
-                    recommendedAgenDTO.setImage(agen.getImage());
-                    recommendedAgenDTO.setIsVerified(agen.getEmailVerified() && agen.getPhoneVerified());    
+                    recommendedAgenDTO.setId(agent.getId());
+                    recommendedAgenDTO.setName(agent.getName());
+                    recommendedAgenDTO.setDescription(agent.getDescription());
+                    recommendedAgenDTO.setImage(agent.getImage());
+                    recommendedAgenDTO.setPhone(agent.getPhone());
+                    recommendedAgenDTO.setLineId(agent.getLineId());
+                    recommendedAgenDTO.setIsVerified(agent.getEmailVerified() && agent.getPhoneVerified());    
                     return recommendedAgenDTO;         
         }).limit(3).toList();
     }
@@ -182,6 +184,8 @@ public class UserServiceImpl implements UserService {
         userOverview.setName(user.getName());
         userOverview.setDescription(user.getDescription());
         userOverview.setImage(user.getImage());
+        userOverview.setPhone(user.getPhone());
+        userOverview.setLineId(user.getLineId());
         userOverview.setJoinAt(user.getCreatedAt());
         userOverview.setPhoneVerified(user.getPhoneVerified());
         userOverview.setEmailVerified(user.getEmailVerified());

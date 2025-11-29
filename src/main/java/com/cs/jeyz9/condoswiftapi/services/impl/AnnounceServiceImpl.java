@@ -199,8 +199,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
 
     @Override
-    public AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles)
-            throws WebException {
+    public AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles) throws WebException {
         try {
 
             Announce announce = announceRepository.findById(announceId)

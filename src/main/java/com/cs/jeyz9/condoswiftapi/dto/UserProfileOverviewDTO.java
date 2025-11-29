@@ -17,6 +17,8 @@ public class UserProfileOverviewDTO {
     private String name;
     private String description;
     private String image;
+    private String phone;
+    private String lineId;
     private LocalDateTime joinAt;
     private Integer announceSellCount;
     private Integer announceRentCount;
