@@ -3,6 +3,7 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
+import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
@@ -83,5 +84,10 @@ public class UserController {
     @PutMapping(value = "/editProfile", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> editProfile(@Valid @RequestBody EditProfileDTO profile, Principal principal) {
         return new ResponseEntity<>(userService.updateUserProfile(principal.getName(), profile), HttpStatus.OK);
+    }
+    
+    @GetMapping(value = "/showUserDetails")
+    public ResponseEntity<ShowUserDetailsDTO> showUserDetails(Principal principal) {
+        return new ResponseEntity<>(userService.showUserDetails(principal.getName()), HttpStatus.OK);
     }
 }

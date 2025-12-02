@@ -8,11 +8,13 @@ import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
+import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
+import com.cs.jeyz9.condoswiftapi.models.Notification;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.Terms;
@@ -21,6 +23,7 @@ import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
+import com.cs.jeyz9.condoswiftapi.repository.NotificationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
@@ -42,6 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -57,6 +61,7 @@ public class UserServiceImpl implements UserService {
     private final AnnounceRepository announceRepository;
     private final ModelMapper modelMapper;
     private final BadgeRepository badgeRepository;
+    private final NotificationRepository notificationRepository;
 
     @Value("${supabase.url}")
     private String supabaseUrl;
@@ -67,7 +72,7 @@ public class UserServiceImpl implements UserService {
     @Value("${supabase.bucket.profile}")
     private String bucket;
 
-    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository, AnnounceRepository announceRepository, ModelMapper modelMapper, BadgeRepository badgeRepository) {
+    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository, AnnounceRepository announceRepository, ModelMapper modelMapper, BadgeRepository badgeRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.termsRepository = termsRepository;
         this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
@@ -75,6 +80,7 @@ public class UserServiceImpl implements UserService {
         this.announceRepository = announceRepository;
         this.modelMapper = modelMapper;
         this.badgeRepository = badgeRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @Override
@@ -272,11 +278,50 @@ public class UserServiceImpl implements UserService {
             User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
             user.setName(editProfile.getName());
             user.setDescription(editProfile.getDescription());
-            user.setPhone(editProfile.getPhone());
-            user.setEmail(editProfile.getEmail());
+            
+            if(user.getPhone().equals(editProfile.getPhone())){
+                user.setPhone(editProfile.getPhone());
+                user.setPhoneVerified(false);
+                Notification notification = Notification.builder()
+                        .id(null)
+                        .user(user)
+                        .title("คุณได้เปลี่ยนเบอร์โทรศัพท์ กรุณายืนยันตัวตนในหน้าโปรไฟล์")
+                        .message("ระบบตรวจพบว่าคุณได้ทำการเปลี่ยนเบอร์โทรศัพท์ใหม่ กรุณาดำเนินการยืนยันตัวตนในหน้าโปรไฟล์เพื่อความปลอดภัย")
+                        .is_read(false)
+                        .createdDate(LocalDateTime.now())
+                        .expiredDate(LocalDateTime.now().plusDays(7))
+                        .build();
+                notificationRepository.save(notification);
+            }
+            
+            if(user.getEmail().equals(editProfile.getEmail())){
+                user.setEmail(editProfile.getEmail());
+                user.setEmailVerified(false);
+                Notification notification = Notification.builder()
+                        .id(null)
+                        .user(user)
+                        .title("คุณได้เปลี่ยนที่อยู่อีเมล กรุณายืนยันตัวตนในหน้าโปรไฟล์")
+                        .message("ระบบตรวจพบว่าคุณได้ทำการเปลี่ยนที่อยู่อีเมลใหม่ กรุณาดำเนินการยืนยันตัวตนในหน้าโปรไฟล์เพื่อความปลอดภัย")
+                        .is_read(false)
+                        .createdDate(LocalDateTime.now())
+                        .expiredDate(LocalDateTime.now().plusDays(7))
+                        .build();
+                notificationRepository.save(notification);
+            }
             user.setLineId(editProfile.getLineId());
             userRepository.save(user);
             return "Update User details success.";
+        }catch (WebException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+    
+    @Override
+    public ShowUserDetailsDTO showUserDetails(String email) {
+        try{
+            return userRepository.findUserDetailsById(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         }catch (WebException e) {
             throw e;
         } catch (Exception e) {
