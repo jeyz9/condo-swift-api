@@ -51,12 +51,46 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> 
                         authorize
-                                .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/uploads/**","/uploads/announce-images/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, 
+                                        "/api/v1/**",
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/**", 
+                                        "/v3/api-docs/**", 
+                                        "/api/v1/provinces/showAllProvinces",
+                                        "/api/v1/auth/verify"
+                                ).permitAll()
+                                
+                                .requestMatchers(HttpMethod.POST, 
+                                        "/api/v1/auth/**",
+                                        "/api/v1/users/**/acceptTerms"
+                                ).permitAll()
+                                
                                 .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasRole(RoleName.AGENT.toString())
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasRole(RoleName.AGENT.toString())
-                                .requestMatchers( "/swagger-ui.html","/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                
+                                .requestMatchers(HttpMethod.GET, 
+                                        "/api/v1/announces/showAllAnnounceApproveByAdmin", 
+                                        "/api/v1/announces/showAllAnnounceHistoryByAdmin",
+                                        "/api/v1/announces/showAllAnnouncePendingByAdmin",
+                                        "/api/v1/badges/filterBadges"
+                                ).hasRole(RoleName.ADMIN.toString())
+                                
+                                .requestMatchers(HttpMethod.POST, 
+                                        "/api/v1/notifications/**", 
+                                        "/api/v1/badges/**"
+                                ).hasRole(RoleName.ADMIN.toString())
+                                
+                                .requestMatchers(HttpMethod.PUT,  
+                                        "/api/v1/badges/updatedBadge/**",
+                                        "/api/v1/announces/approveAnnounce/**",
+                                        "/api/v1/announces/rejectAnnounce/**"
+                                ).hasRole(RoleName.ADMIN.toString())
+                                
+                                .requestMatchers(HttpMethod.DELETE, 
+                                        "/api/v1/badges/deletedBadge/**",
+                                        "/api/v1/notifications/deleteNotification/**"
+                                ).hasRole(RoleName.ADMIN.toString())
+                                
                                 .anyRequest().authenticated()
                 ).exceptionHandling(exception -> exception
                         .authenticationEntryPoint(jwtEntryPoint)
