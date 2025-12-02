@@ -1,8 +1,11 @@
 package com.cs.jeyz9.condoswiftapi.repository;
 
+import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Boolean existsByPhone(String phone);
     
     List<User> findUserByRoles(Set<Role> roles);
+    
+    @Query(value = """
+        SELECT id, name, description, email, phone, line_id FROM users WHERE email = :email;
+    """, nativeQuery = true)
+    Optional<ShowUserDetailsDTO> findUserDetailsById(@Param("email") String email);
 }
