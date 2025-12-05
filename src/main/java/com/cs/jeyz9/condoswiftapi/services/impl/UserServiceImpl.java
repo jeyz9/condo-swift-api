@@ -14,7 +14,6 @@ import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
-import com.cs.jeyz9.condoswiftapi.models.Notification;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.Terms;
@@ -23,11 +22,11 @@ import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
-import com.cs.jeyz9.condoswiftapi.repository.NotificationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
+import com.cs.jeyz9.condoswiftapi.services.NotificationService;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
@@ -45,7 +44,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
     private final AnnounceRepository announceRepository;
     private final ModelMapper modelMapper;
     private final BadgeRepository badgeRepository;
-    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
     @Value("${supabase.url}")
     private String supabaseUrl;
@@ -72,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Value("${supabase.bucket.profile}")
     private String bucket;
 
-    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository, AnnounceRepository announceRepository, ModelMapper modelMapper, BadgeRepository badgeRepository, NotificationRepository notificationRepository) {
+    public UserServiceImpl(UserRepository userRepository, TermsRepository termsRepository, UserTermsAcceptLogRepository userTermsAcceptLogRepository, RoleRepository roleRepository, AnnounceRepository announceRepository, ModelMapper modelMapper, BadgeRepository badgeRepository, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.termsRepository = termsRepository;
         this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
@@ -80,7 +78,7 @@ public class UserServiceImpl implements UserService {
         this.announceRepository = announceRepository;
         this.modelMapper = modelMapper;
         this.badgeRepository = badgeRepository;
-        this.notificationRepository = notificationRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -273,40 +271,23 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
+    @Transactional
     public String updateUserProfile(String email, EditProfileDTO editProfile) {
         try {
             User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
             user.setName(editProfile.getName());
             user.setDescription(editProfile.getDescription());
             
-            if(user.getPhone().equals(editProfile.getPhone())){
+            if(!user.getPhone().equals(editProfile.getPhone())){
                 user.setPhone(editProfile.getPhone());
                 user.setPhoneVerified(false);
-                Notification notification = Notification.builder()
-                        .id(null)
-                        .user(user)
-                        .title("คุณได้เปลี่ยนเบอร์โทรศัพท์ กรุณายืนยันตัวตนในหน้าโปรไฟล์")
-                        .message("ระบบตรวจพบว่าคุณได้ทำการเปลี่ยนเบอร์โทรศัพท์ใหม่ กรุณาดำเนินการยืนยันตัวตนในหน้าโปรไฟล์เพื่อความปลอดภัย")
-                        .is_read(false)
-                        .createdDate(LocalDateTime.now())
-                        .expiredDate(LocalDateTime.now().plusDays(7))
-                        .build();
-                notificationRepository.save(notification);
+                notificationService.systemSendNotification(user, "คุณได้เปลี่ยนเบอร์โทรศัพท์ กรุณายืนยันตัวตนในหน้าโปรไฟล์", "ระบบตรวจพบว่าคุณได้ทำการเปลี่ยนเบอร์โทรศัพท์ใหม่ กรุณาดำเนินการยืนยันตัวตนในหน้าโปรไฟล์เพื่อความปลอดภัย");
             }
             
-            if(user.getEmail().equals(editProfile.getEmail())){
+            if(!user.getEmail().equals(editProfile.getEmail())){
                 user.setEmail(editProfile.getEmail());
                 user.setEmailVerified(false);
-                Notification notification = Notification.builder()
-                        .id(null)
-                        .user(user)
-                        .title("คุณได้เปลี่ยนที่อยู่อีเมล กรุณายืนยันตัวตนในหน้าโปรไฟล์")
-                        .message("ระบบตรวจพบว่าคุณได้ทำการเปลี่ยนที่อยู่อีเมลใหม่ กรุณาดำเนินการยืนยันตัวตนในหน้าโปรไฟล์เพื่อความปลอดภัย")
-                        .is_read(false)
-                        .createdDate(LocalDateTime.now())
-                        .expiredDate(LocalDateTime.now().plusDays(7))
-                        .build();
-                notificationRepository.save(notification);
+                notificationService.systemSendNotification(user, "คุณได้เปลี่ยนที่อยู่อีเมล กรุณายืนยันตัวตนในหน้าโปรไฟล์", "ระบบตรวจพบว่าคุณได้ทำการเปลี่ยนที่อยู่อีเมลใหม่ กรุณาดำเนินการยืนยันตัวตนในหน้าโปรไฟล์เพื่อความปลอดภัย");
             }
             user.setLineId(editProfile.getLineId());
             userRepository.save(user);

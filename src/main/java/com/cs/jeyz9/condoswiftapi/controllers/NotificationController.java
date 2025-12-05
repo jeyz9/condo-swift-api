@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -28,8 +29,8 @@ public class NotificationController {
     }
     
     @PostMapping("/sendNotification")
-    public ResponseEntity<String> sendNotification(@RequestBody SendNotificationDTO sendNotify) {
-        return new ResponseEntity<>(notificationService.sendNotification(sendNotify), HttpStatus.CREATED);
+    public ResponseEntity<String> sendNotification(@RequestBody SendNotificationDTO sendNotify, Principal principal) {
+        return new ResponseEntity<>(notificationService.sendNotification(principal.getName(), sendNotify), HttpStatus.CREATED);
     }
     
     @GetMapping("/showAllNotificationSelectedByUserId/{userId}")
