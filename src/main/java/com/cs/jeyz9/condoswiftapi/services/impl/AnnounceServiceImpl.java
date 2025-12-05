@@ -28,7 +28,6 @@ import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.MapPoint;
-import com.cs.jeyz9.condoswiftapi.models.Notification;
 import com.cs.jeyz9.condoswiftapi.models.Province;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
@@ -42,7 +41,6 @@ import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceStateApproveRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.BadgeRepository;
-import com.cs.jeyz9.condoswiftapi.repository.NotificationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.ProvinceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.StationRepository;
@@ -60,6 +58,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -87,10 +86,22 @@ public class AnnounceServiceImpl implements AnnounceService {
     private final VillaRepository villaRepository;
     private final ProvinceRepository provinceRepository;
     private final NotificationService notificationService;
-    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public AnnounceServiceImpl(AnnounceRepository announceRepository, UserRepository userRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceImageRepository announceImageRepository, ModelMapper modelMapper, AnnounceImageService announceImageService, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceBadgeRepository announceBadgeRepository, BadgeRepository badgeRepository, StationRepository stationRepository, VillaRepository villaRepository, ProvinceRepository provinceRepository, NotificationService notificationService, NotificationRepository notificationRepository) {
+    public AnnounceServiceImpl(AnnounceRepository announceRepository, 
+                               UserRepository userRepository, 
+                               AnnounceStateApproveRepository announceStateApproveRepository, 
+                               AnnounceImageRepository announceImageRepository, 
+                               ModelMapper modelMapper, 
+                               AnnounceImageService announceImageService, 
+                               AnnounceTypeRepository announceTypeRepository, 
+                               SaleTypeRepository saleTypeRepository, 
+                               AnnounceBadgeRepository announceBadgeRepository, 
+                               BadgeRepository badgeRepository, 
+                               StationRepository stationRepository, 
+                               VillaRepository villaRepository, 
+                               ProvinceRepository provinceRepository, 
+                               NotificationService notificationService) {
         this.announceRepository = announceRepository;
         this.userRepository = userRepository;
         this.announceStateApproveRepository = announceStateApproveRepository;
@@ -105,7 +116,6 @@ public class AnnounceServiceImpl implements AnnounceService {
         this.villaRepository = villaRepository;
         this.provinceRepository = provinceRepository;
         this.notificationService = notificationService;
-        this.notificationRepository = notificationRepository;
     }
 
     @Override
@@ -134,6 +144,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
 
     @Override
+    @Transactional
     public AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile) throws WebException {
         try{
             Announce announce = new Announce();
@@ -199,6 +210,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
 
     @Override
+    @Transactional
     public AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles) throws WebException {
         try {
 
@@ -514,6 +526,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
+    @Transactional
     public String approveAnnounce(Long announceId, String officialEmail) {
         try {
             Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
@@ -534,16 +547,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setRemark("อนุมัติโดย " + role);
             announce.setApproveDate(LocalDateTime.now());
             announceRepository.save(announce);
-
-            Notification notify = Notification.builder()
-                    .title("ประกาศของคุณได้รับการอนุมัติแล้ว")
-                    .message("เจ้าหน้าที่ได้ทำการตรวจสอบและอนุมัติประกาศ " + announce.getTitle() +  " ของคุณเรียบร้อนแล้ว")
-                    .createdDate(LocalDateTime.now())
-                    .expiredDate(LocalDateTime.now().plusDays(7))
-                    .user(announce.getUser())
-                    .is_read(false)
-                    .build();
-            notificationRepository.save(notify);
+            notificationService.systemSendNotification(announce.getUser(), "ประกาศของคุณได้รับการอนุมัติแล้ว", "เจ้าหน้าที่ได้ทำการตรวจสอบและอนุมัติประกาศ " + announce.getTitle() + " ของคุณเรียบร้อยแล้ว");
             
             return "Approve announce success.";
         } catch (WebException e) {
@@ -554,6 +558,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
     
     @Override
+    @Transactional
     public String rejectAnnounce(Long announceId, String officialEmail, RejectAnnounceDTO reject) {
         try {
             Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
@@ -570,16 +575,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setRemark(reject.getRemark());
             announce.setApproveDate(LocalDateTime.now());
             announceRepository.save(announce);
-
-            Notification notify = Notification.builder()
-                    .title("ประกาศของคุณถูกปฏิเสธ")
-                    .message("ประกาศ " + announce.getTitle() + " ของคุณถูกปฏิเสธเนื่องจาก " + reject.getRemark())
-                    .createdDate(LocalDateTime.now())
-                    .expiredDate(LocalDateTime.now().plusDays(7))
-                    .user(announce.getUser())
-                    .is_read(false)
-                    .build();
-            notificationRepository.save(notify);
+            notificationService.systemSendNotification(announce.getUser(), "ประกาศของคุณถูกปฏิเสธ", "ประกาศ " + announce.getTitle() + " ของคุณถูกปฏิเสธเนื่องจาก " + reject.getRemark());
             
             return "Reject announce success.";
         } catch (WebException e) {

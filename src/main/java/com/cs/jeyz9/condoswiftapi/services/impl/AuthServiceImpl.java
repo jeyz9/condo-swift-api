@@ -6,7 +6,6 @@ import com.cs.jeyz9.condoswiftapi.dto.LoginDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RegisterDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ResetPasswordDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
-import com.cs.jeyz9.condoswiftapi.models.Notification;
 import com.cs.jeyz9.condoswiftapi.models.PasswordResetToken;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
@@ -15,7 +14,6 @@ import com.cs.jeyz9.condoswiftapi.models.TermsType;
 import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.UserTermsAcceptLog;
 import com.cs.jeyz9.condoswiftapi.models.VerificationToken;
-import com.cs.jeyz9.condoswiftapi.repository.NotificationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.PasswordResetTokenRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
@@ -24,6 +22,7 @@ import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
 import com.cs.jeyz9.condoswiftapi.repository.VerificationTokenRepository;
 import com.cs.jeyz9.condoswiftapi.services.AuthService;
 import com.cs.jeyz9.condoswiftapi.services.BlacklistTokenService;
+import com.cs.jeyz9.condoswiftapi.services.NotificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +34,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -52,9 +52,9 @@ public class AuthServiceImpl implements AuthService {
     private final UserTermsAcceptLogRepository userTermsAcceptLogRepository;
     private final TermsRepository termsRepository;
     private final VerificationTokenRepository tokenRepository;
-    private final NotificationRepository notificationRepository;
     private final BlacklistTokenService blacklistTokenService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final NotificationService notificationService;
 
     @Autowired
     public AuthServiceImpl(UserRepository userRepository,
@@ -66,7 +66,9 @@ public class AuthServiceImpl implements AuthService {
                            UserTermsAcceptLogRepository userTermsAcceptLogRepository,
                            TermsRepository termsRepository,
                            VerificationTokenRepository tokenRepository,
-                           NotificationRepository notificationRepository, BlacklistTokenService blacklistTokenService, PasswordResetTokenRepository passwordResetTokenRepository){
+                           BlacklistTokenService blacklistTokenService, 
+                           PasswordResetTokenRepository passwordResetTokenRepository, 
+                           NotificationService notificationService){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
@@ -76,11 +78,13 @@ public class AuthServiceImpl implements AuthService {
         this.userTermsAcceptLogRepository = userTermsAcceptLogRepository;
         this.termsRepository = termsRepository;
         this.tokenRepository = tokenRepository;
-        this.notificationRepository = notificationRepository;
         this.blacklistTokenService = blacklistTokenService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.notificationService = notificationService;
     }
+    
     @Override
+    @Transactional
     public String register(RegisterDTO register, HttpServletRequest request) throws WebException {
         try{
             if(userRepository.existsByEmail(register.getEmail())){
@@ -127,18 +131,7 @@ public class AuthServiceImpl implements AuthService {
             termsAcceptLog.setIpAddress(request.getRemoteAddr());
             userTermsAcceptLogRepository.save(termsAcceptLog);
 
-            if(user.getRoles().stream().anyMatch(role -> role.getRoleName().equals(RoleName.AGENT))){
-                Notification notification = Notification
-                        .builder()
-                        .title("สมัครสมาชิกสำเร็จ")
-                        .message("คุณได้สมัครบัญชีสำเร็จแล้ว กรุณาทำการยืนยันตัวตนเพื่อเปิดใช้งานเต็มรูปแบบ")
-                        .is_read(false)
-                        .user(user)
-                        .createdDate(LocalDateTime.now())
-                        .expiredDate(LocalDateTime.now().plusDays(7))
-                        .build();
-                notificationRepository.save(notification);
-            }
+            notificationService.systemSendNotification(user, "สมัครสมาชิกสำเร็จ", "คุณได้สมัครบัญชีสำเร็จแล้ว กรุณาทำการยืนยันตัวตนเพื่อเปิดใช้งานเต็มรูปแบบ");
             
             return "Register Success and Terms Accepted.";
         }catch (WebException e){
@@ -165,6 +158,7 @@ public class AuthServiceImpl implements AuthService {
     }
     
     @Override
+    @Transactional
     public String verifyEmail(String token) {
         VerificationToken verificationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Token ไม่ถูกต้อง"));
@@ -177,20 +171,12 @@ public class AuthServiceImpl implements AuthService {
         user.setEmailVerified(true);
         userRepository.save(user);
         tokenRepository.delete(verificationToken);
-        Notification notification = Notification
-                .builder()
-                .title("ยืนยันอีเมลสำเร็จ")
-                .message("บัญชีของคุณได้รับการยืนยันอีเมลเรียบร้อย")
-                .is_read(false)
-                .user(user)
-                .createdDate(LocalDateTime.now())
-                .expiredDate(LocalDateTime.now().plusDays(7))
-                .build();
-        notificationRepository.save(notification);
+        notificationService.systemSendNotification(user, "ยืนยันอีเมลสำเร็จ", "บัญชีของคุณได้รับการยืนยันอีเมลเรียบร้อย");
         return "บัญชีของคุณได้รับการยืนยันอีเมลเรียบร้อย";
     }
     
     @Override
+    @Transactional
     public String changePassword(String email, ChangePasswordDTO request, String token) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         
@@ -218,6 +204,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public String resetPassword(String token, ResetPasswordDTO request){
         try {
             PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Token not found."));

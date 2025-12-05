@@ -1,7 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,25 +16,26 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "notification_recipients")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class Notification {
+public class NotificationRecipient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String title;
+    @ManyToOne
+    @JoinColumn(name = "recipient_id", referencedColumnName = "id")
+    private User recipient;
     
-    private String message;
+    @ManyToOne
+    @JoinColumn(name = "notify_id", referencedColumnName = "id")
+    private Notification notification;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", referencedColumnName = "id")
-    private User sender;
-    
-    private LocalDateTime createdDate = LocalDateTime.now();
-    private LocalDateTime expired;
+    private Boolean isRead;
+
+    private LocalDateTime expiredDate;
 }

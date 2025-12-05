@@ -2,12 +2,10 @@ package com.cs.jeyz9.condoswiftapi.services;
 
 import com.cs.jeyz9.condoswiftapi.dto.OtpResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
-import com.cs.jeyz9.condoswiftapi.models.Notification;
 import com.cs.jeyz9.condoswiftapi.models.PasswordResetToken;
 import com.cs.jeyz9.condoswiftapi.models.User;
 import com.cs.jeyz9.condoswiftapi.models.VerificationOtpToken;
 import com.cs.jeyz9.condoswiftapi.models.VerificationToken;
-import com.cs.jeyz9.condoswiftapi.repository.NotificationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.PasswordResetTokenRepository;
 import com.cs.jeyz9.condoswiftapi.repository.UserRepository;
 import com.cs.jeyz9.condoswiftapi.repository.VerificationOtpTokenRepository;
@@ -37,9 +35,9 @@ public class ThaiBulkSmsService {
 
     private final UserRepository userRepository;
     private final VerificationOtpTokenRepository verificationOtpTokenRepository;
-    private final NotificationRepository notificationRepository;
     private final VerificationTokenRepository tokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final NotificationService notificationService;
 
     @Value("${thaibulksms.key}")
     private String apiKey;
@@ -81,14 +79,20 @@ public class ThaiBulkSmsService {
     private final RestTemplate restTemplate;
     
     @Autowired
-    public ThaiBulkSmsService(ObjectMapper mapper, RestTemplate restTemplate, UserRepository userRepository, VerificationOtpTokenRepository verificationOtpTokenRepository, NotificationRepository notificationRepository, VerificationTokenRepository tokenRepository, PasswordResetTokenRepository passwordResetTokenRepository) {
+    public ThaiBulkSmsService(ObjectMapper mapper, 
+                              RestTemplate restTemplate, 
+                              UserRepository userRepository, 
+                              VerificationOtpTokenRepository verificationOtpTokenRepository, 
+                              VerificationTokenRepository tokenRepository, 
+                              PasswordResetTokenRepository passwordResetTokenRepository, 
+                              NotificationService notificationService) {
         this.mapper = mapper;
         this.restTemplate = restTemplate;
         this.userRepository = userRepository;
         this.verificationOtpTokenRepository = verificationOtpTokenRepository;
-        this.notificationRepository = notificationRepository;
         this.tokenRepository = tokenRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.notificationService = notificationService;
     }
 
     public OtpResponse requestOtp(Long userId) throws JsonProcessingException {
@@ -159,14 +163,7 @@ public class ThaiBulkSmsService {
             user.setPhoneVerified(true);
             userRepository.save(user);
             verificationOtpTokenRepository.delete(verificationToken);
-            Notification notification = Notification
-                    .builder()
-                    .title("ยืนยันบอร์โทรศัพท์สำเร็จ")
-                    .message("บัญชีของคุณได้รับการยืนยันบอร์โทรศัพท์เรียบร้อย")
-                    .is_read(false)
-                    .user(user)
-                    .build();
-            notificationRepository.save(notification);
+            notificationService.systemSendNotification(user, "ยืนยันบอร์โทรศัพท์สำเร็จ", "บัญชีของคุณได้รับการยืนยันบอร์โทรศัพท์เรียบร้อย");
             
             return response.getBody();
         } catch (Exception e) {

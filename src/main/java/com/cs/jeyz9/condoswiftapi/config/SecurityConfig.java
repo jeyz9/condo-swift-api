@@ -1,5 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.config;
 
+import com.cs.jeyz9.condoswiftapi.exceptions.CustomAccessDeniedHandler;
+import com.cs.jeyz9.condoswiftapi.exceptions.CustomAuthenticationEntryPoint;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
@@ -29,11 +31,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final JwtAuthenticationEntryPoint jwtEntryPoint;
+    private CustomAuthenticationEntryPoint customAuthEntryPoint;
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
     
     @Autowired
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter, JwtAuthenticationEntryPoint jwtEntryPoint){
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, JwtAuthenticationEntryPoint jwtEntryPoint, CustomAuthenticationEntryPoint customAuthEntryPoint, CustomAccessDeniedHandler customAccessDeniedHandler){
         this.jwtFilter = jwtFilter;
         this.jwtEntryPoint = jwtEntryPoint;
+        this.customAuthEntryPoint = customAuthEntryPoint;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
     
     @Bean
@@ -62,7 +68,7 @@ public class SecurityConfig {
                                 
                                 .requestMatchers(HttpMethod.POST, 
                                         "/api/v1/auth/**",
-                                        "/api/v1/users/**/acceptTerms"
+                                        "/api/v1/users/{userId}/acceptTerms"
                                 ).permitAll()
                                 
                                 .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasRole(RoleName.AGENT.toString())
@@ -99,6 +105,9 @@ public class SecurityConfig {
                 );
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         
+        http.exceptionHandling(e -> e
+                .authenticationEntryPoint(customAuthEntryPoint) // 401
+                .accessDeniedHandler(customAccessDeniedHandler));
         return http.build();
     }
 }
