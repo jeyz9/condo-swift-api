@@ -9,14 +9,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findAllByUserIdOrderByCreatedDateDesc(Long userId);
-
     @Modifying
     @Transactional
-    @Query("DELETE FROM Notification nf WHERE nf.expiredDate < :now")
+    @Query("DELETE FROM Notification nf WHERE nf.expired < :now")
     void deleteAllExpired(@Param("now") LocalDateTime now);
 }

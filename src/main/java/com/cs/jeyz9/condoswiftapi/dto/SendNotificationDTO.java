@@ -5,12 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SendNotificationDTO {
-    private Long userId;
+//    private Long sender;
     private String title;
     private String message;
+    private List<Long> userIds = new ArrayList<>();
+    private String sendType;
 }

@@ -37,6 +37,7 @@ public class AnnounceImageService {
         this.announceRepository = announceRepository;
     }
 
+    @Transactional
     public void saveImages(Long announceId, List<MultipartFile> imageFiles) {
         Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found by id: " + announceId));
         if (imageFiles == null || imageFiles.isEmpty()) return;
