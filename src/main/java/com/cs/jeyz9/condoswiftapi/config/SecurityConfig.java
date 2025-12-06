@@ -31,8 +31,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final JwtAuthenticationEntryPoint jwtEntryPoint;
-    private CustomAuthenticationEntryPoint customAuthEntryPoint;
-    private CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     
     @Autowired
     public SecurityConfig(JwtAuthenticationFilter jwtFilter, JwtAuthenticationEntryPoint jwtEntryPoint, CustomAuthenticationEntryPoint customAuthEntryPoint, CustomAccessDeniedHandler customAccessDeniedHandler){
@@ -78,6 +78,7 @@ public class SecurityConfig {
                                         "/api/v1/announces/showAllAnnounceApproveByAdmin", 
                                         "/api/v1/announces/showAllAnnounceHistoryByAdmin",
                                         "/api/v1/announces/showAllAnnouncePendingByAdmin",
+                                        "/api/v1/announces/showAllAnnounceBadges",
                                         "/api/v1/badges/filterBadges"
                                 ).hasRole(RoleName.ADMIN.toString())
                                 
@@ -106,7 +107,7 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         
         http.exceptionHandling(e -> e
-                .authenticationEntryPoint(customAuthEntryPoint) // 401
+                .authenticationEntryPoint(customAuthEntryPoint)
                 .accessDeniedHandler(customAccessDeniedHandler));
         return http.build();
     }

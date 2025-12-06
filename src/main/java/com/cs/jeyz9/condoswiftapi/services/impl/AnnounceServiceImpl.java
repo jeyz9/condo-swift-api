@@ -15,6 +15,7 @@ import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceBadgesDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
@@ -583,6 +584,54 @@ public class AnnounceServiceImpl implements AnnounceService {
         } catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+
+    @Override
+    public TableResponse<ShowAllAnnounceBadgesDTO> showAllAnnounceBadgesSelector(String keyword, String badges, Integer page, Integer size) throws IOException {
+        try {
+            List<ShowAllAnnounceBadgesDTO> announceBadges = showAllAnnounceBadges();
+            Stream<ShowAllAnnounceBadgesDTO> stream = announceBadges.stream();
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                stream = stream.filter(a -> a.getTitle().toLowerCase().contains(keyword.toLowerCase()));
+            }
+
+            if (badges != null && !badges.trim().isEmpty()) {
+                stream = stream.filter(a -> a.getBadges().stream().anyMatch(b -> b.getBadgeName().toLowerCase().contains(badges.toLowerCase())));
+            }
+
+            List<ShowAllAnnounceBadgesDTO> announceBadgesList = stream.toList();
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), announceBadgesList.size());
+            int total = announceBadgesList.size();
+
+            List<ShowAllAnnounceBadgesDTO> paginatedList = announceBadgesList.subList(start, end);
+            Page<ShowAllAnnounceBadgesDTO> announcePage = new PageImpl<>(paginatedList, pageable, announceBadgesList.size());
+
+            TableResponse<ShowAllAnnounceBadgesDTO> announceResponse = new TableResponse<>();
+            announceResponse.setData(announcePage.getContent());
+            announceResponse.setPage(page);
+            announceResponse.setSize(size);
+            announceResponse.setTotal(total);
+            return announceResponse;
+        }catch (Exception err) {
+            throw new IOException("Error while searching for announce", err);
+        }
+    }
+    
+    private List<ShowAllAnnounceBadgesDTO> showAllAnnounceBadges() {
+        List<Announce> announces = announceRepository.findAll();
+        return announces.stream().map(a -> {
+            Set<Badge> badgeList = a.getAnnounceBadges().stream().map( ab ->
+                    badgeRepository.findById(ab.getBadge().getId()).orElse(null)
+            ).collect(Collectors.toSet());
+            return ShowAllAnnounceBadgesDTO.builder()
+                    .id(a.getId())
+                    .title(a.getTitle())
+                    .agent(a.getUser().getName())
+                    .badges(badgeList)
+                    .build();
+        }).toList();
     }
     
     private List<Announce> findAllAnnounce() {

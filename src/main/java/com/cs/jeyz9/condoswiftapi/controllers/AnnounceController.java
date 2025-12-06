@@ -6,6 +6,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceBadgesDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
@@ -137,5 +138,10 @@ public class AnnounceController {
     @PutMapping("/rejectAnnounce/{announceId}")
     public ResponseEntity<String> rejectAnnounce(@PathVariable("announceId") Long announceId, @RequestBody RejectAnnounceDTO reject, Principal principal) {
         return new ResponseEntity<>(announceService.rejectAnnounce(announceId, principal.getName(), reject), HttpStatus.OK);
+    }
+    
+    @GetMapping("/showAllAnnounceBadges")
+    public ResponseEntity<TableResponse<ShowAllAnnounceBadgesDTO>> showAllAnnounceBadges(@RequestParam(required = false) String keyword, @RequestParam(required = false) String badges, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) throws IOException {
+        return new ResponseEntity<>(announceService.showAllAnnounceBadgesSelector(keyword, badges, page, size), HttpStatus.OK);
     }
 }
