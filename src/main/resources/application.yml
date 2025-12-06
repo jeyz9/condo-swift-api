@@ -17,21 +17,6 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 25MB
-      
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: jeyer44@gmail.com
-    password: eiplghjkmrivnryr
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
 
 jwt-secret: 91269b51685854a2fd44cea280aa2873917b548cdb131692ae0ec534d2032c10
 jwt-expiration: 604800000
