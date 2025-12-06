@@ -8,6 +8,7 @@ import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
@@ -308,6 +309,11 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+
+    @Override
+    public List<ShowAllUserDTO> showAllUserSelector() {
+        return userRepository.findAllUserSelector();
     }
 
     private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {

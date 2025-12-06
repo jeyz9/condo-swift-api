@@ -3,6 +3,7 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
@@ -89,5 +90,10 @@ public class UserController {
     @GetMapping(value = "/showUserDetails")
     public ResponseEntity<ShowUserDetailsDTO> showUserDetails(Principal principal) {
         return new ResponseEntity<>(userService.showUserDetails(principal.getName()), HttpStatus.OK);
+    }
+    
+    @GetMapping(value = "/showAllUserSelector")
+    public ResponseEntity<List<ShowAllUserDTO>> showAllUserSelector() {
+        return new ResponseEntity<>(userService.showAllUserSelector(), HttpStatus.OK);
     }
 }

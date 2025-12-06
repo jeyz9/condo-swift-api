@@ -35,6 +35,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public String sendNotification(String email, SendNotificationDTO request) {
         try {
+            if(!(request.getSendType().equalsIgnoreCase("ALL") || request.getSendType().equalsIgnoreCase("SELECTED"))){
+                throw new WebException(HttpStatus.NOT_FOUND, "Send type not found.");
+            }
+            
             LocalDateTime expired = LocalDateTime.now().plusDays(7);
             User sender = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
             Notification notification = Notification.builder()

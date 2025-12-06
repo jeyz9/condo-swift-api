@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SendNotificationDTO {
-//    private Long sender;
     private String title;
     private String message;
     private List<Long> userIds = new ArrayList<>();
