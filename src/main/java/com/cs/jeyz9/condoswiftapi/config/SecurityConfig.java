@@ -71,32 +71,33 @@ public class SecurityConfig {
                                         "/api/v1/users/{userId}/acceptTerms"
                                 ).permitAll()
                                 
-                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasRole(RoleName.AGENT.toString())
-                                .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasRole(RoleName.AGENT.toString())
+                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 
                                 .requestMatchers(HttpMethod.GET, 
                                         "/api/v1/announces/showAllAnnounceApproveByAdmin", 
                                         "/api/v1/announces/showAllAnnounceHistoryByAdmin",
                                         "/api/v1/announces/showAllAnnouncePendingByAdmin",
                                         "/api/v1/announces/showAllAnnounceBadges",
+                                        "/api/v1/users/showAllUserSelector",
                                         "/api/v1/badges/filterBadges"
-                                ).hasRole(RoleName.ADMIN.toString())
+                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
                                 
                                 .requestMatchers(HttpMethod.POST, 
                                         "/api/v1/notifications/sendNotification",
                                         "/api/v1/badges/**"
-                                ).hasRole(RoleName.ADMIN.toString())
+                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
                                 
-                                .requestMatchers(HttpMethod.PUT,  
+                                .requestMatchers(HttpMethod.PUT,
                                         "/api/v1/badges/updatedBadge/**",
                                         "/api/v1/announces/approveAnnounce/**",
                                         "/api/v1/announces/rejectAnnounce/**"
-                                ).hasRole(RoleName.ADMIN.toString())
+                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
                                 
                                 .requestMatchers(HttpMethod.DELETE, 
                                         "/api/v1/badges/deletedBadge/**",
                                         "/api/v1/notifications/deleteNotification/**"
-                                ).hasRole(RoleName.ADMIN.toString())
+                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
                                 
                                 .anyRequest().authenticated()
                 ).exceptionHandling(exception -> exception
