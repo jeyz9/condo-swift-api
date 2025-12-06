@@ -3,6 +3,7 @@ package com.cs.jeyz9.condoswiftapi.services;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
@@ -22,4 +23,5 @@ public interface UserService {
     List<ShowAllAnnounceDetailsWithAgent> showAllAnnounceBookmark(String email);
     String updateUserProfile(String email, EditProfileDTO editProfile);
     ShowUserDetailsDTO showUserDetails(String email);
+    List<ShowAllUserDTO> showAllUserSelector();
 }

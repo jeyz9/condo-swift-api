@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.repository;
 
+import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.User;
@@ -25,4 +26,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
         SELECT id, name, description, email, phone, line_id FROM users WHERE email = :email;
     """, nativeQuery = true)
     Optional<ShowUserDetailsDTO> findUserDetailsById(@Param("email") String email);
+    
+    @Query(value = """
+        SELECT u.id,
+               u.name,
+               u.image
+        FROM users u;
+    """, nativeQuery = true)
+    List<ShowAllUserDTO> findAllUserSelector();
 }

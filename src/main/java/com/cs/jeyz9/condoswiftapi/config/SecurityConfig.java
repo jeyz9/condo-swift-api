@@ -83,7 +83,7 @@ public class SecurityConfig {
                                 ).hasRole(RoleName.ADMIN.toString())
                                 
                                 .requestMatchers(HttpMethod.POST, 
-                                        "/api/v1/notifications/**", 
+                                        "/api/v1/notifications/sendNotification",
                                         "/api/v1/badges/**"
                                 ).hasRole(RoleName.ADMIN.toString())
                                 
@@ -101,14 +101,13 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 ).exceptionHandling(exception -> exception
                         .authenticationEntryPoint(jwtEntryPoint)
+                        .authenticationEntryPoint(customAuthEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 ).sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         
-        http.exceptionHandling(e -> e
-                .authenticationEntryPoint(customAuthEntryPoint)
-                .accessDeniedHandler(customAccessDeniedHandler));
         return http.build();
     }
 }
