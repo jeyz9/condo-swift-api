@@ -13,4 +13,5 @@ public interface BadgeService {
     String deletedBadge(Long id);
     List<BadgeDTO> getAllBadges();
     String addAnnounceBadge(Long announceId, Long badgeId);
+    String removeBadgeFromAnnounce(Long announceId, Long badgeId);
 }

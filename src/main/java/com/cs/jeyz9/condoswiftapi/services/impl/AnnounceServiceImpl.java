@@ -12,6 +12,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceNearDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
+import com.cs.jeyz9.condoswiftapi.dto.BadgeDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.dto.MapPointDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
@@ -622,8 +623,8 @@ public class AnnounceServiceImpl implements AnnounceService {
     private List<ShowAllAnnounceBadgesDTO> showAllAnnounceBadges() {
         List<Announce> announces = announceRepository.findAll();
         return announces.stream().map(a -> {
-            Set<Badge> badgeList = a.getAnnounceBadges().stream().map( ab ->
-                    badgeRepository.findById(ab.getBadge().getId()).orElse(null)
+            Set<BadgeDetailsDTO> badgeList = a.getAnnounceBadges().stream().map( ab ->
+                    announceBadgeRepository.findAnnounceBadgesByAnnounceIdAndBadgeId(ab.getId()).orElse(null)
             ).collect(Collectors.toSet());
             return ShowAllAnnounceBadgesDTO.builder()
                     .id(a.getId())

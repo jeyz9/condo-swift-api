@@ -61,4 +61,9 @@ public class BadgeController {
     public ResponseEntity<String> addAnnounceBadge(@RequestParam Long announceId, @RequestParam Long badgeId){
         return new ResponseEntity<>(badgeService.addAnnounceBadge(announceId, badgeId), HttpStatus.CREATED);
     }
+    
+    @DeleteMapping("/deleteBadgeFromAnnounce")
+    public ResponseEntity<String> deleteBadgeFromAnnounce(@RequestParam Long announceId, @RequestParam Long badgeId) {
+        return new ResponseEntity<>(badgeService.removeBadgeFromAnnounce(announceId, badgeId), HttpStatus.OK);
+    }
 }
