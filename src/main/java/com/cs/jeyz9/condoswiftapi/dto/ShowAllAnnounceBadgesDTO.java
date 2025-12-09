@@ -1,6 +1,5 @@
 package com.cs.jeyz9.condoswiftapi.dto;
 
-import com.cs.jeyz9.condoswiftapi.models.Badge;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
