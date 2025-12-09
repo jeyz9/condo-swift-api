@@ -151,7 +151,17 @@ public class BadgeServiceImpl implements BadgeService {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-    
+
+    @Override
+    public String removeBadgeFromAnnounce(Long announceId, Long badgeId) {
+        try {
+            announceBadgeRepository.deleteAnnounceBadgesByAnnounceIdAndBadgeId(announceId, badgeId);
+            return "Delete badge from announce success.";
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     private List<BadgeDTO> mapToDTO(List<Badge> badgeList) {
         return badgeList.stream().map(badge -> {
             Integer totalAnnounce = badgeRepository.findCountAnnounce(badge.getId()).orElse(0);

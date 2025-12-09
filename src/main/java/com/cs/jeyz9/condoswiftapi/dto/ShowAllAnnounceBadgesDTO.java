@@ -14,5 +14,5 @@ public class ShowAllAnnounceBadgesDTO {
     private Long id;
     private String title;
     private String agent;
-    private Set<Badge> badges;
+    private Set<BadgeDetailsDTO> badges;
 }
