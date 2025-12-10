@@ -67,6 +67,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -284,31 +285,58 @@ public class AnnounceServiceImpl implements AnnounceService {
         try{
             ShowAnnounceWithCategoryResponse response = new ShowAnnounceWithCategoryResponse();
             List<Announce> announces = announceRepository.findAll();
+            Map<String, Integer> priorityMap = Map.of(
+                    BadgeConstant.PREMIUM, 1,
+                    BadgeConstant.RECOMMEND, 2,
+                    BadgeConstant.NEW, 3
+            );
+
             List<RecommendAnnounceDTO> recommendList = announces.stream()
-                    .filter(announce -> announce.getAnnounceBadges() != null && announce.getAnnounceBadges().stream()
-                            .anyMatch(badge -> badge != null && badge.getId() != null && badge.getBadge().getBadgeName().equalsIgnoreCase(BadgeConstant.RECOMMEND)))
+
+                    .sorted((a, b) -> {
+
+                        int aPriority = a.getAnnounceBadges() == null ? Integer.MAX_VALUE :
+                                a.getAnnounceBadges().stream()
+                                        .map(announceBadge -> announceBadge.getBadge().getBadgeName().toUpperCase())
+                                        .map(name -> priorityMap.getOrDefault(name, Integer.MAX_VALUE))
+                                        .min(Integer::compareTo)
+                                        .orElse(Integer.MAX_VALUE);
+
+                        int bPriority = b.getAnnounceBadges() == null ? Integer.MAX_VALUE :
+                                b.getAnnounceBadges().stream()
+                                        .map(announceBadge -> announceBadge.getBadge().getBadgeName().toUpperCase())
+                                        .map(name -> priorityMap.getOrDefault(name, Integer.MAX_VALUE))
+                                        .min(Integer::compareTo)
+                                        .orElse(Integer.MAX_VALUE);
+
+                        return Integer.compare(aPriority, bPriority);
+                    })
+
+                    .limit(4)
+
                     .map(announce -> {
-                        RecommendAnnounceDTO recommendAnnounce = new RecommendAnnounceDTO();
-                        recommendAnnounce.setId(announce.getId());
-                        recommendAnnounce.setTitle(announce.getTitle());
-                        recommendAnnounce.setPrice(announce.getPrice());
-                        
+                        RecommendAnnounceDTO dto = new RecommendAnnounceDTO();
+
+                        dto.setId(announce.getId());
+                        dto.setTitle(announce.getTitle());
+                        dto.setPrice(announce.getPrice());
+
                         if (announce.getImageList() != null && !announce.getImageList().isEmpty()) {
-                            AnnounceImage firstImage = announce.getImageList().get(0);
-                            if (firstImage != null && firstImage.getImageUrl() != null && !firstImage.getImageUrl().isEmpty()) {
-                                recommendAnnounce.setImage(firstImage.getImageUrl());
-                            }
+                            dto.setImage(announce.getImageList().get(0).getImageUrl());
                         }
-                        recommendAnnounce.setBathroomCount(announce.getBathroomCount());
-                        recommendAnnounce.setBedroomCount(announce.getBedroomCount());
-                        recommendAnnounce.setAreaSize(announce.getAreaSize());
-                        recommendAnnounce.setBadges(
+
+                        dto.setBathroomCount(announce.getBathroomCount());
+                        dto.setBedroomCount(announce.getBedroomCount());
+                        dto.setAreaSize(announce.getAreaSize());
+
+                        dto.setBadges(
                                 announce.getAnnounceBadges().stream()
                                         .map(AnnounceBadge::getBadge)
-                                        .toList()
-                        );
-                        return recommendAnnounce;
-                    }).limit(4)
+                                        .toList());
+
+                        return dto;
+                    })
+
                     .toList();
             
             List<Station> stationList = stationRepository.findAll().stream().toList();
@@ -322,19 +350,40 @@ public class AnnounceServiceImpl implements AnnounceService {
             }).sorted(Comparator.comparingLong(AnnounceNearDTO::getTotalAnnounce).reversed()).limit(4).toList();
 
             List<AnnounceByTypeDTO> announceByTypeList = announces.stream()
-                    .filter(announce -> announce.getAnnounceType() != null && announce.getAnnounceType().getTypeName().equals(AnnounceTypeConstant.LUXURY_HOUSE))
+                    .filter(announce -> announce.getAnnounceType() != null
+                            && announce.getAnnounceType().getTypeName().equals(AnnounceTypeConstant.LUXURY_HOUSE))
+                    .sorted((a, b) -> {
+                        int priorityA = Optional.ofNullable(a.getAnnounceBadges())
+                                .orElse(Set.of())
+                                .stream()
+                                .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName(), Integer.MAX_VALUE))
+                                .min(Integer::compareTo)
+                                .orElse(Integer.MAX_VALUE);
+
+                        int priorityB = Optional.ofNullable(b.getAnnounceBadges())
+                                .orElse(Set.of())
+                                .stream()
+                                .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName(), Integer.MAX_VALUE))
+                                .min(Integer::compareTo)
+                                .orElse(Integer.MAX_VALUE);
+
+                        return Integer.compare(priorityA, priorityB);
+                    })
                     .map(announce -> {
-                        AnnounceByTypeDTO announceByType = new AnnounceByTypeDTO();
-                        announceByType.setId(announce.getId());
-                        announceByType.setTitle(announce.getTitle());
-                        announceByType.setLocation(announce.getLocation());
+                        AnnounceByTypeDTO dto = new AnnounceByTypeDTO();
+                        dto.setId(announce.getId());
+                        dto.setTitle(announce.getTitle());
+                        dto.setLocation(announce.getLocation());
+
                         String imageUrl = Optional.ofNullable(announce.getImageList())
                                 .flatMap(list -> list.stream().findFirst())
                                 .map(AnnounceImage::getImageUrl)
                                 .orElse(null);
-                        announceByType.setImage(imageUrl);
-                        return announceByType;
-                    }).limit(4)
+                        dto.setImage(imageUrl);
+
+                        return dto;
+                    })
+                    .limit(4)
                     .toList();
             
             List<Villa> villaList = villaRepository.findAll();
@@ -634,9 +683,37 @@ public class AnnounceServiceImpl implements AnnounceService {
                     .build();
         }).toList();
     }
-    
+
     private List<Announce> findAllAnnounce() {
-        return announceRepository.findAll();
+
+        Map<String, Integer> priorityMap = Map.of(
+                BadgeConstant.PREMIUM, 1,
+                BadgeConstant.RECOMMEND, 2,
+                BadgeConstant.NEW, 3
+        );
+
+        List<Announce> announces = announceRepository.findAll();
+
+        return announces.stream()
+                .sorted((a, b) -> {
+
+                    int priorityA = Optional.ofNullable(a.getAnnounceBadges())
+                            .orElse(Set.of())
+                            .stream()
+                            .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName(), Integer.MAX_VALUE))
+                            .min(Integer::compareTo)
+                            .orElse(Integer.MAX_VALUE);
+
+                    int priorityB = Optional.ofNullable(b.getAnnounceBadges())
+                            .orElse(Set.of())
+                            .stream()
+                            .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName(), Integer.MAX_VALUE))
+                            .min(Integer::compareTo)
+                            .orElse(Integer.MAX_VALUE);
+
+                    return Integer.compare(priorityA, priorityB);
+                })
+                .toList();
     }
     
     private AnnounceDTO mapToAnnounceDTO(Announce announce) {
