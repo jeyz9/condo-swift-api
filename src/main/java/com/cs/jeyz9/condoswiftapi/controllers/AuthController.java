@@ -93,7 +93,7 @@ public class AuthController {
         return ResponseEntity.ok(thaiBulkSmsService.verifyEmail(userId));
     }
 
-    @GetMapping("/verify")
+    @GetMapping("/verify-email")
     public ResponseEntity<?> verify(@RequestParam String token) {
         String msg = authService.verifyEmail(token);
         return ResponseEntity.ok(Map.of("message", msg));
