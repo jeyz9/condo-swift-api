@@ -279,133 +279,74 @@ public class AnnounceServiceImpl implements AnnounceService {
             );
         }
     }
-    
+
     @Override
     public ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException {
-        try{
+        try {
+
             ShowAnnounceWithCategoryResponse response = new ShowAnnounceWithCategoryResponse();
+
             List<Announce> announces = announceRepository.findAll();
+
             Map<String, Integer> priorityMap = Map.of(
                     BadgeConstant.PREMIUM, 1,
                     BadgeConstant.RECOMMEND, 2,
                     BadgeConstant.NEW, 3
             );
-
+            
             List<RecommendAnnounceDTO> recommendList = announces.stream()
-
-                    .sorted((a, b) -> {
-
-                        int aPriority = a.getAnnounceBadges() == null ? Integer.MAX_VALUE :
-                                a.getAnnounceBadges().stream()
-                                        .map(announceBadge -> announceBadge.getBadge().getBadgeName().toUpperCase())
-                                        .map(name -> priorityMap.getOrDefault(name, Integer.MAX_VALUE))
-                                        .min(Integer::compareTo)
-                                        .orElse(Integer.MAX_VALUE);
-
-                        int bPriority = b.getAnnounceBadges() == null ? Integer.MAX_VALUE :
-                                b.getAnnounceBadges().stream()
-                                        .map(announceBadge -> announceBadge.getBadge().getBadgeName().toUpperCase())
-                                        .map(name -> priorityMap.getOrDefault(name, Integer.MAX_VALUE))
-                                        .min(Integer::compareTo)
-                                        .orElse(Integer.MAX_VALUE);
-
-                        return Integer.compare(aPriority, bPriority);
-                    })
-
+                    .sorted((a, b) -> compareBadgePriority(a, b, priorityMap))
                     .limit(4)
-
-                    .map(announce -> {
-                        RecommendAnnounceDTO dto = new RecommendAnnounceDTO();
-
-                        dto.setId(announce.getId());
-                        dto.setTitle(announce.getTitle());
-                        dto.setPrice(announce.getPrice());
-
-                        if (announce.getImageList() != null && !announce.getImageList().isEmpty()) {
-                            dto.setImage(announce.getImageList().get(0).getImageUrl());
-                        }
-
-                        dto.setBathroomCount(announce.getBathroomCount());
-                        dto.setBedroomCount(announce.getBedroomCount());
-                        dto.setAreaSize(announce.getAreaSize());
-
-                        dto.setBadges(
-                                announce.getAnnounceBadges().stream()
-                                        .map(AnnounceBadge::getBadge)
-                                        .toList());
-
-                        return dto;
-                    })
-
+                    .map(this::mapToRecommendDTO)
                     .toList();
             
-            List<Station> stationList = stationRepository.findAll().stream().toList();
-            List<AnnounceNearDTO> announceNearDTO = stationList.stream().map(station -> {
-                AnnounceNearDTO announceNearStation = new AnnounceNearDTO();
-                announceNearStation.setId(station.getId());
-                announceNearStation.setName(station.getName());
-                Long countAnnounceNear = announceRepository.countListingsNear(station.getLat(), station.getLng(), 1.5);
-                announceNearStation.setTotalAnnounce(countAnnounceNear);
-                return announceNearStation;
-            }).sorted(Comparator.comparingLong(AnnounceNearDTO::getTotalAnnounce).reversed()).limit(4).toList();
-
+            List<AnnounceNearDTO> announceNearDTO = stationRepository.findAll().stream()
+                    .map(station -> {
+                        AnnounceNearDTO dto = new AnnounceNearDTO();
+                        dto.setId(station.getId());
+                        dto.setName(station.getName());
+                        dto.setTotalAnnounce(
+                                announceRepository.countListingsNear(station.getLat(), station.getLng(), 1.5)
+                        );
+                        return dto;
+                    })
+                    .sorted(Comparator.comparingLong(AnnounceNearDTO::getTotalAnnounce).reversed())
+                    .limit(4)
+                    .toList();
+            
             List<AnnounceByTypeDTO> announceByTypeList = announces.stream()
-                    .filter(announce -> announce.getAnnounceType() != null
-                            && announce.getAnnounceType().getTypeName().equals(AnnounceTypeConstant.LUXURY_HOUSE))
-                    .sorted((a, b) -> {
-                        int priorityA = Optional.ofNullable(a.getAnnounceBadges())
-                                .orElse(Set.of())
-                                .stream()
-                                .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName(), Integer.MAX_VALUE))
-                                .min(Integer::compareTo)
-                                .orElse(Integer.MAX_VALUE);
-
-                        int priorityB = Optional.ofNullable(b.getAnnounceBadges())
-                                .orElse(Set.of())
-                                .stream()
-                                .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName(), Integer.MAX_VALUE))
-                                .min(Integer::compareTo)
-                                .orElse(Integer.MAX_VALUE);
-
-                        return Integer.compare(priorityA, priorityB);
-                    })
-                    .map(announce -> {
-                        AnnounceByTypeDTO dto = new AnnounceByTypeDTO();
-                        dto.setId(announce.getId());
-                        dto.setTitle(announce.getTitle());
-                        dto.setLocation(announce.getLocation());
-
-                        String imageUrl = Optional.ofNullable(announce.getImageList())
-                                .flatMap(list -> list.stream().findFirst())
-                                .map(AnnounceImage::getImageUrl)
-                                .orElse(null);
-                        dto.setImage(imageUrl);
-
-                        return dto;
-                    })
+                    .filter(a -> a.getAnnounceType() != null &&
+                            AnnounceTypeConstant.LUXURY_HOUSE.equals(a.getAnnounceType().getTypeName()))
+                    .sorted((a, b) -> compareBadgePriority(a, b, priorityMap))
+                    .map(this::mapToLuxuryHouseDTO)
                     .limit(4)
                     .toList();
             
-            List<Villa> villaList = villaRepository.findAll();
-            List<VillaDTO> villaNear = villaList.stream().map(villa -> {
-                VillaDTO villaNearProvince = new VillaDTO();
-                villaNearProvince.setId(villa.getId());
-                villaNearProvince.setName(villa.getName());
-                villaNearProvince.setTotalAnnounce(announceRepository.countVillaInProvince(villa.getProvince()));
-                villaNearProvince.setProvince(villa.getProvince());
-                return villaNearProvince;
-            }).sorted(Comparator.comparingLong(VillaDTO::getTotalAnnounce).reversed()).limit(4).toList();
+            List<VillaDTO> villaNear = villaRepository.findAll().stream()
+                    .map(villa -> {
+                        VillaDTO dto = new VillaDTO();
+                        dto.setId(villa.getId());
+                        dto.setName(villa.getName());
+                        dto.setProvince(villa.getProvince());
+                        dto.setTotalAnnounce(announceRepository.countVillaInProvince(villa.getProvince()));
+                        return dto;
+                    })
+                    .sorted(Comparator.comparingLong(VillaDTO::getTotalAnnounce).reversed())
+                    .limit(4)
+                    .toList();
             
             response.setRecommendAnnounces(recommendList);
             response.setNearbyPlaces(announceNearDTO);
             response.setLuxuryHouses(announceByTypeList);
             response.setVillaProvince(villaNear);
-            
+
             return response;
-        }catch (Exception e) {
+
+        } catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
-    };
+    }
+
     
     @Override
     public String deletedAnnounce(Long announceId) {
@@ -778,4 +719,63 @@ public class AnnounceServiceImpl implements AnnounceService {
     private Set<BadgeDTO> mapToBadgeDTO(Set<Badge> badge) {
         return badge.stream().map(bg -> modelMapper.map(bg, BadgeDTO.class)).collect(Collectors.toSet());
     }
+
+    private int compareBadgePriority(Announce a, Announce b, Map<String, Integer> priorityMap) {
+
+        int pA = Optional.ofNullable(a.getAnnounceBadges())
+                .orElse(Set.of())
+                .stream()
+                .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName().toUpperCase(), Integer.MAX_VALUE))
+                .min(Integer::compareTo)
+                .orElse(Integer.MAX_VALUE);
+
+        int pB = Optional.ofNullable(b.getAnnounceBadges())
+                .orElse(Set.of())
+                .stream()
+                .map(ab -> priorityMap.getOrDefault(ab.getBadge().getBadgeName().toUpperCase(), Integer.MAX_VALUE))
+                .min(Integer::compareTo)
+                .orElse(Integer.MAX_VALUE);
+
+        return Integer.compare(pA, pB);
+    }
+
+    private RecommendAnnounceDTO mapToRecommendDTO(Announce announce) {
+        RecommendAnnounceDTO dto = new RecommendAnnounceDTO();
+        dto.setId(announce.getId());
+        dto.setTitle(announce.getTitle());
+        dto.setPrice(announce.getPrice());
+        dto.setBathroomCount(announce.getBathroomCount());
+        dto.setBedroomCount(announce.getBedroomCount());
+        dto.setAreaSize(announce.getAreaSize());
+
+        if (announce.getImageList() != null && !announce.getImageList().isEmpty()) {
+            dto.setImage(announce.getImageList().get(0).getImageUrl());
+        }
+
+        dto.setBadges(
+                announce.getAnnounceBadges().stream()
+                        .map(AnnounceBadge::getBadge)
+                        .toList()
+        );
+
+        return dto;
+    }
+
+    private AnnounceByTypeDTO mapToLuxuryHouseDTO(Announce a) {
+        AnnounceByTypeDTO dto = new AnnounceByTypeDTO();
+        dto.setId(a.getId());
+        dto.setTitle(a.getTitle());
+        dto.setLocation(a.getLocation());
+
+        dto.setImage(
+                Optional.ofNullable(a.getImageList())
+                        .flatMap(list -> list.stream().findFirst())
+                        .map(AnnounceImage::getImageUrl)
+                        .orElse(null)
+        );
+
+        return dto;
+    }
+
+
 }
