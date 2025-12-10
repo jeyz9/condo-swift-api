@@ -141,7 +141,7 @@ public class AnnounceController {
     }
     
     @GetMapping("/showAllAnnounceBadges")
-    public ResponseEntity<TableResponse<ShowAllAnnounceBadgesDTO>> showAllAnnounceBadges(@RequestParam(required = false) String keyword, @RequestParam(required = false) String badges, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) throws IOException {
+    public ResponseEntity<TableResponse<ShowAllAnnounceBadgesDTO>> showAllAnnounceBadges(@RequestParam(required = false) String keyword, @RequestParam(required = false) String badges, @RequestParam(defaultValue = "0", required = false) Integer page, @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
         return new ResponseEntity<>(announceService.showAllAnnounceBadgesSelector(keyword, badges, page, size), HttpStatus.OK);
     }
 }
