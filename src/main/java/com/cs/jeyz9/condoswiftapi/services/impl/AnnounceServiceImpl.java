@@ -295,6 +295,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             );
             
             List<RecommendAnnounceDTO> recommendList = announces.stream()
+                    .filter(at -> at.getAnnounceType() != null && AnnounceTypeConstant.CONDO.equalsIgnoreCase(at.getAnnounceType().getTypeName()))
                     .sorted((a, b) -> compareBadgePriority(a, b, priorityMap))
                     .limit(4)
                     .map(this::mapToRecommendDTO)
@@ -316,7 +317,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             
             List<AnnounceByTypeDTO> announceByTypeList = announces.stream()
                     .filter(a -> a.getAnnounceType() != null &&
-                            AnnounceTypeConstant.LUXURY_HOUSE.equals(a.getAnnounceType().getTypeName()))
+                            AnnounceTypeConstant.LUXURY_HOUSE.equalsIgnoreCase(a.getAnnounceType().getTypeName()))
                     .sorted((a, b) -> compareBadgePriority(a, b, priorityMap))
                     .map(this::mapToLuxuryHouseDTO)
                     .limit(4)
