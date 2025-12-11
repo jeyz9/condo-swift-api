@@ -12,8 +12,12 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
+
     @Modifying
     @Transactional
-    @Query("DELETE FROM Notification nf WHERE nf.expired < :now")
+    @Query(value = """
+    DELETE FROM notification_recipients WHERE expired_date < :now;
+    DELETE FROM notification WHERE expired < :now;
+""", nativeQuery = true)
     void deleteAllExpired(@Param("now") LocalDateTime now);
 }

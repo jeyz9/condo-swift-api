@@ -5,6 +5,7 @@ import com.cs.jeyz9.condoswiftapi.repository.NotificationRepository;
 import com.cs.jeyz9.condoswiftapi.repository.PasswordResetTokenRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class CleanupScheduler {
         this.notificationRepository = notificationRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
-    
+
     @Scheduled(cron = "0 0 10 * * *")
     public void removeExpired() {
         announceBadgeRepository.deleteAllExpired(LocalDateTime.now());
