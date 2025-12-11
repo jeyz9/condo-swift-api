@@ -62,8 +62,9 @@ public class SecurityConfig {
                                         "/swagger-ui.html",
                                         "/swagger-ui/**", 
                                         "/v3/api-docs/**", 
-                                        "/api/v1/provinces/showAllProvinces",
-                                        "/api/v1/auth/verify"
+                                        "/api/v1/selector/showAllProvinces",
+                                        "/api/v1/auth/verify",
+                                        "/api/v1/selector/showAllStations"
                                 ).permitAll()
                                 
                                 .requestMatchers(HttpMethod.POST, 
