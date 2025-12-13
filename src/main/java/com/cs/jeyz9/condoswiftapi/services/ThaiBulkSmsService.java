@@ -98,7 +98,21 @@ public class ThaiBulkSmsService {
     public OtpResponse requestOtp(Long userId) throws JsonProcessingException {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by phone number."));
-
+            OtpResponse otpResponse = new OtpResponse();
+            LocalDateTime now = LocalDateTime.now();
+            
+            VerificationOtpToken checkUserExist = verificationOtpTokenRepository.findByUserId(user.getId()).orElse(null);
+            if (checkUserExist != null) {
+                if (checkUserExist.getExpiredAt().isAfter(now)) {
+                    otpResponse.setRefno(checkUserExist.getRefno());
+                    otpResponse.setToken(checkUserExist.getToken());
+                    otpResponse.setStatus("EXIST");
+                    return otpResponse;
+                } else {
+                    verificationOtpTokenRepository.delete(checkUserExist);
+                }
+            }
+            
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -123,16 +137,12 @@ public class ThaiBulkSmsService {
                     String.class
             );
 
-            OtpResponse otpResponse = mapper.readValue(response.getBody(), OtpResponse.class);
-            VerificationOtpToken checkUserExist = verificationOtpTokenRepository.findByUserId(user.getId()).orElse(null);
-            if(checkUserExist != null) {
-                verificationOtpTokenRepository.delete(checkUserExist);
-            }
-            
+            otpResponse = mapper.readValue(response.getBody(), OtpResponse.class);
             VerificationOtpToken otpToken = new VerificationOtpToken();
             otpToken.setToken(otpResponse.getToken());
             otpToken.setRefno(otpResponse.getRefno());
             otpToken.setUser(user);
+            otpToken.setExpiredAt(LocalDateTime.now().plusMinutes(5));
             verificationOtpTokenRepository.save(otpToken);
 
             return otpResponse;
