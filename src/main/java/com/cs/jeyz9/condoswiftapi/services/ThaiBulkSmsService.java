@@ -124,6 +124,11 @@ public class ThaiBulkSmsService {
             );
 
             OtpResponse otpResponse = mapper.readValue(response.getBody(), OtpResponse.class);
+            VerificationOtpToken checkUserExist = verificationOtpTokenRepository.findByUserId(user.getId()).orElse(null);
+            if(checkUserExist != null) {
+                verificationOtpTokenRepository.delete(checkUserExist);
+            }
+            
             VerificationOtpToken otpToken = new VerificationOtpToken();
             otpToken.setToken(otpResponse.getToken());
             otpToken.setRefno(otpResponse.getRefno());
@@ -136,6 +141,8 @@ public class ThaiBulkSmsService {
                 throw new WebException(HttpStatus.BAD_GATEWAY, "ThaiBulkSMS: เครดิตไม่เพียงพอ กรุณาเติมก่อนส่ง OTP");
             }
             throw e;
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
