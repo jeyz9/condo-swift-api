@@ -72,7 +72,7 @@ public class SecurityConfig {
                                         "/api/v1/users/{userId}/acceptTerms"
                                 ).permitAll()
                                 
-                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
+                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**", "/api/v1/stripe/create-checkout-session").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 
                                 .requestMatchers(HttpMethod.GET, 

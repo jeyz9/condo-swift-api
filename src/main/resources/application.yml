@@ -44,9 +44,16 @@ thaibulkemail:
   reset_password_template_uuid: 25111015-0909-8542-99a0-31c7bd091bdc
   
 #  TODO: เปลี่ยนไปใช้ url ของ front แทน
-  verify_production_url: https://condo-swift.onrender.com/api/v1/auth
-  verify_dev_url: http://localhost:8080/api/v1/auth
+  verify_production_url: http://localhost:5173/verify-email
+  verify_dev_url: http://localhost:5173/verify-email
   
 #  TODO: เหมือนกับของ verify
   reset_password_url: http://localhost:5173
+  
+stripe:
+  secret:
+    key: sk_test_51SbugbLxC5NkEJkLhgfZXrQeGqg3M2pWXXqEFfwi7qwu9siSJiW3EDY08w6Nk5hf9lfncbH590SEotgszthYIJaU000IxqDJsi
+  price:
+    id: price_1QZABCDE1234567
+  domain: http://localhost:8080
   
