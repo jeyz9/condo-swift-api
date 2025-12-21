@@ -7,6 +7,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceDraftDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceNearDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
@@ -610,7 +611,17 @@ public class AnnounceServiceImpl implements AnnounceService {
             throw new IOException("Error while searching for announce", err);
         }
     }
-    
+
+    @Override
+    public List<AnnounceDraftDTO> showAllAnnounceDraft(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+        List<Announce> announces = announceRepository.findAllByUserId(user.getId());
+        announces = announces.stream().filter(a -> 
+            a.getApprove().getStatusName().equals(ApproveStatus.DRAFT)
+        ).toList();
+        return mapToAnnounceDraft(announces);
+    }
+
     private List<ShowAllAnnounceBadgesDTO> showAllAnnounceBadges() {
         List<Announce> announces = announceRepository.findAll();
         return announces.stream().map(a -> {
@@ -711,6 +722,21 @@ public class AnnounceServiceImpl implements AnnounceService {
         }).toList();
     }
     
+    private List<AnnounceDraftDTO> mapToAnnounceDraft(List<Announce> announces){
+        return announces.stream().map(a -> {
+            AnnounceDraftDTO draft = new AnnounceDraftDTO();
+            draft.setId(a.getId());
+            draft.setTitle(a.getTitle());
+            draft.setImageList(
+                    a.getImageList().stream().findFirst().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).orElse(new AnnounceImageDTO())
+            );
+            draft.setAddress(a.getLocation());
+            draft.setPrice(a.getPrice());
+            
+            return modelMapper.map(draft, AnnounceDraftDTO.class);
+        }).toList();
+    }
+    
     private AgentDTO mapToAgentDTO(User agent) {
         AgentDTO agentDTO = modelMapper.map(agent, AgentDTO.class);
         agentDTO.setIsVerify(agent.getEmailVerified() && agent.getPhoneVerified());
@@ -777,6 +803,4 @@ public class AnnounceServiceImpl implements AnnounceService {
 
         return dto;
     }
-
-
 }

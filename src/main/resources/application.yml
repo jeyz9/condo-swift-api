@@ -12,12 +12,18 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/condo_swift_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:257890}
-    
+        
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 25MB
+  
+  jackson:
+    time-zone: Asia/Bangkok
 
+user:
+  timezone: Asia/Bangkok
+    
 jwt-secret: 91269b51685854a2fd44cea280aa2873917b548cdb131692ae0ec534d2032c10
 jwt-expiration: 604800000
   

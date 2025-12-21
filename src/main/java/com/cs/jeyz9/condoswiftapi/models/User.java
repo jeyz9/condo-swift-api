@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,6 +44,7 @@ public class User {
     
     private String LineId;
     
+    @JsonIgnore
     private String password;
     
     private Boolean phoneVerified = false;
