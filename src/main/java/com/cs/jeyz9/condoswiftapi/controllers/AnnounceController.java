@@ -3,6 +3,7 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceDraftDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
@@ -143,5 +144,10 @@ public class AnnounceController {
     @GetMapping("/showAllAnnounceBadges")
     public ResponseEntity<TableResponse<ShowAllAnnounceBadgesDTO>> showAllAnnounceBadges(@RequestParam(required = false) String keyword, @RequestParam(required = false) String badges, @RequestParam(defaultValue = "0", required = false) Integer page, @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
         return new ResponseEntity<>(announceService.showAllAnnounceBadgesSelector(keyword, badges, page, size), HttpStatus.OK);
+    }
+    
+    @GetMapping("/showAllAnnounceDraft")
+    public ResponseEntity<List<AnnounceDraftDTO>> showAllAnnounceDraft(Principal principal) {
+        return new ResponseEntity<>(announceService.showAllAnnounceDraft(principal.getName()), HttpStatus.OK);
     }
 }
