@@ -4,6 +4,7 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDraftDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnouncePendingDetailsSelectedDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
@@ -69,6 +70,11 @@ public class AnnounceController {
     @GetMapping(value = "/showAnnounceDetails/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnnounceDetailsSelected> showAnnounceDetails(@PathVariable Long announceId) {
         return new ResponseEntity<> (announceService.getAnnounceDetailsById(announceId), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/showAnnouncePendingDetails/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AnnouncePendingDetailsSelectedDTO> showAnnouncePendingDetails(@PathVariable Long announceId) {
+        return new ResponseEntity<> (announceService.getAnnouncePendingDetailsById(announceId), HttpStatus.OK);
     }
     
     @GetMapping(value = "/showAnnounceWithCategory", produces = MediaType.APPLICATION_JSON_VALUE)

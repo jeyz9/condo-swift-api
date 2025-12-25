@@ -4,15 +4,14 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDraftDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnouncePendingDetailsSelectedDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.RejectAnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceBadgesDTO;
-import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAnnounceWithCategoryResponse;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
-import com.cs.jeyz9.condoswiftapi.models.Announce;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -32,4 +31,5 @@ public interface AnnounceService {
     String rejectAnnounce(Long announceId, String officialEmail, RejectAnnounceDTO reject);
     TableResponse<ShowAllAnnounceBadgesDTO> showAllAnnounceBadgesSelector(String keyword, String badges, Integer page, Integer size) throws IOException;
     List<AnnounceDraftDTO> showAllAnnounceDraft(String email);
+    AnnouncePendingDetailsSelectedDTO getAnnouncePendingDetailsById(Long announceId);
 }

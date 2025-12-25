@@ -8,8 +8,10 @@ import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDetailsSelected;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDraftDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceDuplicateDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceNearDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnouncePendingDetailsSelectedDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceRequestDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceResponse;
 import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
@@ -35,9 +37,7 @@ import com.cs.jeyz9.condoswiftapi.models.Province;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
-import com.cs.jeyz9.condoswiftapi.models.Station;
 import com.cs.jeyz9.condoswiftapi.models.User;
-import com.cs.jeyz9.condoswiftapi.models.Villa;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceBadgeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceImageRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
@@ -52,6 +52,7 @@ import com.cs.jeyz9.condoswiftapi.repository.VillaRepository;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceImageService;
 import com.cs.jeyz9.condoswiftapi.services.AnnounceService;
 import com.cs.jeyz9.condoswiftapi.services.NotificationService;
+import com.cs.jeyz9.condoswiftapi.services.SimilarityUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -129,11 +131,11 @@ public class AnnounceServiceImpl implements AnnounceService {
                         "Announce not found with id: " + announceId));
         List<AnnounceImage> images = announceImageRepository.findByAnnounceId(announceId);
         List<AnnounceImageDTO> imageDTOS = images.stream().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).toList();
-        
+
         User user = userRepository.findById(announce.getUser().getId()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not fond by id" + announce.getUser().getId()));
         AgentDTO agen = modelMapper.map(user, AgentDTO.class);
         agen.setIsVerify(user.getEmailVerified().equals(true) && user.getPhoneVerified().equals(true));
-        
+
         AnnounceDetailsSelected announceDetailsSelected = mapToAnnounceDetailsSelected(announce);
         announceDetailsSelected.setImageList(imageDTOS);
         announceDetailsSelected.setAgent(agen);
@@ -146,6 +148,64 @@ public class AnnounceServiceImpl implements AnnounceService {
         );
         return announceDetailsSelected;
     }
+
+    @Override
+    public AnnouncePendingDetailsSelectedDTO getAnnouncePendingDetailsById(Long announceId) {
+
+        Announce announce = announceRepository.findById(announceId)
+                .orElseThrow(() -> new WebException(
+                        HttpStatus.NOT_FOUND,
+                        "Announce not found with id: " + announceId
+                ));
+
+        List<AnnounceImageDTO> imageDTOS =
+                announceImageRepository.findByAnnounceId(announceId)
+                        .stream()
+                        .map(img -> modelMapper.map(img, AnnounceImageDTO.class))
+                        .toList();
+
+        User user = userRepository.findById(announce.getUser().getId())
+                .orElseThrow(() -> new WebException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found by id " + announce.getUser().getId()
+                ));
+
+        AgentDTO agent = modelMapper.map(user, AgentDTO.class);
+        agent.setIsVerify(
+                Boolean.TRUE.equals(user.getEmailVerified()) &&
+                        Boolean.TRUE.equals(user.getPhoneVerified())
+        );
+
+        AnnouncePendingDetailsSelectedDTO result =
+                mapToAnnouncePendingDetailsSelected(announce);
+
+        result.setImageList(imageDTOS);
+        result.setAgent(agent);
+        result.setMapPoint(
+                announce.getMapPointList()
+                        .stream()
+                        .findFirst()
+                        .map(map -> modelMapper.map(map, MapPointDTO.class))
+                        .orElse(new MapPointDTO())
+        );
+
+        List<AnnounceDuplicateDTO> duplicates = findDuplicates(announce);
+
+        result.setExactDuplicates(
+                duplicates.stream()
+                        .filter(d -> d.getSimilarity() >= 0.95)
+                        .toList()
+        );
+
+        result.setSimilarDuplicates(
+                duplicates.stream()
+                        .filter(d -> d.getSimilarity() < 0.95)
+                        .toList()
+        );
+
+        return result;
+    }
+
 
     @Override
     @Transactional
@@ -287,7 +347,7 @@ public class AnnounceServiceImpl implements AnnounceService {
 
             ShowAnnounceWithCategoryResponse response = new ShowAnnounceWithCategoryResponse();
 
-            List<Announce> announces = announceRepository.findAll();
+            List<Announce> announces = announceRepository.findAll().stream().filter(a -> a.getApprove().getStatusName().equals(ApproveStatus.APPROVED)).toList();
 
             Map<String, Integer> priorityMap = Map.of(
                     BadgeConstant.PREMIUM, 1,
@@ -648,6 +708,7 @@ public class AnnounceServiceImpl implements AnnounceService {
         List<Announce> announces = announceRepository.findAll();
 
         return announces.stream()
+                .filter(a -> a.getApprove().getStatusName().equals(ApproveStatus.APPROVED))
                 .sorted((a, b) -> {
 
                     int priorityA = Optional.ofNullable(a.getAnnounceBadges())
@@ -703,6 +764,10 @@ public class AnnounceServiceImpl implements AnnounceService {
     
     private AnnounceDetailsSelected mapToAnnounceDetailsSelected (Announce announce) {
         return modelMapper.map(announce, AnnounceDetailsSelected.class);
+    }
+
+    private AnnouncePendingDetailsSelectedDTO mapToAnnouncePendingDetailsSelected (Announce announce) {
+        return modelMapper.map(announce, AnnouncePendingDetailsSelectedDTO.class);
     }
     
     private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {
@@ -802,5 +867,33 @@ public class AnnounceServiceImpl implements AnnounceService {
         );
 
         return dto;
+    }
+
+    private List<AnnounceDuplicateDTO> findDuplicates(Announce announce) {
+
+        return announceRepository.findDuplicateCandidates(announce.getId())
+                .stream()
+                .map(a -> {
+                    double score = SimilarityUtil.similarity(
+                            announce.getTitle(),
+                            a.getTitle()
+                    );
+
+                    if (score < 0.65){
+                        return null;
+                    }
+
+                    AnnounceDuplicateDTO dto = new AnnounceDuplicateDTO();
+                    dto.setId(a.getId());
+                    dto.setTitle(a.getTitle());
+                    dto.setStatus(a.getApprove().getStatusName().toString());
+                    dto.setSimilarity(score);
+                    return dto;
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(
+                        AnnounceDuplicateDTO::getSimilarity).reversed())
+                .limit(5)
+                .toList();
     }
 }

@@ -1,65 +1,79 @@
 spring:
   application:
-    name: condo-swift-api
+    name: ${SPRING_APPLICATION_NAME:condo-swift-api}
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   jpa:
+    open-in-view: false
     hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/condo_swift_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:257890}
-        
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 25MB
-  
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:5MB}
+      max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:25MB}
+
   jackson:
-    time-zone: Asia/Bangkok
+    time-zone: ${SPRING_JACKSON_TIME_ZONE:Asia/Bangkok}
 
 user:
-  timezone: Asia/Bangkok
-    
-jwt-secret: 91269b51685854a2fd44cea280aa2873917b548cdb131692ae0ec534d2032c10
-jwt-expiration: 604800000
-  
+  timezone: ${USER_TIMEZONE:Asia/Bangkok}
+
+# ===============================
+# JWT
+# ===============================
+jwt-secret: ${JWT_SECRET}
+jwt-expiration: ${JWT_EXPIRATION:604800000}
+
+# ===============================
+# Supabase
+# ===============================
 supabase:
-  url: https://syrkqqdlwkpzpwuedspt.storage.supabase.co/storage/v1
-  key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cmtxcWRsd2twenB3dWVkc3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDUwNjcyMiwiZXhwIjoyMDc2MDgyNzIyfQ.XHYJHhtPVS4GGRpLJYe8Zb3WqxDR4gd-bhIYMkZiDrw
+  url: ${SUPABASE_URL}
+  key: ${SUPABASE_KEY}
   bucket:
-    announce: announce-images
-    profile: profile-picture
-    
+    announce: ${SUPABASE_BUCKET_ANNOUNCE:announce-images}
+    profile: ${SUPABASE_BUCKET_PROFILE:profile-picture}
+
+# ===============================
+# ThaiBulk SMS
+# ===============================
 thaibulksms:
-  key: 17653642005961
-  secret: eb7c04e0eeecb74977c8404f46875df0
-  request_url: https://otp.thaibulksms.com/v2/otp/request
-  verify_url: https://otp.thaibulksms.com/v2/otp/verify
-  
+  key: ${THAIBULKSMS_KEY}
+  secret: ${THAIBULKSMS_SECRET}
+  request_url: ${THAIBULKSMS_REQUEST_URL}
+  verify_url: ${THAIBULKSMS_VERIFY_URL}
+
+# ===============================
+# ThaiBulk Email
+# ===============================
 thaibulkemail:
-  key: zqSRyAj03fChpV2k-LmU2496TaeJGK
-  secret: i8gb4qZBRr-RDDW_xZAfYfn0SDoeRv
-  send_url: https://email-api.thaibulksms.com/email/v1/send_template
-  email_sender: ggjj4511@1704.tbmailsend.com
-  verify_email_template_uuid: 25103013-0259-83fd-9f73-ac373281f7e1
-  
-  reset_password_template_uuid: 25111015-0909-8542-99a0-31c7bd091bdc
-  
-#  TODO: เปลี่ยนไปใช้ url ของ front แทน
-  verify_production_url: http://localhost:5173/verify-email
-  verify_dev_url: http://localhost:5173/verify-email
-  
-#  TODO: เหมือนกับของ verify
-  reset_password_url: http://localhost:5173
-  
+  key: ${THAIBULKEMAIL_KEY}
+  secret: ${THAIBULKEMAIL_SECRET}
+  send_url: ${THAIBULKEMAIL_SEND_URL}
+  email_sender: ${THAIBULKEMAIL_EMAIL_SENDER}
+
+  verify_email_template_uuid: ${THAIBULKEMAIL_VERIFY_TEMPLATE_UUID}
+  reset_password_template_uuid: ${THAIBULKEMAIL_RESET_PASSWORD_TEMPLATE_UUID}
+
+  verify_production_url: ${THAIBULKEMAIL_VERIFY_PRODUCTION_URL}
+  verify_dev_url: ${THAIBULKEMAIL_VERIFY_DEV_URL}
+  reset_password_url: ${THAIBULKEMAIL_RESET_PASSWORD_URL}
+
+# ===============================
+# Stripe
+# ===============================
 stripe:
   secret:
-    key: sk_test_51SbugbLxC5NkEJkLhgfZXrQeGqg3M2pWXXqEFfwi7qwu9siSJiW3EDY08w6Nk5hf9lfncbH590SEotgszthYIJaU000IxqDJsi
+    key: ${STRIPE_SECRET_KEY}
   price:
-    id: price_1QZABCDE1234567
-  domain: http://localhost:8080
-  
+    id: ${STRIPE_PRICE_ID}
+  domain: ${STRIPE_DOMAIN}
