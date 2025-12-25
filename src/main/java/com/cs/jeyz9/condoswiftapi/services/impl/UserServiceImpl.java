@@ -14,6 +14,7 @@ import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
+import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
@@ -195,7 +196,7 @@ public class UserServiceImpl implements UserService {
         userOverview.setPhoneVerified(user.getPhoneVerified());
         userOverview.setEmailVerified(user.getEmailVerified());
 
-        List<Announce> announceList = announceRepository.findAllByUserId(userId);
+        List<Announce> announceList = announceRepository.findAllByUserId(userId).stream().filter(a -> a.getApprove().getStatusName().equals(ApproveStatus.APPROVED)).toList();
         
         userOverview.setAnnounceSellCount(announceList.stream()
                 .filter(announce -> announce.getSaleType().getType().equalsIgnoreCase(SaleTypeConstant.SALE)).toList().size()

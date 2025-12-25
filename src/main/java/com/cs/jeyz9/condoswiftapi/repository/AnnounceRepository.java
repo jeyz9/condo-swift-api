@@ -1,6 +1,7 @@
 package com.cs.jeyz9.condoswiftapi.repository;
 
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnouncePendingDTO;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,7 +29,7 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
             cos(radians(m.lng) - radians(:lng)) +
             sin(radians(:lat)) * sin(radians(m.lat))
         )
-    ) <= :radius
+    ) <= :radius AND a.approve_id = 1
     """, nativeQuery = true)
     long countListingsNear(@Param("lat") double lat,
                            @Param("lng") double lng,
@@ -38,7 +39,7 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
         SELECT COUNT(*)
             FROM announces a
             INNER JOIN announce_types at ON a.announce_type_id = at.id
-        WHERE at.type_name = 'วิลล่า' AND a.location LIKE CONCAT('%', :province, '%')
+        WHERE at.type_name = 'วิลล่า' AND a.location LIKE CONCAT('%', :province, '%') AND a.approve_id = 1
     """, nativeQuery = true)
     long countVillaInProvince(@Param("province") String province);
     
@@ -86,7 +87,7 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
                                cos(radians(m.lng) - radians(s.lng)) +
                                sin(radians(s.lat)) * sin(radians(m.lat))
                               )
-                       ) <= 1.5
+                       ) <= 1.5 AND a.approve_id = 1
     """, nativeQuery = true)
     List<Announce> findAnnounceNearStation(@Param("stationName") String stationName);
     
@@ -143,6 +144,37 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
         ORDER BY a.approve_date DESC;
     """, nativeQuery = true)
     List<AnnounceApproveDTO> findAnnouncePending();
+
+    @Query(value = """
+    SELECT a.id,
+           a.announcement_date,
+           a.approve_date,
+           a.area_size,
+           a.bathroom_count,
+           a.bedroom_count,
+           a.has_convenience_store,
+           a.has_elevator,
+           a.has_fitness,
+           a.has_parking,
+           a.has_pool,
+           a.has_security,
+           a.location,
+           a.price,
+           a.title,
+           a.announce_type_id,
+           a.approve_id,
+           a.approve_by,
+           a.sale_type_id,
+           a.user_id,
+           a.remark,
+           a.province_id
+    FROM announces a
+             JOIN announce_state_approve ap ON ap.id = a.approve_id
+    WHERE a.id <> :id
+      AND ap.status_name IN ('PENDING', 'APPROVED')
+""", nativeQuery = true)
+    List<Announce> findDuplicateCandidates(@Param("id") Long id);
+
 
     @Query(value = """
         SELECT a.id AS id,
