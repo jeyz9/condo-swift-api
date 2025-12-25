@@ -69,7 +69,8 @@ public class SecurityConfig {
                                 
                                 .requestMatchers(HttpMethod.POST, 
                                         "/api/v1/auth/**",
-                                        "/api/v1/users/{userId}/acceptTerms"
+                                        "/api/v1/users/{userId}/acceptTerms",
+                                        "/api/v1/stripe/webhook"
                                 ).permitAll()
                                 
                                 .requestMatchers(HttpMethod.POST, "/api/v1/announces/**", "/api/v1/stripe/create-checkout-session").hasAuthority("ROLE_" + RoleName.AGENT)
