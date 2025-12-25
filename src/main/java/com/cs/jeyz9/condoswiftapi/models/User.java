@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +69,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "announceId", referencedColumnName = "id")
     )
     private Set<Announce> bookmarks;
+    
+    private BigDecimal creditBalance;
     
     public User() {}
     public User(String name, String description, String phone, String email, String password, Set<Role> roles){
