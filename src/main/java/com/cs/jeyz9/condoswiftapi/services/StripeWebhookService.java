@@ -30,7 +30,7 @@ public class StripeWebhookService {
 
     @Transactional
     public void handleCheckoutCompleted(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
+        Order order = orderRepository.findByIdForUpdate(orderId).orElseThrow();
 
         if (order.getStatus() == OrderStatus.PAID) {
             return;
@@ -41,9 +41,10 @@ public class StripeWebhookService {
 
         order.setStatus(OrderStatus.PAID);
         order.setPaidAt(LocalDateTime.now());
+        orderRepository.save(order);
 
         user.setCreditBalance(user.getCreditBalance().add(BigDecimal.valueOf(credit)));
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         creditTransactionRepository.save(
                 CreditTransaction.builder()
