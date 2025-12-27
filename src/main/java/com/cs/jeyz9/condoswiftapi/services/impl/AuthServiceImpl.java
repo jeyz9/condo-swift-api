@@ -36,6 +36,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -122,6 +123,8 @@ public class AuthServiceImpl implements AuthService {
                 roles.add(userRole);
             }
             user.setRoles(roles);
+            user.setCreditBalance(BigDecimal.valueOf(0));
+            user.setCreatedAt(LocalDateTime.now());
             userRepository.save(user);
             
             UserTermsAcceptLog termsAcceptLog = new UserTermsAcceptLog();
