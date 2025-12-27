@@ -8,9 +8,41 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.H2Dialect
     show-sql: false
 
-  h2:
-    console:
-      enabled: false
+# ===== JWT =====
+jwt-secret: test-secret
+jwt-expiration: 60000
+
+# ===== Stripe =====
+stripe:
+  secret-key: sk_test_dummy
+  webhook-secret: whsec_dummy
+  success-url: http://localhost/success
+  cancel-url: http://localhost/cancel
+
+# ===== Supabase =====
+supabase:
+  url: http://localhost
+  key: dummy-key
+  bucket:
+    announce: test
+    profile: test
+
+# ===== ThaiBulk =====
+thaibulksms:
+  key: test
+  secret: test
+  request_url: http://localhost
+  verify_url: http://localhost
+
+thaibulkemail:
+  key: test
+  secret: test
+  send_url: http://localhost
+  email_sender: test@test.com
+  verify_email_template_uuid: test
+  reset_password_template_uuid: test
+  verify_production_url: http://localhost
+  verify_dev_url: http://localhost
+  reset_password_url: http://localhost
