@@ -1,4 +1,7 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+  
   application:
     name: ${SPRING_APPLICATION_NAME:condo-swift-api}
 
@@ -72,7 +75,7 @@ thaibulkemail:
 # Stripe
 # ===============================
 stripe:
-  secret-key: sk_test_51SbugbLxC5NkEJkLhgfZXrQeGqg3M2pWXXqEFfwi7qwu9siSJiW3EDY08w6Nk5hf9lfncbH590SEotgszthYIJaU000IxqDJsi
-  webhook-secret: whsec_19132e15103e536e06652ac5e94ecfea0f1b6d2c18fbe239c223b62eb47c7886
-  success-url: http://localhost:5173/payment/success
-  cancel-url: http://localhost:5173/payment/cancel
+  secret-key: ${STRIPE_SECRET_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+  success-url: ${STRIPE_SUCCESS_URL}
+  cancel-url: ${STRIPE_CANCEL_URL}
