@@ -4,8 +4,6 @@ import com.cs.jeyz9.condoswiftapi.services.StripeWebhookService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.model.Event;
-import com.stripe.model.EventDataObjectDeserializer;
-import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,43 +26,6 @@ public class StripeWebhookController {
     public StripeWebhookController(StripeWebhookService stripeWebhookService) {
         this.stripeWebhookService = stripeWebhookService;
     }
-    
-//    @PostMapping("/webhook")
-//    public ResponseEntity<String> handleWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sig) {
-//        try{
-//            Event event = Webhook.constructEvent(
-//                    payload, sig, webhookSecret
-//            );
-//            
-////            if("checkout.session.completed".equals(event.getType())) {
-////                Session session = (Session) event
-////                        .getDataObjectDeserializer()
-////                        .getObject()
-////                        .orElseThrow();
-////                
-////                stripeWebhookService.handleCheckoutCompleted(session);
-////            }
-//
-//            System.out.println("Received event: " + event.getType());
-//            System.out.println("Payload: " + payload);
-//
-//            // ตรวจสอบก่อน cast
-//            if ("checkout.session.completed".equals(event.getType())) {
-//                EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
-//                if (deserializer.getObject().isPresent()) {
-//                    Session session = (Session) deserializer.getObject().get();
-//                    System.out.println("Session ID: " + session.getId());
-//                    stripeWebhookService.handleCheckoutCompleted(session);
-//                } else {
-//                    System.out.println("Failed to deserialize session object");
-//                }
-//            }
-//            
-//            return ResponseEntity.ok("success");
-//        }catch (Exception e) {
-//            return ResponseEntity.badRequest().body("invalid");
-//        }
-//    }
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody String payload,
@@ -84,7 +45,6 @@ public class StripeWebhookController {
     
             return ResponseEntity.ok("success");
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body("invalid");
         }
     }
