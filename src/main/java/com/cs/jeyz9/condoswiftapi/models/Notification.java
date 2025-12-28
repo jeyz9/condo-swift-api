@@ -36,6 +36,7 @@ public class Notification {
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private User sender;
     
+    @Builder.Default
     private LocalDateTime createdDate = LocalDateTime.now();
     private LocalDateTime expired;
 }
