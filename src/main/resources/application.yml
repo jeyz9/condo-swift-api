@@ -9,37 +9,6 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
-  jpa:
-    open-in-view: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
-    show-sql: ${SPRING_JPA_SHOW_SQL:false}
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
-        connection:
-          provider_disables_autocommit: false
-
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      auto-commit: true
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      connection-timeout: 30000
-      validation-timeout: 5000
-      data-source-properties: 
-        prepareThreshold: 0
-
   servlet:
     multipart:
       max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:5MB}
