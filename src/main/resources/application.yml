@@ -1,41 +1,13 @@
 spring:
     
   config:
-    import: optional:file:.env.dev[.properties]
+    import: optional:file:.env[.properties]
   
   application:
     name: ${SPRING_APPLICATION_NAME:condo-swift-api}
 
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-
-  jpa:
-    open-in-view: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
-    show-sql: ${SPRING_JPA_SHOW_SQL:false}
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
-        connection:
-          provider_disables_autocommit: false
-
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    
-    hikari:
-      maximum-pool-size: 5
-      minimum-idle: 1
-      auto-commit: true
-      connection-timeout: 30000
-      data-source-properties: 
-        prepareThreshold: 0
 
   servlet:
     multipart:
