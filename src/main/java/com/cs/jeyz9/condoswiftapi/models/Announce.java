@@ -49,7 +49,7 @@ public class Announce {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "approve_id", referencedColumnName = "id")
     private AnnounceStateApprove approve;
 
@@ -57,13 +57,13 @@ public class Announce {
     @JoinColumn(name = "approve_by", referencedColumnName = "id")
     private User approveBy;
     
-    @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<AnnounceBadge> announceBadges = new HashSet<>();
     
-    @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<MapPoint> mapPointList = new ArrayList<>();
     
-    @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "announce", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<AnnounceImage> imageList;
     
     @ManyToOne(fetch = FetchType.EAGER)
