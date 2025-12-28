@@ -1,7 +1,7 @@
 spring:
     
   config:
-    import: optional:file:.env[.properties]
+    import: optional:file:.env.dev[.properties]
   
   application:
     name: ${SPRING_APPLICATION_NAME:condo-swift-api}
@@ -24,6 +24,7 @@ spring:
           provider_disables_autocommit: false
 
   datasource:
+    driver-class-name: org.postgresql.Driver
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
