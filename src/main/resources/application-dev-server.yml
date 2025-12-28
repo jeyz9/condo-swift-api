@@ -14,11 +14,9 @@ spring:
     username: postgres.syrkqqdlwkpzpwuedspt
     password: P9ewo6o9MzgaGFza
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      idle-timeout: 600000
-      max-lifetime: 1800000
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 10000
+      max-lifetime: 30000 
       connection-timeout: 30000
       validation-timeout: 5000
-      data-source-properties:
-        prepareThreshold: 0
