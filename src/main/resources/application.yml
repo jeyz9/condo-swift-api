@@ -1,7 +1,4 @@
 spring:
-  hikari:
-    maximum-pool-size: 3
-    minimum-idle: 1
     
   config:
     import: optional:file:.env[.properties]
@@ -18,11 +15,23 @@ spring:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        connection:
+          provider_disables_autocommit: false
 
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+    
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      auto-commit: true
 
   servlet:
     multipart:
