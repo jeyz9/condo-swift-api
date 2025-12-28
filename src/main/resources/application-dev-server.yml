@@ -10,15 +10,6 @@ spring:
   
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+    url: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    hikari:
-      maximum-pool-size: 5
-      minimum-idle: 1
-      idle-timeout: 120000
-      max-lifetime: 300000
-      connection-timeout: 30000
-      validation-timeout: 5000
-      data-source-properties:
-        keepaliveTime: 30000
