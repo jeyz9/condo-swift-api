@@ -4,8 +4,8 @@ spring:
       ddl-auto: update
     show-sql: false
     open-in-view: false
-    properties: 
-      hibernate: 
+    properties:
+      hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   
   datasource:
@@ -16,10 +16,9 @@ spring:
     hikari:
       maximum-pool-size: 5
       minimum-idle: 1
-      idle-timeout: 120000      
-      max-lifetime: 300000       
-      connection-timeout: 30000  
+      idle-timeout: 120000
+      max-lifetime: 300000
+      connection-timeout: 30000
       validation-timeout: 5000
       data-source-properties:
-        prepareThreshold: 0
-        keepaliveTime: 30000    
+        keepaliveTime: 30000
