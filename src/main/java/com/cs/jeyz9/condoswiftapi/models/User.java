@@ -70,7 +70,7 @@ public class User {
     )
     private Set<Announce> bookmarks;
     
-    private BigDecimal creditBalance;
+    private BigDecimal creditBalance = BigDecimal.ZERO;
     
     public User() {}
     public User(String name, String description, String phone, String email, String password, Set<Role> roles){
