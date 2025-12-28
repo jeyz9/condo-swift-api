@@ -1,7 +1,7 @@
 spring:
     
   config:
-    import: optional:file:.env.dev[.properties]
+    import: optional:file:.env[.properties]
   
   application:
     name: ${SPRING_APPLICATION_NAME:condo-swift-api}
