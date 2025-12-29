@@ -1,13 +1,14 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: false
+      ddl-auto: validate
     open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  
+        temp:
+          use_jdbc_metadata_defaults: false
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
@@ -19,3 +20,6 @@ spring:
       idle-timeout: 30000
       max-lifetime: 120000
       connection-timeout: 30000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+
