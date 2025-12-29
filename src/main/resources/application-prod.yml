@@ -18,3 +18,8 @@ spring:
       validation-timeout: 5000
       data-source-properties:
         prepareThreshold: 0
+
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
