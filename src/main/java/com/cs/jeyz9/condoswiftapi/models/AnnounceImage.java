@@ -29,7 +29,7 @@ public class AnnounceImage {
     private String imageName;
     private String imageUrl;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "announce_id", referencedColumnName = "id")
     private Announce announce;
     
