@@ -29,7 +29,7 @@ public class MapPoint {
     private Double lat;
     private Double lng;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "announce_id", referencedColumnName = "id")
     private Announce announce;
     
