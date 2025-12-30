@@ -32,7 +32,7 @@ public class Notification {
     
     private String message;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private User sender;
     

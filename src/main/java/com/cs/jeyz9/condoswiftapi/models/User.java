@@ -62,7 +62,7 @@ public class User {
     
     private LocalDateTime createdAt = LocalDateTime.now();
     
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "bookmarks_announce",
             joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id"),
