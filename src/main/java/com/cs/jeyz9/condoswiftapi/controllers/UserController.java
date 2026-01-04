@@ -5,6 +5,7 @@ import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
+import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -92,8 +94,8 @@ public class UserController {
         return new ResponseEntity<>(userService.showUserDetails(principal.getName()), HttpStatus.OK);
     }
     
-    @GetMapping(value = "/showAllUserSelector")
-    public ResponseEntity<List<ShowAllUserDTO>> showAllUserSelector() {
-        return new ResponseEntity<>(userService.showAllUserSelector(), HttpStatus.OK);
+    @GetMapping(value = "/showAllUser")
+    public ResponseEntity<TableResponse<ShowAllUserDTO>> showAllUserSelector(@RequestParam(defaultValue = "", required = false) String keyword, @RequestParam(defaultValue = "0", required = false) Integer page, @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
+        return new ResponseEntity<>(userService.showAllUser(keyword, page, size), HttpStatus.OK);
     }
 }

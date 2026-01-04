@@ -27,11 +27,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     """, nativeQuery = true)
     Optional<ShowUserDetailsDTO> findUserDetailsById(@Param("email") String email);
     
-    @Query(value = """
-        SELECT u.id,
-               u.name,
-               u.image
-        FROM users u;
-    """, nativeQuery = true)
-    List<ShowAllUserDTO> findAllUserSelector();
+//    @Query(value = """
+//        SELECT u.id,
+//               u.name,
+//               u.image
+//        FROM users u;
+//    """, nativeQuery = true)
+//    List<ShowAllUserDTO> findAllUserSelector();
 }
