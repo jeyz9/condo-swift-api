@@ -83,22 +83,34 @@ public class SecurityConfig {
                                         "/api/v1/announces/showAllAnnounceBadges",
                                         "/api/v1/users/showAllUserSelector",
                                         "/api/v1/badges/filterBadges"
-                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
+                                ).hasAnyAuthority("ROLE_" + RoleName.ADMIN, "ROLE_" + RoleName.MODERATOR)
                                 
                                 .requestMatchers(HttpMethod.POST, 
                                         "/api/v1/notifications/sendNotification",
                                         "/api/v1/badges/**"
-                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
+                                ).hasAnyAuthority("ROLE_" + RoleName.ADMIN, "ROLE_" + RoleName.MODERATOR)
                                 
                                 .requestMatchers(HttpMethod.PUT,
                                         "/api/v1/badges/updatedBadge/**",
                                         "/api/v1/announces/approveAnnounce/**",
                                         "/api/v1/announces/rejectAnnounce/**"
-                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
+                                ).hasAnyAuthority("ROLE_" + RoleName.ADMIN, "ROLE_" + RoleName.MODERATOR)
                                 
                                 .requestMatchers(HttpMethod.DELETE, 
                                         "/api/v1/badges/deletedBadge/**",
                                         "/api/v1/notifications/deleteNotification/**"
+                                ).hasAnyAuthority("ROLE_" + RoleName.ADMIN, "ROLE_" + RoleName.MODERATOR)
+
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/users/showAllUser"
+                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
+                                
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/users/addUserRole"
+                                ).hasAuthority("ROLE_" + RoleName.ADMIN)
+
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/api/v1/users/deleteUserRole"
                                 ).hasAuthority("ROLE_" + RoleName.ADMIN)
                                 
                                 .anyRequest().authenticated()

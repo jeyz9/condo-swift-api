@@ -351,6 +351,47 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    @Transactional
+    public String addUserRole(Long userId, Long roleId) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new WebException(HttpStatus.NOT_FOUND, "User not found.");
+        }
+
+        if (!roleRepository.existsById(roleId)) {
+            throw new WebException(HttpStatus.NOT_FOUND, "Role not found.");
+        }
+
+        boolean hasRole = userRepository.existsUserRole(userId, roleId);
+        if (hasRole) {
+            throw new WebException(HttpStatus.CONFLICT, "User already has this role.");
+        }
+
+        userRepository.saveUserRole(userId, roleId);
+        return "Add user role successfully.";
+    }
+
+
+    @Override
+    @Transactional
+    public String deleteUserRole(Long userId, Long roleId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+
+        boolean hasRole = user.getRoles().stream()
+                .anyMatch(r -> r.getId().equals(roleId));
+
+        if (!hasRole) {
+            throw new WebException(HttpStatus.NOT_FOUND, "User Role not found.");
+        }
+
+        userRepository.deleteUserRole(userId, roleId);
+
+        return "Delete user role successfully.";
+    }
+
     private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {
         return announce.stream().map(ann -> {
             ShowAllAnnounceDetailsWithAgent showAllAnnounceDetailsWithAgen = new ShowAllAnnounceDetailsWithAgent();

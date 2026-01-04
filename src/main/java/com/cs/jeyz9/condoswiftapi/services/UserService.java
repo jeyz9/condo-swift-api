@@ -26,4 +26,6 @@ public interface UserService {
     String updateUserProfile(String email, EditProfileDTO editProfile);
     ShowUserDetailsDTO showUserDetails(String email);
     TableResponse<ShowAllUserDTO> showAllUser(String keyword, Integer page, Integer size) throws IOException;
+    String addUserRole(Long userId, Long roleId);
+    String deleteUserRole(Long userId, Long roleId);
 }
