@@ -3,6 +3,7 @@ package com.cs.jeyz9.condoswiftapi.controllers;
 import com.cs.jeyz9.condoswiftapi.dto.StationsDTO;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.Province;
+import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.services.SelectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +37,10 @@ public class SelectorController {
     @GetMapping("/showAllAnnounceTypes")
     public ResponseEntity<List<AnnounceType>> showAllAnnounceTypes() {
         return ResponseEntity.ok(selectorService.showAllAnnounceType());
+    }
+    
+    @GetMapping("/showAllRoles")
+    public ResponseEntity<List<Role>> showAllRoles(){
+        return ResponseEntity.ok(selectorService.showAllRole());
     }
 }

@@ -7,6 +7,7 @@ import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
 import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
+import com.cs.jeyz9.condoswiftapi.dto.UserRoleRequestDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -97,5 +98,15 @@ public class UserController {
     @GetMapping(value = "/showAllUser")
     public ResponseEntity<TableResponse<ShowAllUserDTO>> showAllUserSelector(@RequestParam(defaultValue = "", required = false) String keyword, @RequestParam(defaultValue = "0", required = false) Integer page, @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
         return new ResponseEntity<>(userService.showAllUser(keyword, page, size), HttpStatus.OK);
+    }
+    
+    @PostMapping(value = "/addUserRole")
+    public ResponseEntity<String> addUserRole(@RequestBody UserRoleRequestDTO request) {
+        return new ResponseEntity<>(userService.addUserRole(request.getUserId(), request.getRoleId()), HttpStatus.CREATED);
+    }
+    
+    @DeleteMapping(value = "/deleteUserRole")
+    public ResponseEntity<String> deleteUserRole(@RequestBody UserRoleRequestDTO request) {
+        return new ResponseEntity<>(userService.deleteUserRole(request.getUserId(), request.getRoleId()), HttpStatus.OK);
     }
 }

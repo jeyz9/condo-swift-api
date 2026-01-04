@@ -3,9 +3,11 @@ package com.cs.jeyz9.condoswiftapi.services;
 import com.cs.jeyz9.condoswiftapi.dto.StationsDTO;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.Province;
+import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.Station;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.ProvinceRepository;
+import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.StationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,14 @@ public class SelectorService {
     private final ProvinceRepository provinceRepository;
     private final StationRepository stationRepository;
     private final AnnounceTypeRepository announceTypeRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public SelectorService(ProvinceRepository provinceRepository, StationRepository stationRepository, AnnounceTypeRepository announceTypeRepository) {
+    public SelectorService(ProvinceRepository provinceRepository, StationRepository stationRepository, AnnounceTypeRepository announceTypeRepository, RoleRepository roleRepository) {
         this.provinceRepository = provinceRepository;
         this.stationRepository = stationRepository;
         this.announceTypeRepository = announceTypeRepository;
+        this.roleRepository = roleRepository;
     }
     
     public List<Province> getAllProvince() {
@@ -45,5 +49,9 @@ public class SelectorService {
     
     public List<AnnounceType> showAllAnnounceType() {
         return announceTypeRepository.findAll();
+    }
+    
+    public List<Role> showAllRole() {
+        return roleRepository.findAll();
     }
 }
