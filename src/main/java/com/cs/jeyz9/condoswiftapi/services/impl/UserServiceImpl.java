@@ -10,6 +10,7 @@ import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowUserDetailsDTO;
+import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.dto.UserProfileOverviewDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
@@ -31,8 +32,13 @@ import com.cs.jeyz9.condoswiftapi.repository.UserTermsAcceptLogRepository;
 import com.cs.jeyz9.condoswiftapi.services.NotificationService;
 import com.cs.jeyz9.condoswiftapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -44,14 +50,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -313,8 +323,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<ShowAllUserDTO> showAllUserSelector() {
-        return userRepository.findAllUserSelector();
+    public TableResponse<ShowAllUserDTO> showAllUser(String keyword, Integer page, Integer size) throws IOException {
+        try {
+            List<ShowAllUserDTO> users = mapToUserDTO(userRepository.findAll());
+            Stream<ShowAllUserDTO> stream = users.stream();
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                stream = stream.filter(u -> u.getName().equalsIgnoreCase(keyword) || u.getEmail().equalsIgnoreCase(keyword) || u.getPhone().equalsIgnoreCase(keyword)).sorted(Comparator.comparingLong(u -> u.getRoles().stream().mapToLong(Role::getId).min().orElse(Long.MIN_VALUE)));
+            }
+
+            List<ShowAllUserDTO> userList = stream.toList();
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), userList.size());
+            int total = userList.size();
+
+            List<ShowAllUserDTO> paginatedList = userList.subList(start, end);
+            Page<ShowAllUserDTO> userPage = new PageImpl<>(paginatedList, pageable, total);
+
+            TableResponse<ShowAllUserDTO> announceTableResponse = new TableResponse<>();
+            announceTableResponse.setData(userPage.getContent());
+            announceTableResponse.setPage(page);
+            announceTableResponse.setSize(size);
+            announceTableResponse.setTotal(total);
+            return announceTableResponse;
+        }catch (Exception e) {
+            throw new IOException("Error while searching for user", e);
+        }
     }
 
     private List<ShowAllAnnounceDetailsWithAgent> mapToShowAllAnnounce(List<Announce> announce) {
@@ -342,6 +376,10 @@ public class UserServiceImpl implements UserService {
 
     private Set<BadgeDTO> mapToBadgeDTO(Set<Badge> badge) {
         return badge.stream().map(bg -> modelMapper.map(bg, BadgeDTO.class)).collect(Collectors.toSet());
+    }
+    
+    private List<ShowAllUserDTO> mapToUserDTO(List<User> users) {
+        return users.stream().map(u -> modelMapper.map(u, ShowAllUserDTO.class)).toList();
     }
 }
 
