@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -99,7 +100,7 @@ public class NotificationServiceImpl implements NotificationService {
                         .isRead(n.getIsRead())
                         .createdDate(notify.getCreatedDate())
                         .build();
-            }).toList();
+            }).sorted(Comparator.comparing(NotificationDTO::getCreatedDate).reversed()).toList();
         }catch (WebException e){
             throw e;
         }catch (Exception e) {

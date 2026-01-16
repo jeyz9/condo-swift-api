@@ -328,7 +328,8 @@ public class UserServiceImpl implements UserService {
             List<ShowAllUserDTO> users = mapToUserDTO(userRepository.findAll());
             Stream<ShowAllUserDTO> stream = users.stream();
             if (keyword != null && !keyword.trim().isEmpty()) {
-                stream = stream.filter(u -> u.getName().equalsIgnoreCase(keyword) || u.getEmail().equalsIgnoreCase(keyword) || u.getPhone().equalsIgnoreCase(keyword)).sorted(Comparator.comparingLong(u -> u.getRoles().stream().mapToLong(Role::getId).min().orElse(Long.MIN_VALUE)));
+                stream = stream.filter( u -> (u.getName() != null && u.getName().toLowerCase().contains(keyword)) || (u.getEmail() != null && u.getEmail().toLowerCase().contains(keyword)) || (u.getPhone() != null && u.getPhone().contains(keyword))
+                ).sorted(Comparator.comparingLong(u -> u.getRoles().stream().mapToLong(Role::getId).min().orElse(Long.MIN_VALUE)));
             }
 
             List<ShowAllUserDTO> userList = stream.toList();
