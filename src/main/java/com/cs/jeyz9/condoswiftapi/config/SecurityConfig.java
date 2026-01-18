@@ -58,14 +58,28 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> 
                         authorize
                                 .requestMatchers(HttpMethod.GET, 
-                                        "/api/v1/**",
+//                                        "/api/v1/**",
                                         "/swagger-ui.html",
                                         "/swagger-ui/**", 
                                         "/v3/api-docs/**", 
                                         "/api/v1/selector/showAllProvinces",
                                         "/api/v1/auth/verify",
-                                        "/api/v1/selector/showAllStations"
+                                        "/api/v1/selector/showAllStations",
+                                        "/api/v1/selector/showAllAnnounceTypes",
+                                        "/api/v1/announces/showAnnounceWithCategory",
+                                        "/api/v1/announces/showAnnounceDetails/**",
+                                        "/api/v1/announces/filterAnnounceWithAgent",
+                                        "/api/v1/users/showUserProfileOverview/**",
+                                        "/api/v1/users/showRecommendedAgents",
+                                        "/api/v1/badges/showAllBadges"
                                 ).permitAll()
+                                
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/users/showAllAnnounceBookmark",
+                                        "/api/v1/users/{userId}/deleteProfilePicture",
+                                        "/api/v1/notifications/showAllNotificationSelectedByUserId/**",
+                                        "/api/v1/notifications/showNotificationDetailsSelected/**"
+                                ).authenticated()
                                 
                                 .requestMatchers(HttpMethod.POST, 
                                         "/api/v1/auth/**",
@@ -73,7 +87,9 @@ public class SecurityConfig {
                                         "/api/v1/stripe/webhook"
                                 ).permitAll()
                                 
+                                .requestMatchers(HttpMethod.GET, "/api/v1/announces/showAllAnnounceDraft").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.POST, "/api/v1/announces/**", "/api/v1/stripe/create-checkout-session").hasAuthority("ROLE_" + RoleName.AGENT)
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/announces/editAnnounce/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 
                                 .requestMatchers(HttpMethod.GET, 
@@ -102,7 +118,8 @@ public class SecurityConfig {
                                 ).hasAnyAuthority("ROLE_" + RoleName.ADMIN, "ROLE_" + RoleName.MODERATOR)
 
                                 .requestMatchers(HttpMethod.GET,
-                                        "/api/v1/users/showAllUser"
+                                        "/api/v1/users/showAllUser",
+                                        "/api/v1/selector/showAllRoles"
                                 ).hasAuthority("ROLE_" + RoleName.ADMIN)
                                 
                                 .requestMatchers(HttpMethod.POST,
