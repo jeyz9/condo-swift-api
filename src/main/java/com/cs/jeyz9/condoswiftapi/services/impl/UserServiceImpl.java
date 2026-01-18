@@ -143,7 +143,9 @@ public class UserServiceImpl implements UserService {
         RestTemplate restTemplate = new RestTemplate();
 
         try {
-            String fileName = System.currentTimeMillis() + "_" + imageFiles.getOriginalFilename();
+            String originalName = imageFiles.getOriginalFilename();
+            String safeName = originalName.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
+            String fileName = System.currentTimeMillis() + "_" + safeName;
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
