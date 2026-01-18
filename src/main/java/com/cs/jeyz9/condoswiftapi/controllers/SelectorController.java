@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
+import com.cs.jeyz9.condoswiftapi.dto.RecipientDTO;
 import com.cs.jeyz9.condoswiftapi.dto.StationsDTO;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.Province;
@@ -38,9 +39,14 @@ public class SelectorController {
     public ResponseEntity<List<AnnounceType>> showAllAnnounceTypes() {
         return ResponseEntity.ok(selectorService.showAllAnnounceType());
     }
-    
+
     @GetMapping("/showAllRoles")
     public ResponseEntity<List<Role>> showAllRoles(){
         return ResponseEntity.ok(selectorService.showAllRole());
+    }
+
+    @GetMapping("/showAllRecipients")
+    public ResponseEntity<List<RecipientDTO>> showAllRecipients(){
+        return ResponseEntity.ok(selectorService.showAllRecipients());
     }
 }

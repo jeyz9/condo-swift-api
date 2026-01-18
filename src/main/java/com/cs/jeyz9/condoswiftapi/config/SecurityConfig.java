@@ -97,7 +97,8 @@ public class SecurityConfig {
                                         "/api/v1/announces/showAllAnnouncePendingByAdmin",
                                         "/api/v1/announces/showAllAnnounceBadges",
                                         "/api/v1/users/showAllUserSelector",
-                                        "/api/v1/badges/filterBadges"
+                                        "/api/v1/badges/filterBadges",
+                                        "/api/v1/selector/showAllRecipients"
                                 ).hasAnyAuthority("ROLE_" + RoleName.ADMIN, "ROLE_" + RoleName.MODERATOR)
                                 
                                 .requestMatchers(HttpMethod.POST, 
