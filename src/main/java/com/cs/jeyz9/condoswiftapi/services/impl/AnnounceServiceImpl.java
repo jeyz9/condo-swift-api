@@ -129,6 +129,12 @@ public class AnnounceServiceImpl implements AnnounceService {
         Announce announce = announceRepository.findById(announceId)
                 .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND,
                         "Announce not found with id: " + announceId));
+        
+        AnnounceStateApprove status = announceStateApproveRepository.findByStatusName(ApproveStatus.APPROVED);
+        if(!announce.getApprove().getId().equals(status.getId())) {
+            throw new WebException(HttpStatus.FORBIDDEN, "You do not have permission to access this announcement.");
+        }
+        
         List<AnnounceImage> images = announceImageRepository.findByAnnounceId(announceId);
         List<AnnounceImageDTO> imageDTOS = images.stream().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).toList();
 
