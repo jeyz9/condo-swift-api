@@ -158,4 +158,9 @@ public class AnnounceController {
     public ResponseEntity<List<AnnounceDraftDTO>> showAllAnnounceDraft(Principal principal) {
         return new ResponseEntity<>(announceService.showAllAnnounceDraft(principal.getName()), HttpStatus.OK);
     }
+
+    @GetMapping(value = "/showAnnounceDetailsByAgent/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AnnounceDetailsSelected> showAnnounceDetailsByAgent(@PathVariable Long announceId, Principal principal) {
+        return new ResponseEntity<> (announceService.getAnnounceDetailsByAgent(principal.getName(), announceId), HttpStatus.OK);
+    }
 }
