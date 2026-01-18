@@ -11,4 +11,5 @@ public class AnnounceDraftDTO {
     private Double price;
     private AnnounceImageDTO imageList;
     private String address;
+    private String status;
 }
