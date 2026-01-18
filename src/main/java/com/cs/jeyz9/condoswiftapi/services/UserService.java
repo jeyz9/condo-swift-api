@@ -15,10 +15,10 @@ import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
-    String userTermsAcceptLog(Long userId, HttpServletRequest request) throws WebException;
+    String userTermsAcceptLog(String email, HttpServletRequest request) throws WebException;
     List<RecommendedAgenDTO> showRecommendedAgents();
-    void deleteImage(Long userId);
-    void saveImages(Long userId, MultipartFile imageFiles);
+    void deleteImage(String email);
+    void saveImages(String email, MultipartFile imageFiles);
     UserProfileOverviewDTO userProfileOverview(Long userId, String saleType);
     String bookmarkAnnounce(String email, Long announceId);
     String removeFromBookmark(String email, Long announceId);

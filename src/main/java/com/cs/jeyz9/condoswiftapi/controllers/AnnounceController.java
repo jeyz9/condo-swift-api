@@ -62,8 +62,9 @@ public class AnnounceController {
     @PutMapping(value = "/editAnnounce/{announceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AnnounceDTO> editAnnounce(@PathVariable Long announceId, 
                                                     @Valid @RequestPart("announce") AnnounceRequestDTO announceDTO, 
-                                                    @Parameter(description = "List of images") @RequestPart(value = "images", required = false) List<MultipartFile> imageFile) throws WebException {
-        AnnounceDTO announce = announceService.updateAnnounceWithImage(announceId, announceDTO, imageFile);
+                                                    @Parameter(description = "List of images") @RequestPart(value = "images", required = false) List<MultipartFile> imageFile,
+                                                    Principal principal) throws WebException {
+        AnnounceDTO announce = announceService.updateAnnounceWithImage(announceId, announceDTO, imageFile, principal.getName());
         return new ResponseEntity<>(announce, HttpStatus.OK);
     }
     
@@ -104,16 +105,17 @@ public class AnnounceController {
     }
     
     @DeleteMapping("/deletedAnnounce/{announceId}")
-    public ResponseEntity<String> deletedAnnounce(@PathVariable Long announceId) {
-        return new ResponseEntity<>(announceService.deletedAnnounce(announceId), HttpStatus.OK);
+    public ResponseEntity<String> deletedAnnounce(@PathVariable Long announceId, Principal principal) {
+        return new ResponseEntity<>(announceService.deletedAnnounce(announceId, principal.getName()), HttpStatus.OK);
     }
 
     @PostMapping(value = "/addAnnounceWithImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AnnounceDTO> addAnnounceWithImage(
             @Parameter(description = "Announce data") @Valid @RequestPart("announce") AnnounceRequestDTO announce,
-            @Parameter(description = "List of images") @RequestPart(value = "images", required = false) List<MultipartFile> imageFile
+            @Parameter(description = "List of images") @RequestPart(value = "images", required = false) List<MultipartFile> imageFile,
+            Principal principal
     ) throws WebException {
-        return new ResponseEntity<>(announceService.addAnnounceWithImage(announce, imageFile), HttpStatus.CREATED);
+        return new ResponseEntity<>(announceService.addAnnounceWithImage(announce, imageFile, principal.getName()), HttpStatus.CREATED);
     }
 
     @GetMapping("/showAllAnnouncePendingByAdmin")

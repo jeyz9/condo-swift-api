@@ -86,9 +86,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<NotificationDTO> showAllNotificationSelectedByUserId(Long userId) {
+    public List<NotificationDTO> showAllNotificationSelectedByUser(String email) {
         try {
-            User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
             List<NotificationRecipient> notifyRecipientList = notificationRecipientRepository.findAllByUserId(user.getId());
             return notifyRecipientList.stream().map(n -> {
                 Notification notify = notificationRepository.findById(n.getNotification().getId())
@@ -110,9 +110,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public NotificationDTO showNotificationDetailsSelected(Long userId, Long notifyId) {
+    public NotificationDTO showNotificationDetailsSelected(String email, Long notifyId) {
         try {
-            NotificationRecipient notificationRecipient = notificationRecipientRepository.findByUserIdAndNotificationId(userId, notifyId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Notification Recipient not found."));
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+            NotificationRecipient notificationRecipient = notificationRecipientRepository.findByUserIdAndNotificationId(user.getId(), notifyId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Notification Recipient not found."));
             Notification notify = notificationRepository.findById(notificationRecipient.getNotification().getId()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Notification not found."));
             notificationRecipient.setIsRead(true);
             notificationRecipientRepository.save(notificationRecipient);

@@ -33,14 +33,14 @@ public class NotificationController {
         return new ResponseEntity<>(notificationService.sendNotification(principal.getName(), sendNotify), HttpStatus.CREATED);
     }
     
-    @GetMapping("/showAllNotificationSelectedByUserId/{userId}")
-    public ResponseEntity<List<NotificationDTO>> showAllNotificationSelectedByUserId(@PathVariable Long userId) {
-        return new ResponseEntity<>(notificationService.showAllNotificationSelectedByUserId(userId), HttpStatus.OK);
+    @GetMapping("/showAllNotificationSelectedByUserId")
+    public ResponseEntity<List<NotificationDTO>> showAllNotificationSelectedByUserId(Principal principal) {
+        return new ResponseEntity<>(notificationService.showAllNotificationSelectedByUser(principal.getName()), HttpStatus.OK);
     }
     
     @GetMapping("/showNotificationDetailsSelected/{notifyId}")
-    public ResponseEntity<NotificationDTO> showNotificationDetailsSelected(@PathVariable Long notifyId, @RequestParam Long userId){
-        return new ResponseEntity<>(notificationService.showNotificationDetailsSelected(userId, notifyId), HttpStatus.OK);
+    public ResponseEntity<NotificationDTO> showNotificationDetailsSelected(@PathVariable Long notifyId, Principal principal){
+        return new ResponseEntity<>(notificationService.showNotificationDetailsSelected(principal.getName(), notifyId), HttpStatus.OK);
     }
     
     @DeleteMapping("/deleteNotification/{notifyId}")
