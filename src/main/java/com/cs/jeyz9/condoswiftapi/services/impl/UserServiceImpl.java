@@ -94,9 +94,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String userTermsAcceptLog(Long userId, HttpServletRequest request) throws WebException {
+    public String userTermsAcceptLog(String email, HttpServletRequest request) throws WebException {
         try{
-            User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found"));
             Terms terms = termsRepository.findByTypeAndIsActiveTrue(TermsType.AGENT_CONTACT_POLICY).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Terms not found."));
             UserTermsAcceptLog acceptLog = new UserTermsAcceptLog();
             acceptLog.setUser(user);
@@ -133,11 +133,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void saveImages(Long userId, MultipartFile imageFiles) {
+    public void saveImages(String email, MultipartFile imageFiles) {
         if (imageFiles == null || imageFiles.isEmpty()) return;
-        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found"));
         if(user.getImage() != null){
-            deleteImage(userId);
+            deleteImage(user.getEmail());
         }
 
         RestTemplate restTemplate = new RestTemplate();
@@ -170,8 +170,8 @@ public class UserServiceImpl implements UserService {
     
     @Override
     @Transactional
-    public void deleteImage(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
+    public void deleteImage(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found"));
 
         try {
             RestTemplate restTemplate = new RestTemplate();

@@ -209,7 +209,7 @@ public class AnnounceServiceImpl implements AnnounceService {
 
     @Override
     @Transactional
-    public AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile) throws WebException {
+    public AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile, String email) throws WebException {
         try{
             Announce announce = new Announce();
             Province province = provinceRepository.findByName(announceDTO.getProvince()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Province not found."));
@@ -227,7 +227,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setHasParking(announceDTO.getHasParking());
             announce.setHasSecurity(announceDTO.getHasSecurity());
             announce.setProvince(province);
-            User user = userRepository.findById(announceDTO.getUserId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found by id: " + announceDTO.getUserId()));
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found"));
             announce.setUser(user);
 
             AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
@@ -275,7 +275,7 @@ public class AnnounceServiceImpl implements AnnounceService {
 
     @Override
     @Transactional
-    public AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles) throws WebException {
+    public AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles, String email) throws WebException {
         try {
 
             Announce announce = announceRepository.findById(announceId)
@@ -284,9 +284,9 @@ public class AnnounceServiceImpl implements AnnounceService {
             Province province = provinceRepository.findByName(announceDTO.getProvince())
                     .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Province not found."));
 
-            User user = userRepository.findById(announceDTO.getUserId())
+            User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST,
-                            "User not found by id: " + announceDTO.getUserId()));
+                            "User not found"));
 
             AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId())
                     .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST,
@@ -411,8 +411,14 @@ public class AnnounceServiceImpl implements AnnounceService {
 
     
     @Override
-    public String deletedAnnounce(Long announceId) {
+    public String deletedAnnounce(Long announceId, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found by id: " + announceId));
+        
+        if(!user.getId().equals(announce.getUser().getId())){
+            throw new WebException(HttpStatus.FORBIDDEN, "You are not owner of this announce");
+        }
+        
         if(!announce.getImageList().isEmpty()){
             announce.getImageList().forEach(img -> {
                 announceImageService.deleteImagesByAnnounce(img.getId());

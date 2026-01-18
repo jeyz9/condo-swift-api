@@ -25,7 +25,6 @@ public class AnnounceRequestDTO {
     private Boolean hasElevator;
     private Boolean hasParking;
     private Boolean hasSecurity;
-    private Long userId;
     private Long approveStatusId;
     private List<MapPointDTO> mapPoints;
     private Long announceType;

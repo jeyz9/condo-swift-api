@@ -18,11 +18,11 @@ import java.io.IOException;
 import java.util.List;
 
 public interface AnnounceService {
-    AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile) throws WebException;
-    AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles);
+    AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile, String email) throws WebException;
+    AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles, String email);
     AnnounceDetailsSelected getAnnounceDetailsById(Long announceId);
     ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException;
-    String deletedAnnounce(Long announceId);
+    String deletedAnnounce(Long announceId, String email);
     AnnounceResponse filterAnnounceWithAgen(String keyword, String type, String station, String province, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException;
     TableResponse<AnnounceApproveDTO> showAllAnnouncePending(String keyword, Integer page, Integer size) throws IOException;
     TableResponse<AnnounceApproveDTO> showAllAnnounceApprove(String keyword, Integer page, Integer size) throws IOException;
