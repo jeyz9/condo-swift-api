@@ -683,7 +683,7 @@ public class AnnounceServiceImpl implements AnnounceService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         List<Announce> announces = announceRepository.findAllByUserId(user.getId());
         announces = announces.stream().filter(a -> 
-            a.getApprove().getStatusName().equals(ApproveStatus.DRAFT)
+            a.getApprove().getStatusName().equals(ApproveStatus.DRAFT) || a.getApprove().getStatusName().equals(ApproveStatus.REJECTED)
         ).toList();
         return mapToAnnounceDraft(announces);
     }
@@ -803,6 +803,7 @@ public class AnnounceServiceImpl implements AnnounceService {
             );
             draft.setAddress(a.getLocation());
             draft.setPrice(a.getPrice());
+            draft.setStatus(a.getApprove().getStatusName().toString());
             
             return modelMapper.map(draft, AnnounceDraftDTO.class);
         }).toList();
