@@ -58,7 +58,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> 
                         authorize
                                 .requestMatchers(HttpMethod.GET, 
-//                                        "/api/v1/**",
                                         "/swagger-ui.html",
                                         "/swagger-ui/**", 
                                         "/v3/api-docs/**", 
@@ -76,8 +75,8 @@ public class SecurityConfig {
                                 
                                 .requestMatchers(HttpMethod.GET,
                                         "/api/v1/users/showAllAnnounceBookmark",
-                                        "/api/v1/users/{userId}/deleteProfilePicture",
-                                        "/api/v1/notifications/showAllNotificationSelectedByUserId/**",
+                                        "/api/v1/users/deleteProfilePicture",
+                                        "/api/v1/notifications/showAllNotificationSelectedByUserId",
                                         "/api/v1/notifications/showNotificationDetailsSelected/**"
                                 ).authenticated()
                                 
@@ -88,7 +87,7 @@ public class SecurityConfig {
                                 ).permitAll()
                                 
                                 .requestMatchers(HttpMethod.GET, "/api/v1/announces/showAllAnnounceDraft").hasAuthority("ROLE_" + RoleName.AGENT)
-                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**", "/api/v1/stripe/create-checkout-session").hasAuthority("ROLE_" + RoleName.AGENT)
+                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/announces/editAnnounce/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 

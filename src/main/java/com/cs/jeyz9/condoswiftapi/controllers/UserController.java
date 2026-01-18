@@ -42,9 +42,9 @@ public class UserController {
         this.userService = userService;
     }
     
-    @PostMapping("/{userId}/acceptTerms")
-    public ResponseEntity<String> acceptTerms(@PathVariable Long userId, HttpServletRequest request) throws WebException {
-        return new ResponseEntity<>(userService.userTermsAcceptLog(userId, request), HttpStatus.CREATED);
+    @PostMapping("/acceptTerms")
+    public ResponseEntity<String> acceptTerms(Principal principal, HttpServletRequest request) throws WebException {
+        return new ResponseEntity<>(userService.userTermsAcceptLog(principal.getName(), request), HttpStatus.CREATED);
     }
     
     @GetMapping("/showRecommendedAgents")
@@ -58,15 +58,15 @@ public class UserController {
     }
     
     
-    @PostMapping(value = "/{userId}/uploadProfilePicture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadProfile(@PathVariable Long userId, @RequestPart MultipartFile imageFile){
-        userService.saveImages(userId, imageFile);
+    @PostMapping(value = "/uploadProfilePicture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadProfile(@RequestPart MultipartFile imageFile, Principal principal){
+        userService.saveImages(principal.getName(), imageFile);
         return new ResponseEntity<>("Upload profile picture success.", HttpStatus.CREATED);
     };
     
-    @DeleteMapping("/{userId}/deleteProfilePicture")
-    public ResponseEntity<String> deletedProfilePicture(@PathVariable Long userId) {
-        userService.deleteImage(userId);
+    @DeleteMapping("/deleteProfilePicture")
+    public ResponseEntity<String> deletedProfilePicture(Principal principal) {
+        userService.deleteImage(principal.getName());
         return new ResponseEntity<>("Deleted profile picture success", HttpStatus.OK);
     }
     
