@@ -222,26 +222,27 @@ public class UserServiceImpl implements UserService {
         } else if(saleType.equals("ขาย")) {
             mappedSaleType = SaleTypeConstant.SALE;
         } else {
-            mappedSaleType = saleType;
+            mappedSaleType = SaleTypeConstant.RENT;
         }
-        
-        userOverview.setAnnounceList(announceList.stream().filter(announce -> announce.getSaleType().getType().equalsIgnoreCase(mappedSaleType) && announce.getUser().getId().equals(userId))
+
+        List<AnnounceByTypeDTO> announces = announceList.stream().filter(announce -> announce.getSaleType().getType().equalsIgnoreCase(mappedSaleType) && announce.getUser().getId().equals(userId))
                 .map(
-                announce -> {
-                    AnnounceByTypeDTO announceByType = new AnnounceByTypeDTO();
-                    announceByType.setId(announce.getId());
-                    announceByType.setTitle(announce.getTitle());
-                    announceByType.setImage(
-                            Optional.ofNullable(announce.getImageList())
-                            .flatMap(list -> list.stream().findFirst())
-                            .map(AnnounceImage::getImageUrl)
-                            .orElse(null)
-                    );
-                    announceByType.setLocation(announce.getLocation());
-                    return announceByType;
-                }
-            ).toList()
-        );
+                        announce -> {
+                            AnnounceByTypeDTO announceByType = new AnnounceByTypeDTO();
+                            announceByType.setId(announce.getId());
+                            announceByType.setTitle(announce.getTitle());
+                            announceByType.setImage(
+                                    Optional.ofNullable(announce.getImageList())
+                                            .flatMap(list -> list.stream().findFirst())
+                                            .map(AnnounceImage::getImageUrl)
+                                            .orElse(null)
+                            );
+                            announceByType.setLocation(announce.getLocation());
+                            return announceByType;
+                        }
+                ).toList();
+        
+        userOverview.setAnnounceList(announces);
         return userOverview;
     }
     
