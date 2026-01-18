@@ -32,4 +32,5 @@ public interface AnnounceService {
     TableResponse<ShowAllAnnounceBadgesDTO> showAllAnnounceBadgesSelector(String keyword, String badges, Integer page, Integer size) throws IOException;
     List<AnnounceDraftDTO> showAllAnnounceDraft(String email);
     AnnouncePendingDetailsSelectedDTO getAnnouncePendingDetailsById(Long announceId);
+    AnnounceDetailsSelected getAnnounceDetailsByAgent(String email, Long announceId);
 }

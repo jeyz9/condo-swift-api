@@ -694,6 +694,36 @@ public class AnnounceServiceImpl implements AnnounceService {
         return mapToAnnounceDraft(announces);
     }
 
+    @Override
+    public AnnounceDetailsSelected getAnnounceDetailsByAgent(String email, Long announceId) {
+        Announce announce = announceRepository.findById(announceId)
+                .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND,
+                        "Announce not found with id: " + announceId));
+
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+        if(!user.getId().equals(announce.getUser().getId())) {
+            throw new WebException(HttpStatus.FORBIDDEN, "You are not owner of this announce.");
+        }
+
+        List<AnnounceImage> images = announceImageRepository.findByAnnounceId(announceId);
+        List<AnnounceImageDTO> imageDTOS = images.stream().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).toList();
+
+        AgentDTO agen = modelMapper.map(user, AgentDTO.class);
+        agen.setIsVerify(user.getEmailVerified().equals(true) && user.getPhoneVerified().equals(true));
+
+        AnnounceDetailsSelected announceDetailsSelected = mapToAnnounceDetailsSelected(announce);
+        announceDetailsSelected.setImageList(imageDTOS);
+        announceDetailsSelected.setAgent(agen);
+        announceDetailsSelected.setMapPoint(
+                announce.getMapPointList()
+                        .stream()
+                        .findFirst()
+                        .map(map -> modelMapper.map(map, MapPointDTO.class))
+                        .orElse(new MapPointDTO())
+        );
+        return announceDetailsSelected;
+    }
+
     private List<ShowAllAnnounceBadgesDTO> showAllAnnounceBadges() {
         List<Announce> announces = announceRepository.findAll();
         return announces.stream().map(a -> {
