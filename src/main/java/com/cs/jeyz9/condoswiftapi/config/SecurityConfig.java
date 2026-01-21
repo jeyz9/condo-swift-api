@@ -86,7 +86,7 @@ public class SecurityConfig {
                                         "/api/v1/stripe/webhook"
                                 ).permitAll()
                                 
-                                .requestMatchers(HttpMethod.GET, "/api/v1/announces/showAllAnnounceDraft").hasAuthority("ROLE_" + RoleName.AGENT)
+                                .requestMatchers(HttpMethod.GET, "/api/v1/announces/showAllAnnounceDraft", "/api/v1/announces/showAnnounceDetailsByAgent/").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/announces/editAnnounce/**").hasAuthority("ROLE_" + RoleName.AGENT)
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
