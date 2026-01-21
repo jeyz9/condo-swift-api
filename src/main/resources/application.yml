@@ -16,9 +16,9 @@ spring:
 
   jackson:
     time-zone: Asia/Bangkok
-
-server:
-  timezone: Asia/Bangkok
+    
+  flyway:
+    locations: classpath:db/migration
 
 # ===============================
 # JWT
