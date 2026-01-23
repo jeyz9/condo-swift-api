@@ -59,6 +59,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             List<Role> roles = new ArrayList<>();
             roles.add(new Role(RoleName.ADMIN));
             roles.add(new Role(RoleName.MODERATOR));
+            roles.add(new Role(RoleName.OWNER));
             roles.add(new Role(RoleName.AGENT));
             roles.add(new Role(RoleName.USER));
             roleRepository.saveAll(roles);

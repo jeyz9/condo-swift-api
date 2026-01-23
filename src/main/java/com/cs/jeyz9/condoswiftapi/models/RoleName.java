@@ -1,5 +1,5 @@
 package com.cs.jeyz9.condoswiftapi.models;
 
 public enum RoleName {
-    ADMIN, MODERATOR, AGENT, USER
+    ADMIN, MODERATOR, OWNER, AGENT, USER
 }
