@@ -81,4 +81,9 @@ public class Announce {
     
     private LocalDateTime announcementDate = LocalDateTime.now();
     
+    private LocalDateTime updatedAt;
+    
+    @ManyToOne
+    @JoinColumn(name = "updated_by", referencedColumnName = "id")
+    private User updatedBy;
 }

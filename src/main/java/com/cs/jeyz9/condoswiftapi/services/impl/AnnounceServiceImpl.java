@@ -26,6 +26,7 @@ import com.cs.jeyz9.condoswiftapi.dto.TableResponse;
 import com.cs.jeyz9.condoswiftapi.dto.VillaDTO;
 import com.cs.jeyz9.condoswiftapi.exceptions.WebException;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
+import com.cs.jeyz9.condoswiftapi.models.AnnounceAgent;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceBadge;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceImage;
 import com.cs.jeyz9.condoswiftapi.models.AnnounceStateApprove;
@@ -33,11 +34,13 @@ import com.cs.jeyz9.condoswiftapi.models.AnnounceType;
 import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import com.cs.jeyz9.condoswiftapi.models.Badge;
 import com.cs.jeyz9.condoswiftapi.models.MapPoint;
+import com.cs.jeyz9.condoswiftapi.models.PermissionState;
 import com.cs.jeyz9.condoswiftapi.models.Province;
 import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
 import com.cs.jeyz9.condoswiftapi.models.User;
+import com.cs.jeyz9.condoswiftapi.repository.AnnounceAgentRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceBadgeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceImageRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceRepository;
@@ -92,22 +95,23 @@ public class AnnounceServiceImpl implements AnnounceService {
     private final VillaRepository villaRepository;
     private final ProvinceRepository provinceRepository;
     private final NotificationService notificationService;
+    private final AnnounceAgentRepository announceAgentRepository;
 
     @Autowired
-    public AnnounceServiceImpl(AnnounceRepository announceRepository, 
-                               UserRepository userRepository, 
-                               AnnounceStateApproveRepository announceStateApproveRepository, 
-                               AnnounceImageRepository announceImageRepository, 
-                               ModelMapper modelMapper, 
-                               AnnounceImageService announceImageService, 
-                               AnnounceTypeRepository announceTypeRepository, 
-                               SaleTypeRepository saleTypeRepository, 
-                               AnnounceBadgeRepository announceBadgeRepository, 
-                               BadgeRepository badgeRepository, 
-                               StationRepository stationRepository, 
-                               VillaRepository villaRepository, 
-                               ProvinceRepository provinceRepository, 
-                               NotificationService notificationService) {
+    public AnnounceServiceImpl(AnnounceRepository announceRepository,
+                               UserRepository userRepository,
+                               AnnounceStateApproveRepository announceStateApproveRepository,
+                               AnnounceImageRepository announceImageRepository,
+                               ModelMapper modelMapper,
+                               AnnounceImageService announceImageService,
+                               AnnounceTypeRepository announceTypeRepository,
+                               SaleTypeRepository saleTypeRepository,
+                               AnnounceBadgeRepository announceBadgeRepository,
+                               BadgeRepository badgeRepository,
+                               StationRepository stationRepository,
+                               VillaRepository villaRepository,
+                               ProvinceRepository provinceRepository,
+                               NotificationService notificationService, AnnounceAgentRepository announceAgentRepository) {
         this.announceRepository = announceRepository;
         this.userRepository = userRepository;
         this.announceStateApproveRepository = announceStateApproveRepository;
@@ -122,6 +126,7 @@ public class AnnounceServiceImpl implements AnnounceService {
         this.villaRepository = villaRepository;
         this.provinceRepository = provinceRepository;
         this.notificationService = notificationService;
+        this.announceAgentRepository = announceAgentRepository;
     }
 
     @Override
@@ -236,6 +241,9 @@ public class AnnounceServiceImpl implements AnnounceService {
             User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "User not found"));
             announce.setUser(user);
 
+            announce.setUpdatedAt(LocalDateTime.now());
+            announce.setUpdatedBy(user);
+
             AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
             if(!approveStatus.getStatusName().equals(ApproveStatus.DRAFT) && !approveStatus.getStatusName().equals(ApproveStatus.PENDING)){
                 throw new WebException(HttpStatus.BAD_REQUEST, "Approve status must be DRAFT or PENDING only");
@@ -294,6 +302,10 @@ public class AnnounceServiceImpl implements AnnounceService {
                     .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST,
                             "User not found"));
 
+            AnnounceAgent announceAgent = announceAgentRepository.findByAnnounceIdAndAgentId(announce.getId(), user.getId()).orElse(null);
+            
+            if(!announce.getUser().getId().equals(user.getId()) && (announceAgent == null || !announceAgent.getPermission().equals(PermissionState.FULL_ACCESS))) throw new WebException(HttpStatus.FORBIDDEN, "You are not have permission of this announcement");
+
             AnnounceStateApprove approveStatus = announceStateApproveRepository.findById(announceDTO.getApproveStatusId())
                     .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST,
                             "Approve Status not found by id: " + announceDTO.getApproveStatusId()));
@@ -318,6 +330,8 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setAnnounceType(type);
             announce.setSaleType(saleType);
             announce.getMapPointList().clear();
+            announce.setUpdatedAt(LocalDateTime.now());
+            announce.setUpdatedBy(user);
 
             if (announceDTO.getMapPoints() != null && !announceDTO.getMapPoints().isEmpty()) {
                 announceDTO.getMapPoints().forEach(mpDTO -> {
