@@ -67,6 +67,8 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
             a.has_fitness,
             a.has_parking,
             a.province_id,
+            a.updated_at,
+            a.updated_by,
             s.name AS station_name,
             s.lat AS station_lat,
             s.lng AS station_lng
@@ -167,7 +169,9 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
            a.sale_type_id,
            a.user_id,
            a.remark,
-           a.province_id
+           a.province_id,
+           a.updated_at,
+           a.updated_by
     FROM announces a
              JOIN announce_state_approve ap ON ap.id = a.approve_id
     WHERE a.id <> :id
