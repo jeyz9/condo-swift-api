@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface AnnounceAgentRepository extends JpaRepository<AnnounceAgent, Long> {
     
     @Query(value = """
-        SELECT COUNT(*) FROM announce_agents ag WHERE ag.announce_id = :announceId AND ag.agent_id = :agentId; 
+        SELECT COUNT(*) FROM announce_agents ag WHERE ag.announce_id = :announceId AND ag.agent_id = :agentId AND ag.status != 'REVOKED';
     """, nativeQuery = true)
     int checkAgentRequestAnnounce(@Param("announceId") Long announceId, @Param("agentId") Long agentId);
     
@@ -27,20 +27,20 @@ public interface AnnounceAgentRepository extends JpaRepository<AnnounceAgent, Lo
     void deleteAnnounceAgentsByIdAndAgentId(@Param("announceAgentId") Long announceAgentId, @Param("agentId") Long agentId);
     
     @Query(value = """
-        SELECT * FROM announce_agents WHERE agent_id = :agentId;
+        SELECT * FROM announce_agents WHERE agent_id = :agentId AND status != 'REVOKED';
     """, nativeQuery = true)
     List<AnnounceAgent> findAllByAgentId(@Param("agentId") Long agentId);
     
     @Query(value = """
-        SELECT u.id, u.name, u.description, u.image, u.phone, u.line_id, (u.phone_verified AND u.email_verified) AS is_verify
+        SELECT u.id, u.name, u.description, u.image, u.phone, u.line_id, (u.phone_verified AND u.email_verified) AS is_verify, aa.id AS announce_agent_id, aa.permission
         FROM announce_agents aa
         JOIN users u ON u.id = aa.agent_id
-        WHERE announce_id = :announceId;
+        WHERE aa.announce_id = :announceId AND aa.status != 'REVOKED';
     """, nativeQuery = true)
     List<AgentDTO> findAnnounceAgentByAnnounceId(@Param("announceId") Long announceId);
     
     @Query(value = """
-        SELECT * FROM announce_agents ag WHERE ag.announce_id = :announceId AND ag.agent_id = :agentId;
+        SELECT * FROM announce_agents ag WHERE ag.announce_id = :announceId AND ag.agent_id = :agentId AND ag.status = 'APPROVED';
     """, nativeQuery = true)
     Optional<AnnounceAgent> findByAnnounceIdAndAgentId(@Param("announceId") Long announceId, @Param("agentId") Long agentId);
 }

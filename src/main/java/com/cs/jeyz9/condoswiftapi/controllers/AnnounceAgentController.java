@@ -47,9 +47,9 @@ public class AnnounceAgentController {
         return new ResponseEntity<>(announceAgentService.getMyManagedAnnounces(principal.getName()), HttpStatus.OK);
     }
     
-    @PutMapping("/updateAnnounceByAgent/{announceAgentId}")
-    public ResponseEntity<String> updateAnnounceByAgent(@PathVariable("announceAgentId") Long announceAgentId, @RequestPart AnnounceByAgentRequestDTO announce, @RequestPart("files") List<MultipartFile> files, Principal principal){
-        return new ResponseEntity<>(announceAgentService.updateAnnounceByAgent(announceAgentId, announce, files, principal.getName()), HttpStatus.OK);
+    @PutMapping("/updateAnnounceByAgent/{announceId}")
+    public ResponseEntity<String> updateAnnounceByAgent(@PathVariable("announceId") Long announceId, @RequestPart AnnounceByAgentRequestDTO announce, @RequestPart(name = "files" , required = false) List<MultipartFile> files, Principal principal){
+        return new ResponseEntity<>(announceAgentService.updateAnnounceByAgent(announceId, announce, files, principal.getName()), HttpStatus.OK);
     }
     
     @GetMapping("/getAgentsByAnnounce/{announceId}")

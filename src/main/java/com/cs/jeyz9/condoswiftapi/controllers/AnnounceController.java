@@ -69,8 +69,8 @@ public class AnnounceController {
     }
     
     @GetMapping(value = "/showAnnounceDetails/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnnounceDetailsSelected> showAnnounceDetails(@PathVariable Long announceId) {
-        return new ResponseEntity<> (announceService.getAnnounceDetailsById(announceId), HttpStatus.OK);
+    public ResponseEntity<AnnounceDetailsSelected> showAnnounceDetails(@PathVariable Long announceId, Principal principal) {
+        return new ResponseEntity<> (announceService.getAnnounceDetailsById(announceId, principal.getName()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/showAnnouncePendingDetails/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -154,9 +154,9 @@ public class AnnounceController {
         return new ResponseEntity<>(announceService.showAllAnnounceBadgesSelector(keyword, badges, page, size), HttpStatus.OK);
     }
     
-    @GetMapping("/showAllAnnounceDraft")
-    public ResponseEntity<List<AnnounceDraftDTO>> showAllAnnounceDraft(Principal principal) {
-        return new ResponseEntity<>(announceService.showAllAnnounceDraft(principal.getName()), HttpStatus.OK);
+    @GetMapping("/showAllMyAnnounce")
+    public ResponseEntity<List<AnnounceDraftDTO>> showAllMyAnnounce(Principal principal) {
+        return new ResponseEntity<>(announceService.showAllMyAnnounce(principal.getName()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/showAnnounceDetailsByAgent/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
