@@ -3,6 +3,7 @@ package com.cs.jeyz9.condoswiftapi.services.impl;
 import com.cs.jeyz9.condoswiftapi.constants.AnnounceTypeConstant;
 import com.cs.jeyz9.condoswiftapi.constants.BadgeConstant;
 import com.cs.jeyz9.condoswiftapi.dto.AgentDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AnnounceAgentDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceDTO;
@@ -130,20 +131,27 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
 
     @Override
-    public AnnounceDetailsSelected getAnnounceDetailsById(Long announceId) {
+    public AnnounceDetailsSelected getAnnounceDetailsById(Long announceId, String email) {
         Announce announce = announceRepository.findById(announceId)
                 .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND,
                         "Announce not found with id: " + announceId));
+
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new WebException(HttpStatus.NOT_FOUND, "User not found")
+                );
         
         AnnounceStateApprove status = announceStateApproveRepository.findByStatusName(ApproveStatus.APPROVED);
         if(!announce.getApprove().getId().equals(status.getId())) {
-            throw new WebException(HttpStatus.FORBIDDEN, "You do not have permission to access this announcement.");
+            throw new WebException(HttpStatus.FORBIDDEN, "You do not have permission to access this announcement. STATUS");
         }
         
         List<AnnounceImage> images = announceImageRepository.findByAnnounceId(announceId);
         List<AnnounceImageDTO> imageDTOS = images.stream().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).toList();
 
         User user = userRepository.findById(announce.getUser().getId()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not fond by id" + announce.getUser().getId()));
+        AnnounceAgent announceAgent = announceAgentRepository.findByAnnounceIdAndAgentId(announce.getId(), currentUser.getId()).orElse(null);
+        
         AgentDTO agen = modelMapper.map(user, AgentDTO.class);
         agen.setIsVerify(user.getEmailVerified().equals(true) && user.getPhoneVerified().equals(true));
 
@@ -157,6 +165,17 @@ public class AnnounceServiceImpl implements AnnounceService {
                         .map(map -> modelMapper.map(map, MapPointDTO.class))
                         .orElse(new MapPointDTO())
         );
+        announceDetailsSelected.setAnnounceType(announce.getAnnounceType());
+        announceDetailsSelected.setSaleType(announce.getSaleType());
+        announceDetailsSelected.setProvince(announce.getProvince());
+        announceDetailsSelected.setAnnounceAgent(
+                announceAgent != null
+                    ? AnnounceAgentDTO.builder()
+                    .id(announceAgent.getId())
+                    .agentId(announceAgent.getAgent().getId())
+                    .permission(announceAgent.getPermission().name())
+                    .build()
+                    : null);
         return announceDetailsSelected;
     }
 
@@ -216,8 +235,7 @@ public class AnnounceServiceImpl implements AnnounceService {
 
         return result;
     }
-
-
+    
     @Override
     @Transactional
     public AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile, String email) throws WebException {
@@ -699,12 +717,12 @@ public class AnnounceServiceImpl implements AnnounceService {
     }
 
     @Override
-    public List<AnnounceDraftDTO> showAllAnnounceDraft(String email) {
+    public List<AnnounceDraftDTO> showAllMyAnnounce(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         List<Announce> announces = announceRepository.findAllByUserId(user.getId());
-        announces = announces.stream().filter(a -> 
-            a.getApprove().getStatusName().equals(ApproveStatus.DRAFT) || a.getApprove().getStatusName().equals(ApproveStatus.REJECTED)
-        ).toList();
+//        announces = announces.stream().filter(a -> 
+//            a.getApprove().getStatusName().equals(ApproveStatus.DRAFT) || a.getApprove().getStatusName().equals(ApproveStatus.REJECTED)
+//        ).toList();
         return mapToAnnounceDraft(announces);
     }
 
@@ -735,6 +753,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                         .map(map -> modelMapper.map(map, MapPointDTO.class))
                         .orElse(new MapPointDTO())
         );
+        announceDetailsSelected.setApproveStatusId(announce.getApprove().getId());
         return announceDetailsSelected;
     }
 
