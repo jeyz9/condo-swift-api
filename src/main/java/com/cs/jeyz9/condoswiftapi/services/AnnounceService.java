@@ -20,7 +20,7 @@ import java.util.List;
 public interface AnnounceService {
     AnnounceDTO addAnnounceWithImage(AnnounceRequestDTO announceDTO, List<MultipartFile> imageFile, String email) throws WebException;
     AnnounceDTO updateAnnounceWithImage(Long announceId, AnnounceRequestDTO announceDTO, List<MultipartFile> imageFiles, String email);
-    AnnounceDetailsSelected getAnnounceDetailsById(Long announceId);
+    AnnounceDetailsSelected getAnnounceDetailsById(Long announceId, String email);
     ShowAnnounceWithCategoryResponse showAnnounceWithCategory() throws WebException;
     String deletedAnnounce(Long announceId, String email);
     AnnounceResponse filterAnnounceWithAgen(String keyword, String type, String station, String province, String saleType, Integer bedroomCount, String badge, Double minPrice, Double maxPrice, Integer page, Integer size) throws IOException;
@@ -30,7 +30,7 @@ public interface AnnounceService {
     String approveAnnounce(Long announceId, String officialEmail);
     String rejectAnnounce(Long announceId, String officialEmail, RejectAnnounceDTO reject);
     TableResponse<ShowAllAnnounceBadgesDTO> showAllAnnounceBadgesSelector(String keyword, String badges, Integer page, Integer size) throws IOException;
-    List<AnnounceDraftDTO> showAllAnnounceDraft(String email);
+    List<AnnounceDraftDTO> showAllMyAnnounce(String email);
     AnnouncePendingDetailsSelectedDTO getAnnouncePendingDetailsById(Long announceId);
     AnnounceDetailsSelected getAnnounceDetailsByAgent(String email, Long announceId);
 }

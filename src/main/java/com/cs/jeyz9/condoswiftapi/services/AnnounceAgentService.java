@@ -94,20 +94,18 @@ public class AnnounceAgentService {
     }
     
     @Transactional
-    public String updateAnnounceByAgent(Long announceAgentId, AnnounceByAgentRequestDTO announceDTO, List<MultipartFile> imageFiles, String email){
+    public String updateAnnounceByAgent(Long announceId, AnnounceByAgentRequestDTO announceDTO, List<MultipartFile> imageFiles, String email){
         try {
-            AnnounceAgent announceAgent = announceAgentRepository.findById(announceAgentId)
-                    .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce agent not found"));
-
-            Announce announce = announceRepository.findById(announceAgent.getAnnounce().getId())
+            Announce announce = announceRepository.findById(announceId)
                     .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found"));
 
             User agent = userRepository.findByEmail(email)
                     .orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST,
                             "User not found"));
             
-            if(!(announceAgent.getAgent().getId().equals(agent.getId()) && announceAgent.getPermission().equals(PermissionState.EDIT_CONTENT))) throw new WebException(HttpStatus.FORBIDDEN, "You are not have permission of this announcement");
-
+//            if(!(announceAgent.getAgent().getId().equals(agent.getId()) && announceAgent.getPermission().equals(PermissionState.EDIT_CONTENT))) throw new WebException(HttpStatus.FORBIDDEN, "You are not have permission of this announcement");
+            announceAgentRepository.findByAnnounceIdAndAgentId(announce.getId(), agent.getId()).orElseThrow(() -> new WebException(HttpStatus.FORBIDDEN, "You are not have permission of this announcement"));
+            
             announce.setTitle(announceDTO.getTitle());
             announce.setBathroomCount(announceDTO.getBathroomCount());
             announce.setBedroomCount(announceDTO.getBedroomCount());
@@ -144,7 +142,6 @@ public class AnnounceAgentService {
             User owner = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Owner not found"));
             Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found"));
             if (!announce.getUser().getId().equals(owner.getId())) throw new WebException(HttpStatus.FORBIDDEN, "You are not the owner of this announcement");
-            
             return announceAgentRepository.findAnnounceAgentByAnnounceId(announce.getId());
         }catch (WebException e) {
             throw e;
@@ -210,10 +207,13 @@ public class AnnounceAgentService {
         return announceAgents.stream().map(a -> 
             ShowAllManageAnnounceDTO.builder()
                     .id(a.getId())
+                    .announceId(a.getAnnounce().getId())
                     .announceName(a.getAnnounce().getTitle())
                     .announceImage(a.getAnnounce().getImageList().stream().findFirst().map(AnnounceImage::getImageUrl).orElse(null))
                     .status(a.getStatus().toString())
-                    .permission(a.getPermission().toString())
+                    .permission(a.getPermission() != null
+                            ? a.getPermission().toString()
+                            : null)
                     .build()
         ).toList();
     }

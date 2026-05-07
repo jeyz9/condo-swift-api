@@ -11,11 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ShowAllManageAnnounceDTO {
+public class AnnounceAgentDTO {
     private Long id;
-    private Long announceId;
-    private String announceImage;
-    private String announceName;
-    private String status;
+    private Long agentId;
     private String permission;
 }

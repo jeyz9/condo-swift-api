@@ -20,4 +20,7 @@ public class AgentDTO {
     
     @JsonProperty("is_verify")
     private Boolean isVerify;
+    
+    private Long announceAgentId;
+    private String permission;
 }
