@@ -4,15 +4,15 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-#    hikari:
-#      maximum-pool-size: 5
-#      minimum-idle: 1
-#      idle-timeout: 30000
-#      max-lifetime: 120000
-#      connection-timeout: 30000
-#      validation-timeout: 5000
-#      data-source-properties:
-#        prepareThreshold: 0
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 120000
+      connection-timeout: 30000
+      validation-timeout: 5000
+      data-source-properties:
+        prepareThreshold: 0
 
   jpa:
     open-in-view: false
@@ -23,8 +23,3 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         boot:
           allow_jdbc_metadata_access: false
-
-  flyway:
-    enabled: false
-    locations: classpath:db/migration
-    baseline-on-migrate: true

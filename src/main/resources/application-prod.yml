@@ -27,9 +27,5 @@ spring:
   #      data-source-properties:
   #        prepareThreshold: 5
 
-  flyway:
-    enabled: true
-    clean-disabled: true
-
 server:
   forward-headers-strategy: native
