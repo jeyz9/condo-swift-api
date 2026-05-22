@@ -113,16 +113,9 @@ public class AuthServiceImpl implements AuthService {
             user.setPhone(register.getPhone());
             user.setEmail(register.getEmail());
             user.setPassword(passwordEncoder.encode(register.getPassword()));
-            
-            Set<Role> roles = new HashSet<>();
-            Role agenRole = roleRepository.findByRoleName(RoleName.AGENT).orElseThrow(() -> new IllegalArgumentException("Role not found"));
-            Role userRole = roleRepository.findByRoleName(RoleName.USER).orElseThrow(() -> new IllegalArgumentException("Role not found"));
-            if(register.getIsAgent()){
-                roles.add(agenRole);
-            }else{
-                roles.add(userRole);
-            }
-            user.setRoles(roles);
+            Role role = roleRepository.findByRoleName(RoleName.valueOf(register.getRoleName())).orElseThrow(() -> new IllegalArgumentException("Role not found"));
+
+            user.setRoles(Set.of(role));
             user.setCreditBalance(BigDecimal.valueOf(0));
             user.setCreatedAt(LocalDateTime.now());
             userRepository.save(user);
