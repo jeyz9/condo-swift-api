@@ -20,6 +20,7 @@ pipeline {
             }
             steps {
                 sh 'mvn clean verify'
+            }
         }
 
         stage('Build & Push Docker') {
