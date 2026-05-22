@@ -1,5 +1,6 @@
 package com.cs.jeyz9.condoswiftapi.dto;
 
+import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,19 +33,20 @@ public class RegisterDTO {
     @NotBlank(message = "จำเป็นต้องยืนยันรหัสผ่าน")
     private String ConfirmPassword;
     
-    @JsonProperty("is_agent")
-    private Boolean isAgent;
+//    @JsonProperty("is_agent")
+//    private Boolean isAgent;
+    private String roleName;
     
     @JsonProperty("is_agree")
     private Boolean isAgree;
 
-    public RegisterDTO(String name, String description, String phone, String email, String password, Boolean isAgent, Boolean isAgree){
+    public RegisterDTO(String name, String description, String phone, String email, String password, String roleName, Boolean isAgree){
         this.name = name;
         this.description = description;
         this.phone = phone;
         this.email = email;
         this.password = password;
-        this.isAgent = isAgent;
+        this.roleName = roleName;
         this.isAgree = isAgree;
     }
 }
