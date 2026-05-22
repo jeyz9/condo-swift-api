@@ -12,10 +12,10 @@ pipeline {
     }
 
     stages {
-        stage('Build + Test + Sonar') {
+        stage('Build + Test') {
             when {
                 expression { 
-                    return env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main' 
+                    return env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' 
                 }
             }
             steps {
@@ -26,7 +26,7 @@ pipeline {
         stage('Build & Push Docker') {
             when {
                 expression { 
-                    return env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main' 
+                    return env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' 
                 }
             }
             steps {
@@ -39,7 +39,7 @@ pipeline {
         stage('Stop Old Container') {
             when {
                 expression { 
-                    return env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main' 
+                    return env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' 
                 }
             }
             steps {
@@ -54,7 +54,7 @@ pipeline {
         stage('Deploy') {
             when {
                 expression { 
-                    return env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main' 
+                    return env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' 
                 }
             }
             steps {
