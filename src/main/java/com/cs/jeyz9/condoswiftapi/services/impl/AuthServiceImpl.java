@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -133,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
         }catch (WebException e){
             throw e;
         }catch (Exception e){
-            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดทางเซิร์ฟเวอร์");
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
         }
     }
     
