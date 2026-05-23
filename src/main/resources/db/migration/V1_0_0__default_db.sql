@@ -844,16 +844,6 @@ ALTER TABLE ONLY public.bookmarks_announce
 ALTER TABLE ONLY public.credit_transactions
     ADD CONSTRAINT credit_transactions_pkey PRIMARY KEY (id);
 
-
---
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.flyway_schema_history
-    ADD CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank);
-
-
---
 -- Name: map_point map_point_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1061,14 +1051,7 @@ ALTER TABLE ONLY public.villas
     ADD CONSTRAINT villas_pkey PRIMARY KEY (id);
 
 
---
--- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: public; Owner: -
---
 
-CREATE INDEX flyway_schema_history_s_idx ON public.flyway_schema_history USING btree (success);
-
-
---
 -- Name: notifications fk13vcnq3ukas06ho1yrbc5lrb5; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
