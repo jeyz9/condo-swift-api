@@ -3,8 +3,22 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+    show-sql: true
     
   datasource:
     url: jdbc:postgresql://localhost:5432/condo_swift_db
     username: postgres
     password: 257890
+    
+  flyway:
+    enabled: true
+    clean-disabled: false
+    
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        orm:
+          jdbc:
+            bind: TRACE
