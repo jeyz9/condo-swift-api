@@ -13,6 +13,8 @@ import com.cs.jeyz9.condoswiftapi.models.Role;
 import com.cs.jeyz9.condoswiftapi.models.RoleName;
 import com.cs.jeyz9.condoswiftapi.models.SaleType;
 import com.cs.jeyz9.condoswiftapi.models.Station;
+import com.cs.jeyz9.condoswiftapi.models.Terms;
+import com.cs.jeyz9.condoswiftapi.models.TermsType;
 import com.cs.jeyz9.condoswiftapi.models.Villa;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceStateApproveRepository;
 import com.cs.jeyz9.condoswiftapi.repository.AnnounceTypeRepository;
@@ -21,6 +23,7 @@ import com.cs.jeyz9.condoswiftapi.repository.ProvinceRepository;
 import com.cs.jeyz9.condoswiftapi.repository.RoleRepository;
 import com.cs.jeyz9.condoswiftapi.repository.SaleTypeRepository;
 import com.cs.jeyz9.condoswiftapi.repository.StationRepository;
+import com.cs.jeyz9.condoswiftapi.repository.TermsRepository;
 import com.cs.jeyz9.condoswiftapi.repository.VillaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -40,9 +43,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final StationRepository stationRepository;
     private final VillaRepository villaRepository;
     private final ProvinceRepository provinceRepository;
+    private final TermsRepository termsRepository;
 
     @Autowired
-    public DatabaseSeeder(RoleRepository roleRepository, AnnounceStateApproveRepository approveRepository, BadgeRepository badgeRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, StationRepository stationRepository, VillaRepository villaRepository, ProvinceRepository provinceRepository) {
+    public DatabaseSeeder(RoleRepository roleRepository, AnnounceStateApproveRepository approveRepository, BadgeRepository badgeRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, StationRepository stationRepository, VillaRepository villaRepository, ProvinceRepository provinceRepository, TermsRepository termsRepository) {
         this.roleRepository = roleRepository;
         this.approveRepository = approveRepository;
         this.badgeRepository = badgeRepository;
@@ -51,6 +55,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         this.stationRepository = stationRepository;
         this.villaRepository = villaRepository;
         this.provinceRepository = provinceRepository;
+        this.termsRepository = termsRepository;
     }
     
     @Override
@@ -59,6 +64,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             List<Role> roles = new ArrayList<>();
             roles.add(new Role(RoleName.ADMIN));
             roles.add(new Role(RoleName.MODERATOR));
+            roles.add(new Role(RoleName.OWNER));
             roles.add(new Role(RoleName.AGENT));
             roles.add(new Role(RoleName.USER));
             roleRepository.saveAll(roles);
@@ -241,6 +247,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             stations.add(new Station(null, "สถานีกรุงธนบุรี", 13.72106499, 100.5037059, StationTypeConstant.BTS));
 
             stationRepository.saveAll(stations);
+        }
+        
+        if(termsRepository.count() == 0L) {
+            List<Terms> terms = List.of(
+                    new Terms("1.0.0", "ข้อตกลงการสมัครสมาชิก: ผู้ใช้ต้องยอมรับข้อตกลงก่อนสมัครสมาชิก", TermsType.REGISTER_TERMS, true),
+                    new Terms("1.0.0", "ข้อตกลงการติดต่อนายหน้า: ผู้ใช้ต้องยอมรับก่อนดูเบอร์ติดต่อ", TermsType.AGENT_CONTACT_POLICY, true)
+            );
+            termsRepository.saveAll(terms);
         }
         
         if (villaRepository.count() == 0L){
