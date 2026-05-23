@@ -86,10 +86,20 @@ public class SecurityConfig {
                                         "/api/v1/stripe/webhook"
                                 ).permitAll()
                                 
-                                .requestMatchers(HttpMethod.GET, "/api/v1/announces/showAllAnnounceDraft", "/api/v1/announces/showAnnounceDetailsByAgent/").hasAuthority("ROLE_" + RoleName.AGENT)
-                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
-                                .requestMatchers(HttpMethod.PUT, "/api/v1/announces/editAnnounce/**").hasAuthority("ROLE_" + RoleName.AGENT)
-                                .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasAuthority("ROLE_" + RoleName.AGENT)
+                                .requestMatchers(HttpMethod.GET, "/api/v1/announces/showAllAnnounceDraft", "/api/v1/announces/showAnnounceDetailsByAgent/", "/api/v1/announceAgent/getMyManagedAnnounces").hasAnyAuthority("ROLE_" + RoleName.AGENT, "ROLE_" + RoleName.OWNER)
+                                .requestMatchers(HttpMethod.POST, "/api/v1/announces/**").hasAnyAuthority("ROLE_" + RoleName.AGENT, "ROLE_" + RoleName.OWNER)
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/announces/editAnnounce/**").hasAnyAuthority("ROLE_" + RoleName.AGENT, "ROLE_" + RoleName.OWNER)
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/announces/**").hasAnyAuthority("ROLE_" + RoleName.AGENT, "ROLE_" + RoleName.OWNER)
+
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/announceAgent/updateAnnounceByAgent/{announceId}").hasAuthority("ROLE_" + RoleName.AGENT)
+                                
+                                .requestMatchers(HttpMethod.GET, "/api/v1/announces/showAllAnnounceDraft", "/api/v1/announceAgent/getAgentsByAnnounce/{announceId}").hasAuthority("ROLE_" + RoleName.OWNER)
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/announceAgent/cancelManageRequest/{announceAgentId}").hasAuthority("ROLE_" + RoleName.OWNER)
+                                .requestMatchers(HttpMethod.PUT, 
+                                        "/api/v1/announceAgent/updateAgentPermission/{announceAgentId}", 
+                                        "/api/v1/announceAgent/approveAgent/{announceAgentId}",
+                                        "/api/v1/announceAgent/revokeAgent/{announceAgentId}"
+                                ).hasAuthority("ROLE_" + RoleName.OWNER)
                                 
                                 .requestMatchers(HttpMethod.GET, 
                                         "/api/v1/announces/showAllAnnounceApproveByAdmin", 
