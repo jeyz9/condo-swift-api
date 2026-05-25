@@ -33,13 +33,15 @@ public class AnnounceAgentService {
     private final UserRepository userRepository;
     private final AnnounceRepository announceRepository;
     private final AnnounceImageService announceImageService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public AnnounceAgentService(AnnounceAgentRepository announceAgentRepository, UserRepository userRepository, AnnounceRepository announceRepository, ProvinceRepository provinceRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceImageService announceImageService) {
+    public AnnounceAgentService(AnnounceAgentRepository announceAgentRepository, UserRepository userRepository, AnnounceRepository announceRepository, ProvinceRepository provinceRepository, AnnounceStateApproveRepository announceStateApproveRepository, AnnounceTypeRepository announceTypeRepository, SaleTypeRepository saleTypeRepository, AnnounceImageService announceImageService, NotificationService notificationService) {
         this.announceAgentRepository = announceAgentRepository;
         this.userRepository = userRepository;
         this.announceRepository = announceRepository;
         this.announceImageService = announceImageService;
+        this.notificationService = notificationService;
     }
     
     public String requestToManageAnnounce(String email, Long announceId) {
@@ -58,6 +60,7 @@ public class AnnounceAgentService {
                     .createdAt(LocalDateTime.now())
                     .build();
             announceAgentRepository.save(announceAgent);
+            notificationService.systemSendNotification(announce.getUser(), "คำขอเป็นตัวแทนประกาศของคุณ", "มีคำขอเป็นตัวแทนที่ประกาศ " + announce.getTitle() + " ของคุณ จากคุณ " + user.getName());
             return "Send request success.";
         }catch (WebException e){
             throw e;   
@@ -161,6 +164,7 @@ public class AnnounceAgentService {
             announceAgent.setPermission(request.getPermission());
             announceAgent.setStatus(RequestAnnounceStatus.APPROVED);
             announceAgentRepository.save(announceAgent);
+            notificationService.systemSendNotification(announceAgent.getAgent(), "คำขอเป็นตัวแทนได้รับการอนุมัติแล้ว", "คำขอเป็นตัวแทนของคุณได้รับการอนุมัติแล้วของประกาศ " + announceAgent.getAnnounce().getTitle());
             return "Approve agent success";
         }catch (WebException e) {
             throw e;
@@ -179,6 +183,7 @@ public class AnnounceAgentService {
             announceAgent.setApprovedBy(owner);
             announceAgent.setStatus(RequestAnnounceStatus.REVOKED);
             announceAgentRepository.save(announceAgent);
+            notificationService.systemSendNotification(announceAgent.getAgent(), "คำขอเป็นตัวแทนถูกปฏิเสธ", "คำขอเป็นตัวแทนของคุณถูกปฏิเสธของประกาศ " + announceAgent.getAnnounce().getTitle());
             return "Revoke agent success";
         }catch (WebException e) {
             throw e;

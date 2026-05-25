@@ -86,4 +86,7 @@ public class Announce {
     @ManyToOne
     @JoinColumn(name = "updated_by", referencedColumnName = "id")
     private User updatedBy;
+
+    @OneToMany(mappedBy = "announce")
+    private List<AnnounceAgent> announceAgents;
 }

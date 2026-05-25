@@ -295,14 +295,6 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setSaleType(saleType);
 
             Announce response = announceRepository.save(announce);
-
-            Badge badge = badgeRepository.findByBadgeNameIgnoreCase(BadgeConstant.NEW).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found."));
-            AnnounceBadge announceBadge = new AnnounceBadge();
-            announceBadge.setBadge(badge);
-            announceBadge.setAnnounce(response);
-            announceBadge.setExpiresAt(LocalDateTime.now().plusDays(7));
-            announceBadgeRepository.save(announceBadge);
-            
             announceImageService.saveImages(response.getId(), imageFile);
             
             return mapToAnnounceDTO(response);
@@ -637,7 +629,7 @@ public class AnnounceServiceImpl implements AnnounceService {
     public String approveAnnounce(Long announceId, String officialEmail) {
         try {
             Announce announce = announceRepository.findById(announceId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Announce not found."));
-            
+            Badge badge = badgeRepository.findByBadgeNameIgnoreCase(BadgeConstant.NEW).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Badge not found"));
             if(announce.getApprove().getStatusName().equals(ApproveStatus.APPROVED)){
                 throw new WebException(HttpStatus.BAD_REQUEST, "This announcement has been approved.");
             }
@@ -654,6 +646,13 @@ public class AnnounceServiceImpl implements AnnounceService {
             announce.setRemark("อนุมัติโดย " + role);
             announce.setApproveDate(LocalDateTime.now());
             announceRepository.save(announce);
+            
+            AnnounceBadge announceBadge = new AnnounceBadge();
+            announceBadge.setBadge(badge);
+            announceBadge.setAnnounce(announce);
+            announceBadge.setExpiresAt(LocalDateTime.now().plusDays(7));
+            announceBadgeRepository.save(announceBadge);
+            
             notificationService.systemSendNotification(announce.getUser(), "ประกาศของคุณได้รับการอนุมัติแล้ว", "เจ้าหน้าที่ได้ทำการตรวจสอบและอนุมัติประกาศ " + announce.getTitle() + " ของคุณเรียบร้อยแล้ว");
             
             return "Approve announce success.";
