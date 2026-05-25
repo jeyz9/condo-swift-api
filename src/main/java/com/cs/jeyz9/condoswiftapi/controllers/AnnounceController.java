@@ -70,7 +70,15 @@ public class AnnounceController {
     
     @GetMapping(value = "/showAnnounceDetails/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnnounceDetailsSelected> showAnnounceDetails(@PathVariable Long announceId, Principal principal) {
-        return new ResponseEntity<> (announceService.getAnnounceDetailsById(announceId, principal.getName()), HttpStatus.OK);
+        String email = null;
+
+        if (principal != null) {
+            email = principal.getName();
+        }
+
+        return ResponseEntity.ok(
+                announceService.getAnnounceDetailsById(announceId, email)
+        );
     }
 
     @GetMapping(value = "/showAnnouncePendingDetails/{announceId}", produces = MediaType.APPLICATION_JSON_VALUE)
