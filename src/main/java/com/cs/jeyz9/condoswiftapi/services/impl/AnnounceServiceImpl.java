@@ -858,9 +858,41 @@ public class AnnounceServiceImpl implements AnnounceService {
         
         return dto;
     }
-    
-    private AnnounceDetailsSelected mapToAnnounceDetailsSelected (Announce announce) {
-        return modelMapper.map(announce, AnnounceDetailsSelected.class);
+
+    private AnnounceDetailsSelected mapToAnnounceDetailsSelected(Announce announce) {
+
+        AnnounceDetailsSelected dto = new AnnounceDetailsSelected();
+
+        dto.setId(announce.getId());
+        dto.setTitle(announce.getTitle());
+        dto.setLocation(announce.getLocation());
+        dto.setPrice(announce.getPrice());
+
+        dto.setBathroomCount(announce.getBathroomCount());
+        dto.setBedroomCount(announce.getBedroomCount());
+        dto.setAreaSize(announce.getAreaSize());
+
+        dto.setHasPool(announce.getHasPool());
+        dto.setHasConvenienceStore(announce.getHasConvenienceStore());
+        dto.setHasFitness(announce.getHasFitness());
+        dto.setHasElevator(announce.getHasElevator());
+        dto.setHasParking(announce.getHasParking());
+        dto.setHasSecurity(announce.getHasSecurity());
+
+        dto.setAnnouncementDate(announce.getAnnouncementDate());
+
+        dto.setSaleType(announce.getSaleType());
+        dto.setAnnounceType(announce.getAnnounceType());
+        dto.setProvince(announce.getProvince());
+
+        dto.setBadges(
+                announce.getAnnounceBadges()
+                        .stream()
+                        .map(announceBadge -> announceBadge.getBadge().getBadgeName())
+                        .toList()
+        );
+
+        return dto;
     }
 
     private AnnouncePendingDetailsSelectedDTO mapToAnnouncePendingDetailsSelected (Announce announce) {
