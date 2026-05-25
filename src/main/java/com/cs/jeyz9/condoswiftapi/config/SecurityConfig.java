@@ -66,7 +66,7 @@ public class SecurityConfig {
                                         "/api/v1/selector/showAllStations",
                                         "/api/v1/selector/showAllAnnounceTypes",
                                         "/api/v1/announces/showAnnounceWithCategory",
-                                        "/api/v1/announces/showAnnounceDetails/**",
+                                        "/api/v1/announces/showAnnounceDetails/{announceId}",
                                         "/api/v1/announces/filterAnnounceWithAgent",
                                         "/api/v1/users/showUserProfileOverview/**",
                                         "/api/v1/users/showRecommendedAgents",
