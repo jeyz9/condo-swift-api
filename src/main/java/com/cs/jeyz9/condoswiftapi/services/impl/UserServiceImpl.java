@@ -286,7 +286,7 @@ public class UserServiceImpl implements UserService {
             List<Announce> announceList =
                     announceRepository.findAllByUserIdAndApproveStatusName(
                             userId,
-                            ApproveStatus.APPROVED.name()
+                            ApproveStatus.APPROVED
                     );
 
             int sellCount = 0;
@@ -375,7 +375,7 @@ public class UserServiceImpl implements UserService {
             List<Announce> announceList =
                     announceRepository.findAllByAgentIdAndApproveStatusName(
                             userId,
-                            ApproveStatus.APPROVED.name()
+                            ApproveStatus.APPROVED
                     );
 
             int sellCount = 0;
