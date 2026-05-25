@@ -137,9 +137,7 @@ public class AnnounceServiceImpl implements AnnounceService {
                         "Announce not found with id: " + announceId));
 
         User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new WebException(HttpStatus.NOT_FOUND, "User not found")
-                );
+                .orElse(null);
         
         AnnounceStateApprove status = announceStateApproveRepository.findByStatusName(ApproveStatus.APPROVED);
         if(!announce.getApprove().getId().equals(status.getId())) {
@@ -149,15 +147,25 @@ public class AnnounceServiceImpl implements AnnounceService {
         List<AnnounceImage> images = announceImageRepository.findByAnnounceId(announceId);
         List<AnnounceImageDTO> imageDTOS = images.stream().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).toList();
 
-        User user = userRepository.findById(announce.getUser().getId()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not fond by id" + announce.getUser().getId()));
-        AnnounceAgent announceAgent = announceAgentRepository.findByAnnounceIdAndAgentId(announce.getId(), currentUser.getId()).orElse(null);
+        User user = announce.getUser();
+        AnnounceAgent announceAgent = null;
+
+        if(currentUser != null) {
+            announceAgent = announceAgentRepository
+                    .findByAnnounceIdAndAgentId(
+                            announce.getId(),
+                            currentUser.getId()
+                    )
+                    .orElse(null);
+        }
         
-        AgentDTO agen = modelMapper.map(user, AgentDTO.class);
-        agen.setIsVerify(user.getEmailVerified().equals(true) && user.getPhoneVerified().equals(true));
+        AgentDTO owner = modelMapper.map(user, AgentDTO.class);
+        owner.setIsVerify(Boolean.TRUE.equals(user.getEmailVerified()) && Boolean.TRUE.equals(user.getPhoneVerified()));
+        List<AgentDTO> agents = announceAgentRepository.findAnnounceAgentByAnnounceId(announce.getId());
 
         AnnounceDetailsSelected announceDetailsSelected = mapToAnnounceDetailsSelected(announce);
         announceDetailsSelected.setImageList(imageDTOS);
-        announceDetailsSelected.setAgent(agen);
+        announceDetailsSelected.setOwner(owner);
         announceDetailsSelected.setMapPoint(
                 announce.getMapPointList()
                         .stream()
@@ -168,6 +176,7 @@ public class AnnounceServiceImpl implements AnnounceService {
         announceDetailsSelected.setAnnounceType(announce.getAnnounceType());
         announceDetailsSelected.setSaleType(announce.getSaleType());
         announceDetailsSelected.setProvince(announce.getProvince());
+        announceDetailsSelected.setAgents(agents);
         announceDetailsSelected.setAnnounceAgent(
                 announceAgent != null
                     ? AnnounceAgentDTO.builder()
@@ -720,9 +729,6 @@ public class AnnounceServiceImpl implements AnnounceService {
     public List<AnnounceDraftDTO> showAllMyAnnounce(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
         List<Announce> announces = announceRepository.findAllByUserId(user.getId());
-//        announces = announces.stream().filter(a -> 
-//            a.getApprove().getStatusName().equals(ApproveStatus.DRAFT) || a.getApprove().getStatusName().equals(ApproveStatus.REJECTED)
-//        ).toList();
         return mapToAnnounceDraft(announces);
     }
 
@@ -733,19 +739,36 @@ public class AnnounceServiceImpl implements AnnounceService {
                         "Announce not found with id: " + announceId));
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
-        if(!user.getId().equals(announce.getUser().getId())) {
-            throw new WebException(HttpStatus.FORBIDDEN, "You are not owner of this announce.");
+        boolean isAgent = announceAgentRepository
+                .existsAgentByAgentIdAndAnnounceId(
+                        user.getId(),
+                        announce.getId()
+                );
+
+        boolean isOwner = announce.getUser()
+                .getId()
+                .equals(user.getId());
+
+        if(!isAgent && !isOwner) {
+            throw new WebException(
+                    HttpStatus.FORBIDDEN,
+                    "You do not have permission to access this announcement."
+            );
         }
+        
+        List<AgentDTO> agents = announceAgentRepository.findAnnounceAgentByAnnounceId(announce.getId());
 
         List<AnnounceImage> images = announceImageRepository.findByAnnounceId(announceId);
         List<AnnounceImageDTO> imageDTOS = images.stream().map(img -> modelMapper.map(img, AnnounceImageDTO.class)).toList();
 
-        AgentDTO agen = modelMapper.map(user, AgentDTO.class);
-        agen.setIsVerify(user.getEmailVerified().equals(true) && user.getPhoneVerified().equals(true));
+        User ownerUser = announce.getUser();
+        AgentDTO owner = modelMapper.map(ownerUser, AgentDTO.class);
+        owner.setIsVerify(Boolean.TRUE.equals(ownerUser.getEmailVerified()) && Boolean.TRUE.equals(ownerUser.getPhoneVerified()));
 
         AnnounceDetailsSelected announceDetailsSelected = mapToAnnounceDetailsSelected(announce);
         announceDetailsSelected.setImageList(imageDTOS);
-        announceDetailsSelected.setAgent(agen);
+        announceDetailsSelected.setOwner(owner);
+        announceDetailsSelected.setAgents(agents);
         announceDetailsSelected.setMapPoint(
                 announce.getMapPointList()
                         .stream()

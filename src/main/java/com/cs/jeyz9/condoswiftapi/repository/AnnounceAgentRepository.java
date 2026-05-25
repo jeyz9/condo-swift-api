@@ -43,4 +43,9 @@ public interface AnnounceAgentRepository extends JpaRepository<AnnounceAgent, Lo
         SELECT * FROM announce_agents ag WHERE ag.announce_id = :announceId AND ag.agent_id = :agentId AND ag.status = 'APPROVED';
     """, nativeQuery = true)
     Optional<AnnounceAgent> findByAnnounceIdAndAgentId(@Param("announceId") Long announceId, @Param("agentId") Long agentId);
+    
+    @Query(value = """
+        SELECT 1 FROM announce_agents WHERE agent_id = :agentId AND announce_id = :announceId
+    """, nativeQuery = true)
+    boolean existsAgentByAgentIdAndAnnounceId(Long agentId, Long announceId);
 }

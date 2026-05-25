@@ -32,7 +32,8 @@ public class AnnounceDetailsSelected {
     private Boolean hasParking;
     private Boolean hasSecurity;
     private MapPointDTO mapPoint;
-    private AgentDTO agent;
+    private AgentDTO owner;
+    private List<AgentDTO> agents;
     private List<Badge> badges;
     private LocalDateTime announcementDate;
     
