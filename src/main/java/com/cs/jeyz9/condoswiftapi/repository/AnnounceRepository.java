@@ -206,4 +206,21 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
         ORDER BY a.approve_date DESC;
     """, nativeQuery = true)
     List<AnnounceApproveDTO> findAnnounceHistory();
+
+    List<Announce> findAllByUserIdAndApproveStatusName(
+            Long userId,
+            String statusName
+    );
+
+    @Query("""
+        SELECT a
+        FROM Announce a
+        JOIN a.announceAgents ag
+        WHERE ag.agent.id = :agentId
+        AND a.approve.statusName = :statusName
+    """)
+    List<Announce> findAllByAgentIdAndApproveStatusName(
+            @Param("agentId") Long agentId,
+            @Param("statusName") String statusName
+    );
 }

@@ -68,9 +68,11 @@ public class SecurityConfig {
                                         "/api/v1/announces/showAnnounceWithCategory",
                                         "/api/v1/announces/showAnnounceDetails/*",
                                         "/api/v1/announces/filterAnnounceWithAgent",
-                                        "/api/v1/users/showUserProfileOverview/**",
                                         "/api/v1/users/showRecommendedAgents",
-                                        "/api/v1/badges/showAllBadges"
+                                        "/api/v1/badges/showAllBadges",
+                                        "/api/v1/users/profile/**",
+                                        "/api/v1/users/agents/profile/**",
+                                        "/api/v1/users/owners/profile/**"
                                 ).permitAll()
                                 
                                 .requestMatchers(HttpMethod.GET,

@@ -4,25 +4,29 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 public class UserProfileOverviewDTO {
+
     private Long id;
     private String name;
     private String description;
     private String image;
     private String phone;
     private String lineId;
+
     private LocalDateTime joinAt;
-    private Integer announceSellCount;
-    private Integer announceRentCount;
-    private List<AnnounceByTypeDTO> announceList;
+
     private Boolean phoneVerified;
     private Boolean emailVerified;
+
+    private Set<String> roles;
 }

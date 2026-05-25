@@ -2,10 +2,12 @@ package com.cs.jeyz9.condoswiftapi.services.impl;
 
 import com.cs.jeyz9.condoswiftapi.constants.SaleTypeConstant;
 import com.cs.jeyz9.condoswiftapi.dto.AgentDTO;
+import com.cs.jeyz9.condoswiftapi.dto.AgentProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceByTypeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceImageDTO;
 import com.cs.jeyz9.condoswiftapi.dto.BadgeDTO;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
+import com.cs.jeyz9.condoswiftapi.dto.OwnerProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
@@ -193,59 +195,290 @@ public class UserServiceImpl implements UserService {
                     "Failed to delete image: " + user.getImage());
         }
     }
-    
+
+//    @Override
+//    public UserProfileOverviewDTO userProfileOverview(Long userId, String saleType) {
+//
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() ->
+//                        new WebException(
+//                                HttpStatus.NOT_FOUND,
+//                                "User not found by id: " + userId
+//                        )
+//                );
+//
+//        List<Announce> announceList =
+//                announceRepository.findAllByUserIdAndApproveStatusName(
+//                        userId,
+//                        ApproveStatus.APPROVED.name()
+//                );
+//
+//        int sellCount = 0;
+//        int rentCount = 0;
+//
+//        for (Announce announce : announceList) {
+//
+//            String type = announce.getSaleType().getType();
+//
+//            if (SaleTypeConstant.SALE.equals(type)) {
+//                sellCount++;
+//            } else if (SaleTypeConstant.RENT.equals(type)) {
+//                rentCount++;
+//            }
+//        }
+//
+//        String mappedSaleType = switch (
+//                saleType != null ? saleType : ""
+//                ) {
+//            case "ขาย" -> SaleTypeConstant.SALE;
+//            case "เช่า" -> SaleTypeConstant.RENT;
+//            default -> SaleTypeConstant.RENT;
+//        };
+//
+//        List<AnnounceByTypeDTO> announces = announceList.stream()
+//                .filter(announce ->
+//                        mappedSaleType.equalsIgnoreCase(
+//                                announce.getSaleType().getType()
+//                        )
+//                )
+//                .map(announce -> AnnounceByTypeDTO.builder()
+//                        .id(announce.getId())
+//                        .title(announce.getTitle())
+//                        .image(
+//                                Optional.ofNullable(announce.getImageList())
+//                                        .flatMap(list -> list.stream().findFirst())
+//                                        .map(AnnounceImage::getImageUrl)
+//                                        .orElse(null)
+//                        )
+//                        .location(announce.getLocation())
+//                        .build()
+//                )
+//                .toList();
+//
+//        return UserProfileOverviewDTO.builder()
+//                .id(user.getId())
+//                .name(user.getName())
+//                .description(user.getDescription())
+//                .image(user.getImage())
+//                .phone(user.getPhone())
+//                .lineId(user.getLineId())
+//                .joinAt(user.getCreatedAt())
+//                .phoneVerified(user.getPhoneVerified())
+//                .emailVerified(user.getEmailVerified())
+//                .announceSellCount(sellCount)
+//                .announceRentCount(rentCount)
+//                .announceList(announces)
+//                .build();
+//    }
+
     @Override
-    public UserProfileOverviewDTO userProfileOverview(Long userId, String saleType){
-        User user = userRepository.findById(userId).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found by id: " + userId));
-        UserProfileOverviewDTO userOverview = new UserProfileOverviewDTO();
-        userOverview.setId(userId);
-        userOverview.setName(user.getName());
-        userOverview.setDescription(user.getDescription());
-        userOverview.setImage(user.getImage());
-        userOverview.setPhone(user.getPhone());
-        userOverview.setLineId(user.getLineId());
-        userOverview.setJoinAt(user.getCreatedAt());
-        userOverview.setPhoneVerified(user.getPhoneVerified());
-        userOverview.setEmailVerified(user.getEmailVerified());
-
-        List<Announce> announceList = announceRepository.findAllByUserId(userId).stream().filter(a -> a.getApprove().getStatusName().equals(ApproveStatus.APPROVED)).toList();
+    public OwnerProfileDTO getOwnerProfile(Long userId, String saleType) {
         
-        userOverview.setAnnounceSellCount(announceList.stream()
-                .filter(announce -> announce.getSaleType().getType().equalsIgnoreCase(SaleTypeConstant.SALE)).toList().size()
-        );
-        
-        userOverview.setAnnounceRentCount(announceList.stream()
-                .filter(announce -> announce.getSaleType().getType().equals(SaleTypeConstant.RENT)).toList().size()
-        );
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() ->
+                            new WebException(
+                                    HttpStatus.NOT_FOUND,
+                                    "User not found by id: " + userId
+                            )
+                    );
 
-        String mappedSaleType;
-        if(saleType.equals("เช่า")) {
-            mappedSaleType = SaleTypeConstant.RENT;
-        } else if(saleType.equals("ขาย")) {
-            mappedSaleType = SaleTypeConstant.SALE;
-        } else {
-            mappedSaleType = SaleTypeConstant.RENT;
-        }
+            List<Announce> announceList =
+                    announceRepository.findAllByUserIdAndApproveStatusName(
+                            userId,
+                            ApproveStatus.APPROVED.name()
+                    );
 
-        List<AnnounceByTypeDTO> announces = announceList.stream().filter(announce -> announce.getSaleType().getType().equalsIgnoreCase(mappedSaleType) && announce.getUser().getId().equals(userId))
-                .map(
-                        announce -> {
-                            AnnounceByTypeDTO announceByType = new AnnounceByTypeDTO();
-                            announceByType.setId(announce.getId());
-                            announceByType.setTitle(announce.getTitle());
-                            announceByType.setImage(
+            int sellCount = 0;
+            int rentCount = 0;
+
+            for (Announce announce : announceList) {
+
+                String type = announce.getSaleType().getType();
+
+                if (SaleTypeConstant.SALE.equalsIgnoreCase(type)) {
+                    sellCount++;
+                } else if (SaleTypeConstant.RENT.equalsIgnoreCase(type)) {
+                    rentCount++;
+                }
+            }
+
+            String mappedSaleType = switch (
+                    saleType != null ? saleType : ""
+                    ) {
+                case "ขาย" -> SaleTypeConstant.SALE;
+                case "เช่า" -> SaleTypeConstant.RENT;
+                default -> SaleTypeConstant.RENT;
+            };
+
+            List<AnnounceByTypeDTO> announces = announceList.stream()
+                    .filter(announce ->
+                            mappedSaleType.equalsIgnoreCase(
+                                    announce.getSaleType().getType()
+                            )
+                    )
+                    .map(announce -> AnnounceByTypeDTO.builder()
+                            .id(announce.getId())
+                            .title(announce.getTitle())
+                            .image(
                                     Optional.ofNullable(announce.getImageList())
                                             .flatMap(list -> list.stream().findFirst())
                                             .map(AnnounceImage::getImageUrl)
                                             .orElse(null)
-                            );
-                            announceByType.setLocation(announce.getLocation());
-                            return announceByType;
-                        }
-                ).toList();
-        
-        userOverview.setAnnounceList(announces);
-        return userOverview;
+                            )
+                            .location(announce.getLocation())
+                            .build()
+                    )
+                    .toList();
+
+            return OwnerProfileDTO.builder()
+                    .id(user.getId())
+                    .name(user.getName())
+                    .description(user.getDescription())
+                    .image(user.getImage())
+                    .phone(user.getPhone())
+                    .lineId(user.getLineId())
+                    .joinAt(user.getCreatedAt())
+                    .phoneVerified(user.getPhoneVerified())
+                    .emailVerified(user.getEmailVerified())
+
+                    .announceSellCount(sellCount)
+                    .announceRentCount(rentCount)
+
+                    .activeAnnounceCount(announceList.size())
+                    .closedAnnounceCount(0)
+
+                    .announces(announces)
+                    .roles(
+                            user.getRoles()
+                                    .stream()
+                                    .map(role -> role.getRoleName().name())
+                                    .collect(Collectors.toSet())
+                    )
+                    .build();
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public AgentProfileDTO getAgentProfile(Long userId, String saleType) {
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() ->
+                            new WebException(
+                                    HttpStatus.NOT_FOUND,
+                                    "User not found by id: " + userId
+                            )
+                    );
+
+            List<Announce> announceList =
+                    announceRepository.findAllByAgentIdAndApproveStatusName(
+                            userId,
+                            ApproveStatus.APPROVED.name()
+                    );
+
+            int sellCount = 0;
+            int rentCount = 0;
+
+            for (Announce announce : announceList) {
+
+                String type = announce.getSaleType().getType();
+
+                if (SaleTypeConstant.SALE.equalsIgnoreCase(type)) {
+                    sellCount++;
+                } else if (SaleTypeConstant.RENT.equalsIgnoreCase(type)) {
+                    rentCount++;
+                }
+            }
+
+            String mappedSaleType = switch (
+                    saleType != null ? saleType : ""
+                    ) {
+                case "ขาย" -> SaleTypeConstant.SALE;
+                case "เช่า" -> SaleTypeConstant.RENT;
+                default -> SaleTypeConstant.RENT;
+            };
+
+            List<AnnounceByTypeDTO> announces = announceList.stream()
+                    .filter(announce ->
+                            mappedSaleType.equalsIgnoreCase(
+                                    announce.getSaleType().getType()
+                            )
+                    )
+                    .map(announce -> AnnounceByTypeDTO.builder()
+                            .id(announce.getId())
+                            .title(announce.getTitle())
+                            .image(
+                                    Optional.ofNullable(announce.getImageList())
+                                            .flatMap(list -> list.stream().findFirst())
+                                            .map(AnnounceImage::getImageUrl)
+                                            .orElse(null)
+                            )
+                            .location(announce.getLocation())
+                            .build()
+                    )
+                    .toList();
+
+            return AgentProfileDTO.builder()
+                    .id(user.getId())
+                    .name(user.getName())
+                    .description(user.getDescription())
+                    .image(user.getImage())
+                    .phone(user.getPhone())
+                    .lineId(user.getLineId())
+                    .joinAt(user.getCreatedAt())
+                    .phoneVerified(user.getPhoneVerified())
+                    .emailVerified(user.getEmailVerified())
+
+                    .announceSellCount(sellCount)
+                    .announceRentCount(rentCount)
+
+                    .announceList(announces)
+                    .roles(
+                            user.getRoles()
+                                    .stream()
+                                    .map(role -> role.getRoleName().name())
+                                    .collect(Collectors.toSet())
+                    )
+                    .build();
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public UserProfileOverviewDTO getUserProfile(Long userId) {
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() ->
+                            new WebException(
+                                    HttpStatus.NOT_FOUND,
+                                    "User not found by id: " + userId
+                            )
+                    );
+
+            return UserProfileOverviewDTO.builder()
+                    .id(user.getId())
+                    .name(user.getName())
+                    .description(user.getDescription())
+                    .image(user.getImage())
+                    .phone(user.getPhone())
+                    .lineId(user.getLineId())
+                    .joinAt(user.getCreatedAt())
+                    .phoneVerified(user.getPhoneVerified())
+                    .emailVerified(user.getEmailVerified())
+                    .roles(
+                            user.getRoles()
+                                    .stream()
+                                    .map(role -> role.getRoleName().name())
+                                    .collect(Collectors.toSet())
+                    )
+                    .build();
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
+        }
     }
     
     @Override
