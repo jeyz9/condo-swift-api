@@ -3,6 +3,7 @@ package com.cs.jeyz9.condoswiftapi.repository;
 import com.cs.jeyz9.condoswiftapi.dto.AnnounceApproveDTO;
 import com.cs.jeyz9.condoswiftapi.dto.AnnouncePendingDTO;
 import com.cs.jeyz9.condoswiftapi.models.Announce;
+import com.cs.jeyz9.condoswiftapi.models.ApproveStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -209,7 +210,7 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
 
     List<Announce> findAllByUserIdAndApproveStatusName(
             Long userId,
-            String statusName
+            ApproveStatus statusName
     );
 
     @Query("""
@@ -221,6 +222,6 @@ public interface AnnounceRepository extends JpaRepository<Announce, Long> {
     """)
     List<Announce> findAllByAgentIdAndApproveStatusName(
             @Param("agentId") Long agentId,
-            @Param("statusName") String statusName
+            @Param("statusName") ApproveStatus statusName
     );
 }
