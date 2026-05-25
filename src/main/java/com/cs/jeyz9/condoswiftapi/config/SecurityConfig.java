@@ -70,7 +70,7 @@ public class SecurityConfig {
                                         "/api/v1/announces/filterAnnounceWithAgent",
                                         "/api/v1/users/showRecommendedAgents",
                                         "/api/v1/badges/showAllBadges",
-                                        "/api/v1/profile/**",
+                                        "/api/v1/users/profile/**",
                                         "/api/v1/agents/profile/**",
                                         "/api/v1/owners/profile/**"
                                 ).permitAll()
