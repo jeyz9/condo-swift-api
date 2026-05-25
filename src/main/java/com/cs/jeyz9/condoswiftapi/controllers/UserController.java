@@ -1,6 +1,8 @@
 package com.cs.jeyz9.condoswiftapi.controllers;
 
+import com.cs.jeyz9.condoswiftapi.dto.AgentProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
+import com.cs.jeyz9.condoswiftapi.dto.OwnerProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
@@ -52,9 +54,41 @@ public class UserController {
         return new ResponseEntity<>(userService.showRecommendedAgents(), HttpStatus.OK);
     }
     
-    @GetMapping(value = "/showUserProfileOverview/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserProfileOverviewDTO> showUserProfileOverview(@PathVariable Long userId, @RequestParam(defaultValue = "ขาย") String type){
-        return new ResponseEntity<>(userService.userProfileOverview(userId, type), HttpStatus.OK);
+//    @GetMapping(value = "/showUserProfileOverview/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<UserProfileOverviewDTO> showUserProfileOverview(@PathVariable Long userId, @RequestParam(defaultValue = "ขาย") String type){
+//        return new ResponseEntity<>(userService.userProfileOverview(userId, type), HttpStatus.OK);
+//    }
+
+    @GetMapping("/users/profile/{userId}")
+    public ResponseEntity<UserProfileOverviewDTO> getUserProfile(
+            @PathVariable Long userId
+    ) {
+
+        return ResponseEntity.ok(
+                userService.getUserProfile(userId)
+        );
+    }
+
+    @GetMapping("/owners/profile/{userId}")
+    public ResponseEntity<OwnerProfileDTO> getOwnerProfile(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "เช่า") String saleType
+    ) {
+
+        return ResponseEntity.ok(
+                userService.getOwnerProfile(userId, saleType)
+        );
+    }
+
+    @GetMapping("/agents/profile/{userId}")
+    public ResponseEntity<AgentProfileDTO> getAgentProfile(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "เช่า") String saleType
+    ) {
+
+        return ResponseEntity.ok(
+                userService.getAgentProfile(userId, saleType)
+        );
     }
     
     

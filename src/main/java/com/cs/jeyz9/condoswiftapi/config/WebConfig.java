@@ -28,7 +28,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://localhost:5173",
-                        "https://condo-swift.onrender.com",
+                        "https://api.condoswift.software",
+                        "http://localhost:8080",
                         "https://sundayyogurt.github.io",
                         "https://condo-swift.vercel.app",
                         "https://condo-swift-app.vercel.app",

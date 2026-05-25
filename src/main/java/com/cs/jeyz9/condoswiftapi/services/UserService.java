@@ -1,6 +1,8 @@
 package com.cs.jeyz9.condoswiftapi.services;
 
+import com.cs.jeyz9.condoswiftapi.dto.AgentProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.EditProfileDTO;
+import com.cs.jeyz9.condoswiftapi.dto.OwnerProfileDTO;
 import com.cs.jeyz9.condoswiftapi.dto.RecommendedAgenDTO;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllAnnounceDetailsWithAgent;
 import com.cs.jeyz9.condoswiftapi.dto.ShowAllUserDTO;
@@ -19,7 +21,7 @@ public interface UserService {
     List<RecommendedAgenDTO> showRecommendedAgents();
     void deleteImage(String email);
     void saveImages(String email, MultipartFile imageFiles);
-    UserProfileOverviewDTO userProfileOverview(Long userId, String saleType);
+//    UserProfileOverviewDTO userProfileOverview(Long userId, String saleType);
     String bookmarkAnnounce(String email, Long announceId);
     String removeFromBookmark(String email, Long announceId);
     List<ShowAllAnnounceDetailsWithAgent> showAllAnnounceBookmark(String email);
@@ -28,4 +30,8 @@ public interface UserService {
     TableResponse<ShowAllUserDTO> showAllUser(String keyword, Integer page, Integer size) throws IOException;
     String addUserRole(Long userId, Long roleId);
     String deleteUserRole(Long userId, Long roleId);
+
+    OwnerProfileDTO getOwnerProfile(Long userId, String saleType);
+    AgentProfileDTO getAgentProfile(Long userId, String saleType);
+    UserProfileOverviewDTO getUserProfile(Long userId);
 }
