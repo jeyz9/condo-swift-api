@@ -35,7 +35,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/users")
+@RequestMapping(value = "/api/v1")
 public class UserController {
     private final UserService userService;
 
@@ -44,12 +44,12 @@ public class UserController {
         this.userService = userService;
     }
     
-    @PostMapping("/acceptTerms")
+    @PostMapping("/users/acceptTerms")
     public ResponseEntity<String> acceptTerms(Principal principal, HttpServletRequest request) throws WebException {
         return new ResponseEntity<>(userService.userTermsAcceptLog(principal.getName(), request), HttpStatus.CREATED);
     }
     
-    @GetMapping("/showRecommendedAgents")
+    @GetMapping("/users/showRecommendedAgents")
     public ResponseEntity<List<RecommendedAgenDTO>> showRecommendedAgents() {
         return new ResponseEntity<>(userService.showRecommendedAgents(), HttpStatus.OK);
     }
@@ -92,54 +92,54 @@ public class UserController {
     }
     
     
-    @PostMapping(value = "/uploadProfilePicture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/users/uploadProfilePicture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadProfile(@RequestPart MultipartFile imageFile, Principal principal){
         userService.saveImages(principal.getName(), imageFile);
         return new ResponseEntity<>("Upload profile picture success.", HttpStatus.CREATED);
     };
     
-    @DeleteMapping("/deleteProfilePicture")
+    @DeleteMapping("/users/deleteProfilePicture")
     public ResponseEntity<String> deletedProfilePicture(Principal principal) {
         userService.deleteImage(principal.getName());
         return new ResponseEntity<>("Deleted profile picture success", HttpStatus.OK);
     }
     
-    @PutMapping(value = "/bookmarkAnnounce/{announceId}")
+    @PutMapping(value = "/users/bookmarkAnnounce/{announceId}")
     public ResponseEntity<String> bookmarks(@PathVariable Long announceId, Principal principal) {
         return new ResponseEntity<>(userService.bookmarkAnnounce(principal.getName(), announceId), HttpStatus.OK);
     }
 
-    @PutMapping(value = "/removeFromBookmark/{announceId}")
+    @PutMapping(value = "/users/removeFromBookmark/{announceId}")
     public ResponseEntity<String> removeFromBookmark(@PathVariable Long announceId, Principal principal) {
         return new ResponseEntity<>(userService.removeFromBookmark(principal.getName(), announceId), HttpStatus.OK);
     }
     
-    @GetMapping(value = "/showAllAnnounceBookmark")
+    @GetMapping(value = "/users/showAllAnnounceBookmark")
     public ResponseEntity<List<ShowAllAnnounceDetailsWithAgent>> showAllAnnounceBookmark(Principal principal) {
         return new ResponseEntity<>(userService.showAllAnnounceBookmark(principal.getName()), HttpStatus.OK);
     }
     
-    @PutMapping(value = "/editProfile", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/users/editProfile", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> editProfile(@Valid @RequestBody EditProfileDTO profile, Principal principal) {
         return new ResponseEntity<>(userService.updateUserProfile(principal.getName(), profile), HttpStatus.OK);
     }
     
-    @GetMapping(value = "/showUserDetails")
+    @GetMapping(value = "/users/showUserDetails")
     public ResponseEntity<ShowUserDetailsDTO> showUserDetails(Principal principal) {
         return new ResponseEntity<>(userService.showUserDetails(principal.getName()), HttpStatus.OK);
     }
     
-    @GetMapping(value = "/showAllUser")
+    @GetMapping(value = "/users/showAllUser")
     public ResponseEntity<TableResponse<ShowAllUserDTO>> showAllUserSelector(@RequestParam(defaultValue = "", required = false) String keyword, @RequestParam(defaultValue = "0", required = false) Integer page, @RequestParam(defaultValue = "10", required = false) Integer size) throws IOException {
         return new ResponseEntity<>(userService.showAllUser(keyword, page, size), HttpStatus.OK);
     }
     
-    @PostMapping(value = "/addUserRole")
+    @PostMapping(value = "/users/addUserRole")
     public ResponseEntity<String> addUserRole(@RequestBody UserRoleRequestDTO request) {
         return new ResponseEntity<>(userService.addUserRole(request.getUserId(), request.getRoleId()), HttpStatus.CREATED);
     }
     
-    @DeleteMapping(value = "/deleteUserRole")
+    @DeleteMapping(value = "/users/deleteUserRole")
     public ResponseEntity<String> deleteUserRole(@RequestBody UserRoleRequestDTO request) {
         return new ResponseEntity<>(userService.deleteUserRole(request.getUserId(), request.getRoleId()), HttpStatus.OK);
     }
