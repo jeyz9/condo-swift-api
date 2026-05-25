@@ -18,7 +18,7 @@ public class AnnounceRequestDTO {
     private Double price;
     private Integer bathroomCount;
     private Integer bedroomCount;
-    private Integer areaSize;
+    private Double areaSize;
     private Boolean hasPool;
     private Boolean hasConvenienceStore;
     private Boolean hasFitness;
