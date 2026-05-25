@@ -45,7 +45,12 @@ public interface AnnounceAgentRepository extends JpaRepository<AnnounceAgent, Lo
     Optional<AnnounceAgent> findByAnnounceIdAndAgentId(@Param("announceId") Long announceId, @Param("agentId") Long agentId);
     
     @Query(value = """
-        SELECT 1 FROM announce_agents WHERE agent_id = :agentId AND announce_id = :announceId
+        SELECT EXISTS(
+            SELECT 1
+            FROM announce_agents
+            WHERE agent_id = :agentId
+            AND announce_id = :announceId
+        )
     """, nativeQuery = true)
     boolean existsAgentByAgentIdAndAnnounceId(Long agentId, Long announceId);
 }
