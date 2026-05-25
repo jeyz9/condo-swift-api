@@ -34,7 +34,7 @@ public class AnnounceDetailsSelected {
     private MapPointDTO mapPoint;
     private AgentDTO owner;
     private List<AgentDTO> agents;
-    private List<Badge> badges;
+    private List<String> badges;
     private LocalDateTime announcementDate;
     
     private SaleType saleType;
