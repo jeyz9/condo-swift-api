@@ -13,7 +13,7 @@ public class AnnounceByAgentRequestDTO {
     private String title;
     private Integer bathroomCount;
     private Integer bedroomCount;
-    private Integer areaSize;
+    private Double areaSize;
     private Boolean hasPool;
     private Boolean hasConvenienceStore;
     private Boolean hasFitness;

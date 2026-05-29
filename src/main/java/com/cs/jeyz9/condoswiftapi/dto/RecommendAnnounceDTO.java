@@ -18,7 +18,7 @@ public class RecommendAnnounceDTO {
     private Double price;
     private Integer bathroomCount;
     private Integer bedroomCount;
-    private Integer areaSize;
+    private Double areaSize;
     private String image;
     private List<Badge> badges;
 }

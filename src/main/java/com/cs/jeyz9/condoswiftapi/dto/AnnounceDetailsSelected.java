@@ -24,7 +24,7 @@ public class AnnounceDetailsSelected {
     private List<AnnounceImageDTO> imageList;
     private Integer bathroomCount;
     private Integer bedroomCount;
-    private Integer areaSize;
+    private Double areaSize;
     private Boolean hasPool;
     private Boolean hasConvenienceStore;
     private Boolean hasFitness;
