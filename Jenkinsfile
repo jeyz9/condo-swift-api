@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        REGISTRY_USER = "jeyzdev"
+        REGISTRY_USER = "YOUR_REGISTRY_USER"
         IMAGE_NAME = "condo-swift-api"
         DOCKER_HUB    = credentials('docker-hub-creds')
     }
